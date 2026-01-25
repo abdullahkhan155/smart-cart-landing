@@ -19,6 +19,18 @@ export function usePrefersReducedMotion() {
   return reduced
 }
 
+export function useBreakpoint(maxWidth: number) {
+  const [matches, setMatches] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${maxWidth}px)`)
+    const update = () => setMatches(mq.matches)
+    update()
+    mq.addEventListener?.("change", update)
+    return () => mq.removeEventListener?.("change", update)
+  }, [maxWidth])
+  return matches
+}
+
 export function Button({
   children,
   onClick,
@@ -164,8 +176,13 @@ export function SectionTitle({
   title: string
   subtitle: string
 }) {
+  const isTablet = useBreakpoint(1024)
+  const isMobile = useBreakpoint(640)
+  const titleSize = isMobile ? "clamp(28px, 7vw, 36px)" : isTablet ? "clamp(34px, 4vw, 44px)" : "clamp(38px, 3.6vw, 46px)"
+  const subtitleSize = isMobile ? 14 : 16
+
   return (
-    <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
+    <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center", padding: isMobile ? "0 4px" : 0 }}>
       <div
         style={{
           display: "inline-flex",
@@ -189,8 +206,8 @@ export function SectionTitle({
       <h2
         style={{
           marginTop: 18,
-          fontSize: 46,
-          lineHeight: 1.04,
+          fontSize: titleSize,
+          lineHeight: 1.08,
           letterSpacing: -0.7,
           color: "rgba(255,255,255,0.95)",
           fontWeight: 980,
@@ -202,7 +219,7 @@ export function SectionTitle({
       <p
         style={{
           marginTop: 12,
-          fontSize: 16,
+          fontSize: subtitleSize,
           lineHeight: 1.7,
           color: "rgba(255,255,255,0.74)",
         }}

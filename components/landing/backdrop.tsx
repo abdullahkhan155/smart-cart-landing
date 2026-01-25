@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react"
 import { motion } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
 
 export function AnimatedBackdrop({
   mx,
@@ -102,19 +103,32 @@ export function AnimatedBackdrop({
 }
 
 function Particles() {
-  const dots = useMemo(() => {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const dotsRef = useRef<Array<{ x: number; y: number; s: number; o: number; d: number }> | null>(null)
+  if (!dotsRef.current) {
     const items: Array<{ x: number; y: number; s: number; o: number; d: number }> = []
+    let seed = 42
+    const rand = () => {
+      seed = (seed * 9301 + 49297) % 233280
+      return seed / 233280
+    }
     for (let i = 0; i < 34; i += 1) {
+      const r = rand()
       items.push({
-        x: Math.random(),
-        y: Math.random(),
-        s: 2 + Math.random() * 3,
-        o: 0.05 + Math.random() * 0.12,
-        d: Math.random() * 2,
+        x: rand(),
+        y: rand(),
+        s: 2 + rand() * 3,
+        o: 0.05 + rand() * 0.12,
+        d: r * 2,
       })
     }
-    return items
-  }, [])
+    dotsRef.current = items
+  }
+
+  const dots = dotsRef.current
+  if (!mounted) return null
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>

@@ -10,14 +10,14 @@ export function CtaSection({ reduced }: { reduced: boolean }) {
     <section id="cta" style={{ paddingTop: 90, paddingBottom: 110 }}>
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <Card style={{ padding: 22 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 18, alignItems: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18, alignItems: "center" }}>
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 12px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.82)", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.35 }}>
                 <Sparkles size={14} style={{ opacity: 0.9 }} />
                 <span>Ready to see it in motion</span>
               </div>
 
-              <div style={{ marginTop: 14, fontSize: 36, fontWeight: 980, letterSpacing: -0.6, color: "rgba(255,255,255,0.95)" }}>
+              <div style={{ marginTop: 14, fontSize: "clamp(26px, 4vw, 36px)", fontWeight: 980, letterSpacing: -0.6, color: "rgba(255,255,255,0.95)" }}>
                 Bring an AI assistant to every cart
               </div>
 

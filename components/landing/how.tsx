@@ -42,7 +42,7 @@ export function HowItWorksSection() {
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="How it works"
-          title="Assistant first, checkout last"
+          title="Get Assistance. Find Deals. Checkout Faster."
           subtitle="Everything starts with help in aisle. Checkout becomes the finish."
         />
 

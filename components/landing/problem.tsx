@@ -105,7 +105,7 @@ export function ProblemStorySection() {
   }, [reduced, isPaused, solutionShowcase.length])
 
   return (
-    <section style={{ paddingTop: 90, paddingBottom: 90 }}>
+    <section style={{ paddingTop: 80, paddingBottom: 60 }}>
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="The problem"
@@ -198,7 +198,7 @@ export function ProblemStorySection() {
                 onBlurCapture={() => setIsPaused(false)}
                 animate={reduced ? { opacity: 1 } : { y: [0, -6, 0] }}
                 transition={reduced ? { duration: 0.01 } : { duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
-                style={{ width: "min(980px, 100%)", marginTop: 6 }}
+                style={{ width: "min(920px, 100%)", marginTop: 6 }}
               >
                 <div
                   style={{
@@ -216,21 +216,9 @@ export function ProblemStorySection() {
                       overflow: "hidden",
                       background: "rgba(0,0,0,0.35)",
                       aspectRatio: "16 / 9",
-                      minHeight: 380,
+                      minHeight: 340,
                     }}
                   >
-                    <motion.div
-                      aria-hidden
-                      animate={reduced ? { opacity: 0.5 } : { opacity: [0.35, 0.75, 0.35] }}
-                      transition={reduced ? { duration: 0.01 } : { duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-                      style={{
-                        position: "absolute",
-                        inset: -60,
-                        background: `radial-gradient(560px 320px at 20% 8%, ${activeView.accent}, rgba(0,0,0,0))`,
-                        zIndex: 0,
-                      }}
-                    />
-
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={activeView.id}
@@ -251,20 +239,6 @@ export function ProblemStorySection() {
                         loading="lazy"
                       />
                     </AnimatePresence>
-
-                    <motion.div
-                      aria-hidden
-                      animate={reduced ? { opacity: 0.2 } : { y: ["-12%", "112%"], opacity: [0, 0.25, 0] }}
-                      transition={reduced ? { duration: 0.01 } : { duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        height: 3,
-                        background: "linear-gradient(90deg, rgba(0,255,208,0), rgba(255,255,255,0.35), rgba(0,255,208,0))",
-                        zIndex: 2,
-                      }}
-                    />
 
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.70))", zIndex: 2 }} />
 
@@ -410,7 +384,7 @@ function ProblemVisual({ kind, icon }: { kind: ProblemKind; icon: React.ReactNod
         </div>
       ) : kind === "find" ? (
         <div style={{ position: "absolute", left: 14, right: 14, top: 48, display: "grid", gap: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(30px, 1fr))", gap: 6 }}>
             {Array.from({ length: 15 }).map((_, i) => (
               <span
                 key={i}

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { CreditCard, MapPin, Mic, Sparkles } from "lucide-react"
-import { Card, usePrefersReducedMotion } from "./ui"
+import { Card, useBreakpoint, usePrefersReducedMotion } from "./ui"
 
 type HeroStage = "assist" | "promo" | "checkout"
 
@@ -12,6 +12,7 @@ const IMG_AISLE =
 
 export function HeroShowcase() {
   const reduced = usePrefersReducedMotion()
+  const isNarrow = useBreakpoint(720)
   const [stage, setStage] = useState<HeroStage>("assist")
 
   useEffect(() => {
@@ -114,11 +115,11 @@ export function HeroShowcase() {
     )
 
   return (
-    <Card style={{ padding: 16 }}>
+    <Card style={{ padding: isNarrow ? 14 : 16 }}>
       <div
         style={{
           position: "relative",
-          minHeight: 520,
+          minHeight: isNarrow ? 440 : 520,
           borderRadius: 22,
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.12)",
@@ -150,7 +151,7 @@ export function HeroShowcase() {
           }}
         />
 
-        <div style={{ position: "relative", height: "100%", display: "grid", gridTemplateRows: "auto 1fr", gap: 16, padding: 18 }}>
+        <div style={{ position: "relative", height: "100%", display: "grid", gridTemplateRows: "auto 1fr", gap: 16, padding: isNarrow ? 14 : 18 }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
             <StageTab label="Assistant" icon={<Mic size={14} />} active={stage === "assist"} tone={stageTone} onClick={() => setStage("assist")} />
             <StageTab label="Promos" icon={<Sparkles size={14} />} active={stage === "promo"} tone={stageTone} onClick={() => setStage("promo")} />
