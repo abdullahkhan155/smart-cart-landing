@@ -114,6 +114,8 @@ export default function Page() {
     color: "transparent",
   }
 
+  const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1]
+
   const introContainer = {
     hidden: {},
     show: {
@@ -129,7 +131,7 @@ export default function Page() {
     show: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 0.7, ease: easeOut },
     },
   }
 
@@ -268,7 +270,7 @@ export default function Page() {
                 <motion.div
                   initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
                   animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-                  transition={shouldAnimate ? { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 } : undefined}
+                  transition={shouldAnimate ? { duration: 0.8, ease: easeOut, delay: 0.2 } : undefined}
                   style={{ position: "relative" }}
                 >
                   <div style={{ position: "absolute", inset: 12, background: "radial-gradient(420px 240px at 60% 40%, rgba(0,255,208,0.18), rgba(0,0,0,0))", filter: "blur(26px)" }} />
@@ -309,8 +311,9 @@ function HeroMetric({ label, value, icon, tone }: { label: string; value: string
 }
 
 function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProperties }) {
+  const easeInOut: [number, number, number, number] = [0.42, 0, 0.58, 1]
   const floatAnimation = reduced ? {} : { y: [0, -10, 0] }
-  const floatTransition = reduced ? { duration: 0.01 } : { duration: 7, repeat: Infinity, ease: "easeInOut" }
+  const floatTransition = reduced ? { duration: 0.01 } : { duration: 7, repeat: Infinity, ease: easeInOut }
 
   return (
     <section style={{ paddingTop: 12, paddingBottom: 58 }}>
@@ -408,8 +411,9 @@ function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProp
 }
 
 function HeroImageFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProperties }) {
+  const easeInOut: [number, number, number, number] = [0.42, 0, 0.58, 1]
   const floatAnimation = reduced ? {} : { y: [0, -8, 0] }
-  const floatTransition = reduced ? { duration: 0.01 } : { duration: 6, repeat: Infinity, ease: "easeInOut" }
+  const floatTransition = reduced ? { duration: 0.01 } : { duration: 6, repeat: Infinity, ease: easeInOut }
 
   return (
     <section style={{ paddingTop: 6, paddingBottom: 78 }}>
