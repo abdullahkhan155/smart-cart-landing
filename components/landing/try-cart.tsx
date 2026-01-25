@@ -124,7 +124,6 @@ function useTryCartDemo() {
   }
 
   useEffect(() => {
-    if (mode === "checkout") return
     if (scriptStep < totalSteps - 1) return
     const timer = window.setTimeout(() => setMode(FLOW[(flowIndex + 1) % FLOW.length]), reduced ? 2600 : 3200)
     return () => window.clearTimeout(timer)

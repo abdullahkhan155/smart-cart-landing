@@ -2,9 +2,10 @@
 
 import React, { useState } from "react"
 import { Activity, BarChart3, Clock3, MessageSquare, ShieldCheck, Sparkles, TrendingUp } from "lucide-react"
-import { Card, SectionTitle } from "./ui"
+import { Card, SectionTitle, useBreakpoint } from "./ui"
 
 export function ProofSection() {
+  const isMobile = useBreakpoint(720)
   const insights = [
     {
       title: "Trend detection",
@@ -37,15 +38,15 @@ export function ProofSection() {
   ]
 
   return (
-    <section id="proof" style={{ paddingTop: 80, paddingBottom: 70 }}>
-      <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
+    <section id="proof" style={{ paddingTop: isMobile ? 70 : 80, paddingBottom: isMobile ? 60 : 70 }}>
+      <div style={{ width: isMobile ? "calc(100% - 24px)" : "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="Retailer insight"
           title="We listen, so you can optimize"
           subtitle="Cart conversations surface trends, restocks, and merchandising moves that keep shelves moving."
         />
 
-        <div style={{ marginTop: 20, display: "grid", gap: 18 }}>
+        <div style={{ marginTop: isMobile ? 16 : 20, display: "grid", gridTemplateColumns: "1fr", gap: isMobile ? 14 : 18 }}>
           <SignalPane insights={insights} />
           <OpsPane bars={bars} events={events} />
         </div>
@@ -55,15 +56,18 @@ export function ProofSection() {
 }
 
 function SignalPane({ insights }: { insights: typeof defaultInsights }) {
+  const isMobile = useBreakpoint(720)
   return (
-    <Card style={{ padding: 20, display: "grid", gap: 14 }}>
+    <Card style={{ padding: isMobile ? 16 : 24, display: "grid", gap: isMobile ? 12 : 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div style={{ display: "grid", gap: 4 }}>
           <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.68)" }}>Signal stream</div>
-          <div style={{ fontSize: 22, fontWeight: 980, color: "rgba(255,255,255,0.94)" }}>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 980, color: "rgba(255,255,255,0.94)" }}>
             Cart asks {"->"} store actions
           </div>
-          <div style={{ fontSize: 13, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>Live intent turns into ops moves.</div>
+          <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>
+            Live intent turns into ops moves.
+          </div>
         </div>
         <span
           style={{
@@ -80,7 +84,7 @@ function SignalPane({ insights }: { insights: typeof defaultInsights }) {
         </span>
       </div>
 
-      <div style={{ display: "grid", gap: 12 }}>
+      <div style={{ display: "grid", gap: isMobile ? 10 : 14 }}>
         {insights.map((insight) => (
           <InsightCard key={insight.title} {...insight} />
         ))}
@@ -90,9 +94,12 @@ function SignalPane({ insights }: { insights: typeof defaultInsights }) {
 }
 
 function OpsPane({ bars, events }: { bars: number[]; events: { time: string; text: string; zone: string; tone: string }[] }) {
+  const isMobile = useBreakpoint(720)
   const [range, setRange] = useState<"live" | "day" | "week">("live")
   const [activeEvent, setActiveEvent] = useState(0)
   const [activeDemand, setActiveDemand] = useState(0)
+  const [activeBar, setActiveBar] = useState<number | null>(null)
+  const barLabels = ["9a", "10a", "11a", "12p", "1p", "2p", "3p", "4p"]
   const barSets = {
     live: bars,
     day: [0.32, 0.56, 0.48, 0.72, 0.42, 0.6, 0.7, 0.52],
@@ -108,13 +115,13 @@ function OpsPane({ bars, events }: { bars: number[]; events: { time: string; tex
   const focusDemand = demand[activeDemand]
 
   return (
-    <Card style={{ padding: 20, display: "grid", gap: 12 }}>
+    <Card style={{ padding: isMobile ? 16 : 20, display: "grid", gap: isMobile ? 10 : 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
         <div style={{ fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.94)" }}>Ops pulse</div>
         <span style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.64)" }}>Status: live</span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(auto-fit, minmax(140px, 1fr))" : "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
         <MiniStat label="Active carts" value="142" icon={<Activity size={14} />} tone="rgba(0,255,208,0.85)" />
         <MiniStat label="Resolved asks" value="1,893" icon={<Sparkles size={14} />} tone="rgba(88,130,255,0.85)" />
         <MiniStat label="Conversion risk" value="14%" icon={<BarChart3 size={14} />} tone="rgba(255,170,80,0.90)" />
@@ -129,23 +136,32 @@ function OpsPane({ bars, events }: { bars: number[]; events: { time: string; tex
             <RangeButton label="7d" active={range === "week"} onClick={() => setRange("week")} />
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 100 }}>
+        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.60)" }}>
+          {activeBar === null ? "Tap a bar for detail" : `Active window: ${barLabels[activeBar]}`}
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: isMobile ? 80 : 100 }}>
           {barSets[range].map((b, i) => (
             <div
               key={i}
+              onMouseEnter={() => setActiveBar(i)}
+              onMouseLeave={() => setActiveBar((prev) => (prev === i ? null : prev))}
+              onClick={() => setActiveBar(i)}
               style={{
                 flex: 1,
                 height: `${b * 100}%`,
                 borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "linear-gradient(180deg, rgba(88,130,255,0.22), rgba(0,0,0,0.05))",
+                border: activeBar === i ? "1px solid rgba(255,255,255,0.30)" : "1px solid rgba(255,255,255,0.10)",
+                background: activeBar === i
+                  ? "linear-gradient(180deg, rgba(88,130,255,0.40), rgba(0,0,0,0.10))"
+                  : "linear-gradient(180deg, rgba(88,130,255,0.22), rgba(0,0,0,0.05))",
+                cursor: "pointer",
               }}
             />
           ))}
         </div>
       </div>
 
-      <div style={{ display: "grid", gap: 10, gridTemplateColumns: "1.1fr 1fr" }}>
+      <div style={{ display: "grid", gap: 10, gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr" }}>
         <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(0,0,0,0.18)", padding: 12, display: "grid", gap: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.68)" }}>Live interaction stream</div>
           {events.map((event, index) => {
@@ -157,7 +173,7 @@ function OpsPane({ bars, events }: { bars: number[]; events: { time: string; tex
                 onClick={() => setActiveEvent(index)}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "56px 1fr 56px",
+                  gridTemplateColumns: isMobile ? "52px 1fr" : "56px 1fr 56px",
                   gap: 6,
                   alignItems: "center",
                   padding: "8px 10px",
@@ -169,8 +185,17 @@ function OpsPane({ bars, events }: { bars: number[]; events: { time: string; tex
                 }}
               >
                 <span style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.62)" }}>{event.time}</span>
-                <span style={{ fontSize: 13, fontWeight: 900, color: event.tone }}>{event.text}</span>
-                <span style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.62)", textAlign: "right" }}>{event.zone}</span>
+                {isMobile ? (
+                  <span style={{ display: "grid", gap: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: event.tone }}>{event.text}</span>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.62)" }}>{event.zone}</span>
+                  </span>
+                ) : (
+                  <>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: event.tone }}>{event.text}</span>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.62)", textAlign: "right" }}>{event.zone}</span>
+                  </>
+                )}
               </button>
             )
           })}
@@ -243,15 +268,16 @@ function InsightCard({
   action: string
   tone: string
 }) {
+  const isMobile = useBreakpoint(720)
   return (
     <div
       style={{
         borderRadius: 16,
         border: `1px solid ${tone}`,
         background: "linear-gradient(150deg, rgba(0,0,0,0.28), rgba(0,0,0,0.18))",
-        padding: 14,
+        padding: isMobile ? 12 : 16,
         display: "grid",
-        gap: 8,
+        gap: isMobile ? 6 : 8,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: tone, fontSize: 11, fontWeight: 900, letterSpacing: 0.3, textTransform: "uppercase" }}>

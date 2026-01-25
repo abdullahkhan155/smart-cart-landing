@@ -3,12 +3,13 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { AlertTriangle, ArrowRight, Clock3, MapPin, Users } from "lucide-react"
-import { Card, SectionTitle, usePrefersReducedMotion } from "./ui"
+import { Card, SectionTitle, useBreakpoint, usePrefersReducedMotion } from "./ui"
 
 type ProblemKind = "checkout" | "find" | "help"
 
 export function ProblemStorySection() {
   const reduced = usePrefersReducedMotion()
+  const isMobile = useBreakpoint(720)
 
   const problems = useMemo(
     () => [
@@ -105,21 +106,21 @@ export function ProblemStorySection() {
   }, [reduced, isPaused, solutionShowcase.length])
 
   return (
-    <section style={{ paddingTop: 80, paddingBottom: 60 }}>
-      <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
+    <section style={{ paddingTop: isMobile ? 70 : 80, paddingBottom: isMobile ? 50 : 60 }}>
+      <div style={{ width: isMobile ? "calc(100% - 24px)" : "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="The problem"
           title="Shopping Trips are Frustrating"
           subtitle="Queues, findability gaps, and unanswered questions slow every basket."
         />
 
-        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+        <div style={{ marginTop: isMobile ? 24 : 34, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
           {problems.map((p) => (
             <ProblemCard key={p.title} title={p.title} note={p.note} icon={p.icon} tags={p.tags} kind={p.kind} />
           ))}
         </div>
 
-        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+        <div style={{ marginTop: isMobile ? 12 : 14, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
           {impacts.map((impact) => (
             <ImpactCard key={impact.title} title={impact.title} note={impact.note} icon={impact.icon} />
           ))}
@@ -147,7 +148,7 @@ export function ProblemStorySection() {
           </motion.div>
         </div>
 
-        <div style={{ marginTop: 26 }}>
+        <div style={{ marginTop: isMobile ? 20 : 26 }}>
           <SectionTitle
             eyebrow="The solution"
             title="An assistant embedded in every cart"
@@ -155,14 +156,14 @@ export function ProblemStorySection() {
           />
         </div>
 
-        <div style={{ marginTop: 22 }}>
-          <Card style={{ padding: 22 }}>
+        <div style={{ marginTop: isMobile ? 18 : 22 }}>
+          <Card style={{ padding: isMobile ? 16 : 22 }}>
             <div style={{ display: "grid", gap: 14, justifyItems: "center", textAlign: "center" }}>
               <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1.2, textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>
                 Solution views
               </div>
 
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+              <div style={{ display: "flex", gap: isMobile ? 8 : 10, flexWrap: "wrap", justifyContent: "center" }}>
                 {solutionShowcase.map((view, index) => {
                   const isActive = index === activeSolution
                   return (
@@ -174,12 +175,12 @@ export function ProblemStorySection() {
                       whileHover={reduced ? undefined : { y: -1 }}
                       whileTap={reduced ? undefined : { scale: 0.98 }}
                       style={{
-                        padding: "9px 14px",
+                        padding: isMobile ? "8px 12px" : "9px 14px",
                         borderRadius: 999,
                         border: isActive ? "1px solid rgba(255,255,255,0.30)" : "1px solid rgba(255,255,255,0.12)",
                         background: isActive ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.22)",
                         color: isActive ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.62)",
-                        fontSize: 12,
+                        fontSize: isMobile ? 11 : 12,
                         fontWeight: 900,
                         cursor: "pointer",
                         transition: "border 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease",
@@ -198,7 +199,7 @@ export function ProblemStorySection() {
                 onBlurCapture={() => setIsPaused(false)}
                 animate={reduced ? { opacity: 1 } : { y: [0, -6, 0] }}
                 transition={reduced ? { duration: 0.01 } : { duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
-                style={{ width: "min(920px, 100%)", marginTop: 6 }}
+                style={{ width: "min(920px, 100%)", marginTop: isMobile ? 10 : 6 }}
               >
                 <div
                   style={{
@@ -212,11 +213,11 @@ export function ProblemStorySection() {
                   <div
                     style={{
                       position: "relative",
-                      borderRadius: 22,
+                      borderRadius: isMobile ? 18 : 22,
                       overflow: "hidden",
                       background: "rgba(0,0,0,0.35)",
-                      aspectRatio: "16 / 9",
-                      minHeight: 340,
+                      aspectRatio: isMobile ? "4 / 3" : "16 / 9",
+                      minHeight: isMobile ? 240 : 340,
                     }}
                   >
                     <AnimatePresence mode="wait">
@@ -245,10 +246,10 @@ export function ProblemStorySection() {
                     <div
                       style={{
                         position: "absolute",
-                        left: 14,
-                        right: 14,
-                        bottom: 14,
-                        padding: "12px 14px",
+                        left: isMobile ? 10 : 14,
+                        right: isMobile ? 10 : 14,
+                        bottom: isMobile ? 10 : 14,
+                        padding: isMobile ? "10px 12px" : "12px 14px",
                         borderRadius: 16,
                         border: "1px solid rgba(255,255,255,0.16)",
                         background: "rgba(0,0,0,0.50)",
@@ -258,8 +259,8 @@ export function ProblemStorySection() {
                         textAlign: "left",
                       }}
                     >
-                      <div style={{ fontSize: 14, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>{activeView.title}</div>
-                      <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.72)" }}>{activeView.description}</div>
+                      <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>{activeView.title}</div>
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 12, fontWeight: 800, color: "rgba(255,255,255,0.72)" }}>{activeView.description}</div>
                     </div>
                   </div>
                 </div>
