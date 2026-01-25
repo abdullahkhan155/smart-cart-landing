@@ -4,57 +4,51 @@ import React from "react"
 import { BarChart3, CheckCircle2, Clock3, Lock, Plug, ShieldCheck, Sparkles, Users } from "lucide-react"
 import { Card, SectionTitle } from "./ui"
 
-const IMG_PROOF = "https://images.pexels.com/photos/20157487/pexels-photo-20157487.jpeg?cs=srgb&dl=pexels-sebastian-maitre-975371377-20157487.jpg&fm=jpg"
-
 export function ProofSection() {
   return (
     <section id="proof" style={{ paddingTop: 90, paddingBottom: 90 }}>
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
-          eyebrow="Proof"
-          title="What stores actually measure"
-          subtitle="A pilot is judged by a small set of metrics. This section is built around those."
+          eyebrow="Retailer impact"
+          title="Built for store performance"
+          subtitle="Faster trips, larger baskets, lower labor friction, and cleaner exceptions."
         />
 
         <div style={{ marginTop: 26, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
-          <Metric title="Trip time" value="Minutes saved" icon={<Clock3 size={18} />} note="Compare assisted carts vs baseline" />
-          <Metric title="Help requests" value="Fewer stops" icon={<Users size={18} />} note="Calls to staff per trip" />
-          <Metric title="Throughput" value="More flow" icon={<BarChart3 size={18} />} note="Trips per hour per cart" />
-          <Metric title="Exceptions" value="Cleaner audits" icon={<ShieldCheck size={18} />} note="Verification rate and outcomes" />
+          <Metric title="Basket size" value="Higher AOV" icon={<Sparkles size={18} />} note="Personalized promos and swaps" />
+          <Metric title="Trip time" value="Shorter trips" icon={<Clock3 size={18} />} note="Less hunting, fewer lines" />
+          <Metric title="Labor load" value="Fewer calls" icon={<Users size={18} />} note="More focus on shelves" />
+          <Metric title="Exception control" value="Cleaner audits" icon={<ShieldCheck size={18} />} note="Clear checks and outcomes" />
         </div>
 
         <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 12, alignItems: "stretch" }}>
           <Card style={{ padding: 18 }}>
-            <div style={{ fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>A pilot that feels real</div>
+            <div style={{ fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Retailer outcomes</div>
             <div style={{ marginTop: 8, color: "rgba(255,255,255,0.72)", lineHeight: 1.7, fontSize: 14, fontWeight: 850 }}>
-              Week 1 installs a small set of carts and trains staff on exceptions.
-              Week 2 focuses on shopper flow and assistant accuracy.
-              Week 3 measures throughput, help requests, and verification impact.
+              The cart keeps shoppers moving, protects margin with smart promos, and reduces staff interruptions. Ops gets clear visibility into usage, exceptions, and revenue impact.
             </div>
 
             <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
-              <LineItem icon={<CheckCircle2 size={18} />} title="Assistant adoption" note="How many trips use questions, routes, and swaps" />
-              <LineItem icon={<CheckCircle2 size={18} />} title="Promo usefulness" note="Clicks and conversions, not noise" />
-              <LineItem icon={<CheckCircle2 size={18} />} title="Checkout finish" note="Pay completion rate and average time" />
+              <LineItem icon={<CheckCircle2 size={18} />} title="Basket lift" note="Relevant offers and smart swaps" />
+              <LineItem icon={<CheckCircle2 size={18} />} title="Labor efficiency" note="Fewer questions per trip" />
+              <LineItem icon={<CheckCircle2 size={18} />} title="Checkout flow" note="More exits per hour" />
+              <LineItem icon={<CheckCircle2 size={18} />} title="Exception clarity" note="Lower verification friction" />
             </div>
           </Card>
 
-          <Card style={{ padding: 18, overflow: "hidden" }}>
-            <div style={{ height: 240, borderRadius: 18, border: "1px solid rgba(255,255,255,0.12)", overflow: "hidden", position: "relative" }}>
-              <img src={IMG_PROOF} alt="Checkout counter" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.10), rgba(0,0,0,0.72))" }} />
-              <div style={{ position: "absolute", left: 12, bottom: 12, right: 12, padding: 12, borderRadius: 18, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(0,0,0,0.22)" }}>
-                <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Designed for retail ops</div>
-                <div style={{ marginTop: 6, fontSize: 13, fontWeight: 850, color: "rgba(255,255,255,0.72)", lineHeight: 1.55 }}>
-                  Clear exceptions. Clear dashboards. Clear outcomes.
-                </div>
-              </div>
+          <Card style={{ padding: 18 }}>
+            <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Store performance view</div>
+            <div style={{ marginTop: 8, fontSize: 13, fontWeight: 850, color: "rgba(255,255,255,0.72)", lineHeight: 1.55 }}>
+              A single screen that shows basket lift, labor savings, and exception rates by aisle and time.
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <RetailerVisual />
             </div>
 
             <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
-              <SmallTrust icon={<Plug size={16} />} title="Integrations" note="POS and loyalty" />
-              <SmallTrust icon={<Lock size={16} />} title="Security" note="Encrypted flows" />
-              <SmallTrust icon={<Sparkles size={16} />} title="Assistant" note="Short answers" />
+              <SmallTrust icon={<Plug size={16} />} title="POS + loyalty" note="Live pricing" />
+              <SmallTrust icon={<BarChart3 size={16} />} title="Analytics" note="Aisle trends" />
+              <SmallTrust icon={<Lock size={16} />} title="Security" note="Encrypted data" />
             </div>
           </Card>
         </div>
@@ -88,6 +82,55 @@ function Metric({
         {note}
       </div>
     </Card>
+  )
+}
+
+function RetailerVisual() {
+  const bars = [0.65, 0.82, 0.58, 0.76, 0.9]
+  return (
+    <div
+      style={{
+        borderRadius: 18,
+        border: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(255,255,255,0.03)",
+        padding: 12,
+        display: "grid",
+        gap: 12,
+      }}
+    >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+        <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.20)", padding: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.66)" }}>Basket lift</div>
+          <div style={{ marginTop: 6, fontSize: 16, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>+12%</div>
+        </div>
+        <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.20)", padding: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.66)" }}>Labor calls</div>
+          <div style={{ marginTop: 6, fontSize: 16, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>-18%</div>
+        </div>
+        <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.20)", padding: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.66)" }}>Exit time</div>
+          <div style={{ marginTop: 6, fontSize: 16, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>-9 min</div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>Trips per hour</div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
+          {bars.map((b, i) => (
+            <div
+              key={i}
+              style={{
+                width: "100%",
+                height: `${b * 100}%`,
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "linear-gradient(180deg, rgba(0,255,208,0.18), rgba(255,255,255,0.04))",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -76,8 +76,8 @@ export function ProblemStorySection() {
   const systemBlocks = useMemo(
     () => [
       {
-        title: "Signals in aisle",
-        body: "Live context that keeps the cart aware.",
+        title: "AI Shopping Assistant",
+        body: "Ask anything, anytime, anywhere.",
         icon: <Mic size={18} />,
         chips: [
           { text: "Voice + tap", icon: <Mic size={14} /> },
@@ -87,8 +87,8 @@ export function ProblemStorySection() {
         ],
       },
       {
-        title: "Decision engine",
-        body: "Short answers that move the trip forward.",
+        title: "Personalized Promotions",
+        body: "Relevant offers that don’t interrupt.",
         icon: <Sparkles size={18} />,
         chips: [
           { text: "Aisle routing", icon: <Route size={14} /> },
@@ -98,7 +98,7 @@ export function ProblemStorySection() {
         ],
       },
       {
-        title: "Checkout + control",
+        title: "Self Checkout",
         body: "Fast exit with clear guardrails.",
         icon: <ShieldCheck size={18} />,
         chips: [
@@ -107,48 +107,6 @@ export function ProblemStorySection() {
           { text: "Exception checks", icon: <ShieldCheck size={14} /> },
           { text: "Receipt ready", icon: <CheckCircle2 size={14} /> },
         ],
-      },
-    ],
-    []
-  )
-
-  const solutionSteps = useMemo(
-    () => [
-      {
-        k: "Step 01",
-        title: "Ask and get the exact shelf",
-        body: "Voice or tap. The cart responds with the location and a clear next action.",
-        points: ["Aisle + shelf precision", "One-tap follow-ups", "Basket stays in context"],
-        icon: <Mic size={18} />,
-        bg: IMG_AISLE,
-        tint: "rgba(0,255,208,0.14)",
-      },
-      {
-        k: "Step 02",
-        title: "Route and swap with confidence",
-        body: "Guided paths through the store plus substitutes when stock or needs change.",
-        points: ["Fast route to shelf", "Comparable substitutes", "Price and size clarity"],
-        icon: <Route size={18} />,
-        bg: IMG_HELP,
-        tint: "rgba(160,120,255,0.14)",
-      },
-      {
-        k: "Step 03",
-        title: "Promos that are actually relevant",
-        body: "Offers show up only when they match the aisle and your basket.",
-        points: ["Aisle-triggered", "Basket-aware", "No extra noise"],
-        icon: <Sparkles size={18} />,
-        bg: IMG_CASHIER,
-        tint: "rgba(255,170,80,0.14)",
-      },
-      {
-        k: "Step 04",
-        title: "Scan, verify, and pay",
-        body: "Scan as you shop, finish on the cart, and leave without a lane.",
-        points: ["Real-time total", "Exception checks", "Receipt ready"],
-        icon: <CreditCard size={18} />,
-        bg: IMG_SELF,
-        tint: "rgba(160,120,255,0.14)",
       },
     ],
     []
@@ -241,21 +199,6 @@ export function ProblemStorySection() {
           </Card>
         </div>
 
-        <div style={{ marginTop: 20, display: "grid", gap: 12 }}>
-          {solutionSteps.map((s) => (
-            <StoryStep
-              key={s.k}
-              step={s.k}
-              title={s.title}
-              body={s.body}
-              points={s.points}
-              icon={s.icon}
-              bg={s.bg}
-              tint={s.tint}
-            />
-          ))}
-        </div>
-
         <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
           {outcomes.map((outcome) => (
             <OutcomeCard key={outcome.title} title={outcome.title} note={outcome.note} icon={outcome.icon} />
@@ -335,103 +278,6 @@ function ImageCard({
           ))}
         </div>
       ) : null}
-    </Card>
-  )
-}
-
-function StoryStep({
-  step,
-  title,
-  body,
-  points,
-  icon,
-  bg,
-  tint,
-}: {
-  step: string
-  title: string
-  body: string
-  points?: string[]
-  icon: React.ReactNode
-  bg: string
-  tint: string
-}) {
-  return (
-    <Card style={{ padding: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, alignItems: "center" }}>
-        <div
-          style={{
-            height: 120,
-            borderRadius: 18,
-            overflow: "hidden",
-            border: "1px solid rgba(255,255,255,0.12)",
-            position: "relative",
-          }}
-        >
-          <img
-            src={bg}
-            alt={title}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            loading="lazy"
-          />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(0,0,0,0.10), rgba(0,0,0,0.70))` }} />
-          <div style={{ position: "absolute", inset: 0, background: tint, mixBlendMode: "screen", opacity: 0.8 }} />
-
-          <div
-            style={{
-              position: "absolute",
-              left: 10,
-              top: 10,
-              width: 40,
-              height: 40,
-              borderRadius: 16,
-              border: "1px solid rgba(255,255,255,0.14)",
-              background: "rgba(0,0,0,0.22)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "rgba(255,255,255,0.90)",
-            }}
-          >
-            {icon}
-          </div>
-        </div>
-
-        <div>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.14)",
-              background: "rgba(0,0,0,0.16)",
-              color: "rgba(255,255,255,0.76)",
-              fontSize: 12,
-              fontWeight: 950,
-            }}
-          >
-            <span style={{ width: 7, height: 7, borderRadius: 999, background: "rgba(255,255,255,0.75)" }} />
-            <span>{step}</span>
-          </div>
-
-          <div style={{ marginTop: 10, fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
-          <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.75, color: "rgba(255,255,255,0.72)", fontWeight: 850 }}>
-            {body}
-          </div>
-          {points?.length ? (
-            <div style={{ marginTop: 10, display: "grid", gap: 6 }}>
-              {points.map((point) => (
-                <div key={point} style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: 850 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: 999, background: "rgba(255,255,255,0.55)" }} />
-                  <span>{point}</span>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </div>
     </Card>
   )
 }
