@@ -13,22 +13,22 @@ export function ProblemStorySection() {
   const problems = useMemo(
     () => [
       {
-        title: "Checkout bottlenecks",
+        title: "Checkout take too long",
         note: "Lines turn the last minutes into idle time.",
         icon: <Users size={18} />,
         tags: ["Queue time", "Exit delay"],
         kind: "checkout" as const,
       },
       {
-        title: "Findability gaps",
-        note: "Shoppers lose time locating items across aisles.",
+        title: "Decision Overload",
+        note: "Too many items, promotions, and prices to track.",
         icon: <MapPin size={18} />,
         tags: ["Lost minutes", "Missed items"],
         kind: "find" as const,
       },
       {
-        title: "Assistance gaps",
-        note: "Limited staff coverage pauses the trip.",
+        title: "Limited Staff Help",
+        note: "Lack of staff coverage pauses the trip.",
         icon: <AlertTriangle size={18} />,
         tags: ["Staff strain", "Interrupted flow"],
         kind: "help" as const,
@@ -109,7 +109,7 @@ export function ProblemStorySection() {
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="The problem"
-          title="Trips break at three points"
+          title="Shopping Trips are Frustrating"
           subtitle="Queues, findability gaps, and unanswered questions slow every basket."
         />
 

@@ -227,12 +227,12 @@ export default function Page() {
                   </motion.div>
 
                   <motion.h1 variants={introItem} style={heroTitle}>
-                    <span>Ask the cart.</span>
-                    <span style={heroAccent}>Scan. Pay. Go.</span>
+                    <span>AI cart.</span>
+                    <span style={heroAccent}>Guided checkout.</span>
                   </motion.h1>
 
                   <motion.p variants={introItem} style={{ marginTop: 14, fontSize: 16, lineHeight: 1.7, color: "var(--muted)", maxWidth: 620, fontWeight: 600 }}>
-                    Quick answers in aisle, personalized promos at the right moment, and checkout on the cart so the trip stays smooth.
+                    Answers. Promos. Pay.
                   </motion.p>
 
                   <motion.div variants={introItem} style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -279,6 +279,7 @@ export default function Page() {
           </motion.section>
 
           <HeroImageFeature reduced={reduced} wrap={wrap} />
+          <VideoFeature reduced={reduced} wrap={wrap} />
           <ProblemStorySection />
           <HowItWorksSection />
           <ProofSection />
@@ -304,6 +305,105 @@ function HeroMetric({ label, value, icon, tone }: { label: string; value: string
 
       <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>{label}</div>
     </div>
+  )
+}
+
+function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProperties }) {
+  const floatAnimation = reduced ? {} : { y: [0, -10, 0] }
+  const floatTransition = reduced ? { duration: 0.01 } : { duration: 7, repeat: Infinity, ease: "easeInOut" }
+
+  return (
+    <section style={{ paddingTop: 12, paddingBottom: 58 }}>
+      <div style={wrap}>
+        <motion.div animate={floatAnimation} transition={floatTransition} style={{ position: "relative" }}>
+          <div style={{ position: "absolute", inset: -18, background: "radial-gradient(520px 260px at 12% 10%, rgba(0,255,208,0.16), rgba(0,0,0,0))", filter: "blur(28px)" }} />
+          <div
+            style={{
+              position: "relative",
+              overflow: "hidden",
+              borderRadius: "30px 30px 46px 30px",
+              clipPath: "inset(0 round 30px 30px 46px 30px)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              background: "linear-gradient(120deg, rgba(0,0,0,0.72), rgba(20,24,40,0.65))",
+              boxShadow: "0 28px 110px rgba(0,0,0,0.55)",
+            }}
+          >
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(600px 320px at 18% 0%, rgba(0,255,208,0.14), rgba(0,0,0,0))" }} />
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(520px 260px at 84% 0%, rgba(160,120,255,0.12), rgba(0,0,0,0))" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0))" }} />
+
+            <video
+              src="/Shopping_Assistant.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              style={{
+                width: "100%",
+                height: "100%",
+                maxHeight: 420,
+                objectFit: "cover",
+                display: "block",
+                opacity: 0.94,
+              }}
+            />
+
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.78))",
+              }}
+            />
+
+            <div
+              style={{
+                position: "absolute",
+                left: 18,
+                bottom: 18,
+                display: "grid",
+                gap: 6,
+                maxWidth: 300,
+              }}
+            >
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 14px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(255,255,255,0.16)",
+                  background: "rgba(0,0,0,0.35)",
+                  width: "fit-content",
+                }}
+              >
+                <div style={{ width: 6, height: 6, borderRadius: 999, background: "rgba(0,255,208,0.9)", boxShadow: "0 0 18px rgba(0,255,208,0.45)" }} />
+                <span style={{ fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.82)", letterSpacing: 0.2 }}>Live cart footage</span>
+              </div>
+
+              <div style={{ fontSize: 16, fontWeight: 800, color: "rgba(255,255,255,0.92)" }}>Vela in aisle</div>
+              <div style={{ display: "none" }}>
+                AI answers, aisle-aware promos, and self checkout all running on-cart—no kiosks, no detours.
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: 16, display: "grid", gap: 10, maxWidth: 720 }}>
+            <div style={{ fontSize: "clamp(20px, 2.3vw, 30px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.08 }}>
+              See Vela guide, suggest, and checkout on the cart screen.
+            </div>
+            <div style={{ fontSize: 14, lineHeight: 1.7, color: "var(--muted)", fontWeight: 600 }}>
+              AI answers, aisle promos, and self checkout on-cart.
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Pill icon={<Mic size={14} />} text="In-aisle voice" />
+              <Pill icon={<Sparkles size={14} />} text="Context promos" />
+              <Pill icon={<CreditCard size={14} />} text="Cart checkout" />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
   )
 }
 
