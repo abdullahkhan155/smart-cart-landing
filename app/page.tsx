@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion"
 import { ArrowRight, BarChart3, CreditCard, MapPin, Mic, ShoppingCart, Sparkles } from "lucide-react"
+import { Manrope, Space_Grotesk } from "next/font/google"
 import {
   AnimatedBackdrop,
   Button,
@@ -18,8 +19,12 @@ import {
   usePrefersReducedMotion,
 } from "@/components/landing"
 
+const manrope = Manrope({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] })
+const space = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"] })
+
 export default function Page() {
   const reduced = usePrefersReducedMotion()
+  const shouldAnimate = !reduced
   const rootRef = useRef<HTMLDivElement | null>(null)
 
   const [mx, setMx] = useState(0.5)
@@ -46,19 +51,86 @@ export default function Page() {
   }, [mxSpring, mySpring])
 
   const wrap: React.CSSProperties = {
-    width: "min(1120px, calc(100% - 40px))",
+    width: "min(1160px, calc(100% - 32px))",
     margin: "0 auto",
   }
 
-  const navLink: React.CSSProperties = {
-    fontSize: 13,
-    fontWeight: 980,
-    color: "rgba(255,255,255,0.70)",
-    padding: "10px 12px",
+  const theme = {
+    "--ink": "rgba(255,255,255,0.94)",
+    "--muted": "rgba(255,255,255,0.66)",
+    "--panel": "rgba(255,255,255,0.05)",
+    "--panel-strong": "rgba(255,255,255,0.10)",
+    "--line": "rgba(255,255,255,0.14)",
+    "--accent": "rgba(0,255,208,0.90)",
+    "--accent-2": "rgba(88,130,255,0.86)",
+    "--accent-3": "rgba(255,170,80,0.86)",
+  } as React.CSSProperties
+
+  const navButton: React.CSSProperties = {
+    fontSize: 12,
+    fontWeight: 700,
+    fontFamily: space.style.fontFamily,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    color: "var(--muted)",
+    padding: "10px 14px",
     borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.02)",
+    border: "1px solid var(--line)",
+    background: "var(--panel)",
     cursor: "pointer",
+  }
+
+  const kicker: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 10,
+    fontSize: 12,
+    fontWeight: 700,
+    fontFamily: space.style.fontFamily,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    color: "var(--muted)",
+    padding: "8px 12px",
+    borderRadius: 999,
+    border: "1px solid var(--line)",
+    background: "rgba(0,0,0,0.35)",
+  }
+
+  const heroTitle: React.CSSProperties = {
+    marginTop: 18,
+    fontSize: "clamp(38px, 4.3vw, 64px)",
+    lineHeight: 1.04,
+    letterSpacing: -1.2,
+    fontWeight: 700,
+    fontFamily: space.style.fontFamily,
+    color: "var(--ink)",
+    textShadow: "0 20px 60px rgba(0,0,0,0.45)",
+  }
+
+  const heroAccent: React.CSSProperties = {
+    display: "block",
+    backgroundImage: "linear-gradient(120deg, var(--accent), var(--accent-2), var(--accent-3))",
+    WebkitBackgroundClip: "text",
+    color: "transparent",
+  }
+
+  const introContainer = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.08,
+      },
+    },
+  }
+
+  const introItem = {
+    hidden: { opacity: 0, y: 18 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    },
   }
 
   const onMove = (e: React.MouseEvent) => {
@@ -76,8 +148,9 @@ export default function Page() {
       onMouseMove={onMove}
       style={{
         minHeight: "100vh",
-        color: "white",
-        fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+        color: "var(--ink)",
+        fontFamily: manrope.style.fontFamily,
+        ...theme,
       }}
     >
       <motion.div
@@ -89,7 +162,7 @@ export default function Page() {
           width: "100%",
           transformOrigin: "0% 50%",
           scaleX: progressScale,
-          background: "linear-gradient(90deg, rgba(0,255,208,0.70), rgba(160,120,255,0.65), rgba(255,170,80,0.60))",
+          background: "linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3))",
           zIndex: 60,
           boxShadow: "0 0 30px rgba(0,255,208,0.16)",
         }}
@@ -103,21 +176,21 @@ export default function Page() {
             <div style={{ background: "rgba(0,0,0,0.34)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}>
               <div style={{ ...wrap, padding: "14px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 12, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 34, height: 34, borderRadius: 12, border: "1px solid var(--line)", background: "var(--panel)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <ShoppingCart size={18} style={{ opacity: 0.92 }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
-                    <div style={{ fontWeight: 980, letterSpacing: 0.2 }}>CartNova</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.62)", fontWeight: 900 }}>AI smart cart</div>
+                    <div style={{ fontWeight: 700, letterSpacing: 0.2, fontFamily: space.style.fontFamily }}>CartNova</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>AI smart cart</div>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span style={navLink} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Story</span>
-                  <span style={navLink} onClick={() => goTo("how")}>How</span>
-                  <span style={navLink} onClick={() => goTo("proof")}>Proof</span>
-                  <span style={navLink} onClick={() => goTo("cta")}>Demo</span>
-                </div>
+                <nav style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }} aria-label="Primary">
+                  <button style={navButton} type="button" onClick={() => goTo("story")}>Story</button>
+                  <button style={navButton} type="button" onClick={() => goTo("how")}>How</button>
+                  <button style={navButton} type="button" onClick={() => goTo("proof")}>Proof</button>
+                  <button style={navButton} type="button" onClick={() => goTo("cta")}>Demo</button>
+                </nav>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   <Button variant="ghost" onClick={() => goTo("how")}>
@@ -133,26 +206,36 @@ export default function Page() {
             </div>
           </div>
 
-          <motion.section style={{ paddingTop: 78, paddingBottom: 56, opacity: heroOpacity, y: heroShift }}>
+          <motion.section id="story" style={{ paddingTop: 78, paddingBottom: 56, opacity: heroOpacity, y: heroShift }}>
             <div style={wrap}>
-              <div style={{ display: "grid", gridTemplateColumns: "1.02fr 0.98fr", gap: 24, alignItems: "center" }}>
-                <div>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28, alignItems: "center" }}>
+                <motion.div
+                  variants={introContainer}
+                  initial={shouldAnimate ? "hidden" : false}
+                  animate={shouldAnimate ? "show" : undefined}
+                >
+                  <motion.div variants={introItem} style={kicker}>
+                    <span style={{ width: 6, height: 6, borderRadius: 999, background: "var(--accent)", boxShadow: "0 0 18px rgba(0,255,208,0.45)" }} />
+                    <span>Cart intelligence in aisle</span>
+                  </motion.div>
+
+                  <motion.div variants={introItem} style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
                     <Pill icon={<Mic size={14} />} text="Assistant" />
                     <Pill icon={<MapPin size={14} />} text="Aisle guidance" />
                     <Pill icon={<Sparkles size={14} />} text="Smart promos" />
                     <Pill icon={<CreditCard size={14} />} text="Self checkout" />
-                  </div>
+                  </motion.div>
 
-                  <h1 style={{ marginTop: 18, fontSize: 58, lineHeight: 1.02, letterSpacing: -1, fontWeight: 980, color: "rgba(255,255,255,0.96)", textShadow: "0 20px 60px rgba(0,0,0,0.45)" }}>
-                    Ask the cart. Scan. Pay. Go.
-                  </h1>
+                  <motion.h1 variants={introItem} style={heroTitle}>
+                    <span>Ask the cart.</span>
+                    <span style={heroAccent}>Scan. Pay. Go.</span>
+                  </motion.h1>
 
-                  <p style={{ marginTop: 14, fontSize: 16, lineHeight: 1.7, color: "rgba(255,255,255,0.74)", maxWidth: 620, fontWeight: 850 }}>
+                  <motion.p variants={introItem} style={{ marginTop: 14, fontSize: 16, lineHeight: 1.7, color: "var(--muted)", maxWidth: 620, fontWeight: 600 }}>
                     Quick answers in aisle, personalized promos at the right moment, and checkout on the cart so the trip stays smooth.
-                  </p>
+                  </motion.p>
 
-                  <div style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  <motion.div variants={introItem} style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
                     <Button onClick={() => goTo("how")}>
                       <span>See how it works</span>
                       <ArrowRight size={16} />
@@ -161,30 +244,36 @@ export default function Page() {
                       <span>Get a demo</span>
                       <ArrowRight size={16} style={{ opacity: 0.9 }} />
                     </Button>
-                  </div>
+                  </motion.div>
 
-                  <div style={{ marginTop: 22, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
-                    <HeroMetric label="Answers in aisle" value="Ask" icon={<Mic size={18} />} />
-                    <HeroMetric label="Promos that help" value="Save" icon={<Sparkles size={18} />} />
-                    <HeroMetric label="Checkout finish" value="Pay" icon={<CreditCard size={18} />} />
-                  </div>
+                  <motion.div variants={introItem} style={{ marginTop: 22, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+                    <HeroMetric label="Answers in aisle" value="Ask" icon={<Mic size={18} />} tone="var(--accent)" />
+                    <HeroMetric label="Promos that help" value="Save" icon={<Sparkles size={18} />} tone="var(--accent-2)" />
+                    <HeroMetric label="Self Checkout" value="Pay" icon={<CreditCard size={18} />} tone="var(--accent-3)" />
+                  </motion.div>
 
-                  <div style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: 950 }}>
+                  <motion.div variants={introItem} style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--muted)", fontSize: 13, fontWeight: 650 }}>
                       <BarChart3 size={16} style={{ opacity: 0.9 }} />
                       <span>Store dashboards</span>
                     </div>
-                    <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.14)" }} />
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: 950 }}>
+                    <div style={{ width: 1, height: 14, background: "var(--line)" }} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--muted)", fontSize: 13, fontWeight: 650 }}>
                       <Sparkles size={16} style={{ opacity: 0.9 }} />
                       <span>Assistant driven journey</span>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
 
-                <div>
+                <motion.div
+                  initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
+                  animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+                  transition={shouldAnimate ? { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 } : undefined}
+                  style={{ position: "relative" }}
+                >
+                  <div style={{ position: "absolute", inset: 12, background: "radial-gradient(420px 240px at 60% 40%, rgba(0,255,208,0.18), rgba(0,0,0,0))", filter: "blur(26px)" }} />
                   <HeroShowcase />
-                </div>
+                </motion.div>
               </div>
             </div>
           </motion.section>
@@ -201,17 +290,18 @@ export default function Page() {
   )
 }
 
-function HeroMetric({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+function HeroMetric({ label, value, icon, tone }: { label: string; value: string; icon: React.ReactNode; tone?: string }) {
+  const metricTone = tone ?? "var(--accent)"
   return (
-    <div style={{ padding: 16, borderRadius: 20, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)" }}>
+    <div style={{ padding: 16, borderRadius: 20, border: "1px solid var(--line)", background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 16, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 44, height: 44, borderRadius: 16, border: "1px solid var(--line)", background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", color: metricTone, boxShadow: "0 0 26px rgba(0,0,0,0.25)" }}>
           {icon}
         </div>
-        <div style={{ fontSize: 28, fontWeight: 980, color: "rgba(255,255,255,0.94)", letterSpacing: -0.4 }}>{value}</div>
+        <div style={{ fontSize: 26, fontWeight: 700, color: "var(--ink)", letterSpacing: -0.4, fontFamily: space.style.fontFamily }}>{value}</div>
       </div>
 
-      <div style={{ marginTop: 8, fontSize: 13, fontWeight: 950, color: "rgba(255,255,255,0.68)" }}>{label}</div>
+      <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>{label}</div>
     </div>
   )
 }
