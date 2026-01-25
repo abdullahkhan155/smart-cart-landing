@@ -23,7 +23,7 @@ export function Footer() {
             <div style={{ width: 34, height: 34, borderRadius: 12, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <ShoppingCart size={18} style={{ opacity: 0.92 }} />
             </div>
-            <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.82)" }}>CartNova</div>
+            <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.82)" }}>Vela</div>
           </div>
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

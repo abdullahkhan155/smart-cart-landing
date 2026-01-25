@@ -180,7 +180,7 @@ export default function Page() {
                     <ShoppingCart size={18} style={{ opacity: 0.92 }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
-                    <div style={{ fontWeight: 700, letterSpacing: 0.2, fontFamily: space.style.fontFamily }}>CartNova</div>
+                    <div style={{ fontWeight: 700, letterSpacing: 0.2, fontFamily: space.style.fontFamily }}>Vela</div>
                     <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>AI smart cart</div>
                   </div>
                 </div>
@@ -278,6 +278,7 @@ export default function Page() {
             </div>
           </motion.section>
 
+          <HeroImageFeature reduced={reduced} wrap={wrap} />
           <ProblemStorySection />
           <HowItWorksSection />
           <ProofSection />
@@ -303,5 +304,102 @@ function HeroMetric({ label, value, icon, tone }: { label: string; value: string
 
       <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>{label}</div>
     </div>
+  )
+}
+
+function HeroImageFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProperties }) {
+  const floatAnimation = reduced ? {} : { y: [0, -8, 0] }
+  const floatTransition = reduced ? { duration: 0.01 } : { duration: 6, repeat: Infinity, ease: "easeInOut" }
+
+  return (
+    <section style={{ paddingTop: 6, paddingBottom: 78 }}>
+      <div style={wrap}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 26, alignItems: "center" }}>
+          <motion.div animate={floatAnimation} transition={floatTransition} style={{ position: "relative" }}>
+            <div style={{ position: "absolute", inset: -12, background: "radial-gradient(380px 240px at 30% 20%, rgba(0,255,208,0.18), rgba(0,0,0,0))", filter: "blur(24px)" }} />
+            <div
+              style={{
+                position: "relative",
+                borderRadius: 26,
+                overflow: "hidden",
+                border: "1px solid var(--line)",
+                background: "var(--panel)",
+                boxShadow: "0 40px 120px rgba(0,0,0,0.45)",
+              }}
+            >
+              <img
+                src="/1st_Image.png"
+                alt="Smart cart experience in aisle"
+                style={{ width: "100%", height: "100%", maxHeight: 360, objectFit: "cover", display: "block" }}
+                loading="lazy"
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.62))" }} />
+
+              <div style={{ position: "absolute", left: 14, top: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <Pill icon={<Mic size={14} />} text="Ask in aisle" />
+                <Pill icon={<Sparkles size={14} />} text="Smart promos" />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: 14,
+                  bottom: 14,
+                  right: 14,
+                  padding: "10px 12px",
+                  borderRadius: 18,
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  background: "rgba(0,0,0,0.35)",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                }}
+              >
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>Cart screen, real time</div>
+                <div style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>
+                  Live location, answers, and promos while you shop.
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <div style={{ display: "grid", gap: 12 }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                fontSize: 12,
+                fontWeight: 700,
+                fontFamily: space.style.fontFamily,
+                letterSpacing: 1.1,
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                padding: "8px 12px",
+                borderRadius: 999,
+                border: "1px solid var(--line)",
+                background: "rgba(0,0,0,0.30)",
+                width: "fit-content",
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: 999, background: "var(--accent)" }} />
+              <span>In-aisle experience</span>
+            </div>
+
+            <div style={{ fontSize: "clamp(22px, 2.4vw, 34px)", fontWeight: 700, color: "var(--ink)", fontFamily: space.style.fontFamily, lineHeight: 1.08 }}>
+              Attachable AI Powered Device
+            </div>
+            <div style={{ fontSize: 15, lineHeight: 1.7, color: "var(--muted)", fontWeight: 600, maxWidth: 520 }}>
+              Turn any cart into a smart cart with a guided experience with precise answers, personalized offers, and self checkout built in.
+            </div>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <Pill icon={<MapPin size={14} />} text="Live location" />
+              <Pill icon={<CreditCard size={14} />} text="Self checkout" />
+              <Pill icon={<BarChart3 size={14} />} text="Retail metrics" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }

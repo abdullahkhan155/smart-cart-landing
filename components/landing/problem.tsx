@@ -1,26 +1,11 @@
 "use client"
 
-import React, { useMemo } from "react"
-import { motion } from "framer-motion"
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Clock3,
-  CreditCard,
-  MapPin,
-  Mic,
-  Route,
-  ScanLine,
-  ShieldCheck,
-  Sparkles,
-  Users,
-} from "lucide-react"
+import React, { useEffect, useMemo, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { AlertTriangle, ArrowRight, Clock3, MapPin, Users } from "lucide-react"
 import { Card, SectionTitle, usePrefersReducedMotion } from "./ui"
 
-const IMG_LINE = "https://images.pexels.com/photos/25811661/pexels-photo-25811661.jpeg?cs=srgb&dl=pexels-greece-china-news-81838757-25811661.jpg&fm=jpg"
-const IMG_HELP = "https://images.pexels.com/photos/8476597/pexels-photo-8476597.jpeg?cs=srgb&dl=pexels-kampus-8476597.jpg&fm=jpg"
-const IMG_AISLE = "https://images.pexels.com/photos/4124939/pexels-photo-4124939.jpeg?cs=srgb&dl=pexels-lifeofnacchi-4124939.jpg&fm=jpg"
+type ProblemKind = "checkout" | "find" | "help"
 
 export function ProblemStorySection() {
   const reduced = usePrefersReducedMotion()
@@ -29,24 +14,24 @@ export function ProblemStorySection() {
     () => [
       {
         title: "Checkout bottlenecks",
-        note: "Every trip ends in a line instead of an exit.",
-        img: IMG_LINE,
+        note: "Lines turn the last minutes into idle time.",
         icon: <Users size={18} />,
-        tags: ["Lost minutes", "Queue friction"],
+        tags: ["Queue time", "Exit delay"],
+        kind: "checkout" as const,
       },
       {
         title: "Findability gaps",
-        note: "Aisles shift and shoppers lose items they came to buy.",
-        img: IMG_AISLE,
+        note: "Shoppers lose time locating items across aisles.",
         icon: <MapPin size={18} />,
-        tags: ["Missed items", "Extra laps"],
+        tags: ["Lost minutes", "Missed items"],
+        kind: "find" as const,
       },
       {
-        title: "Help is not available",
-        note: "Staff is stretched, so questions become delays.",
-        img: IMG_HELP,
+        title: "Assistance gaps",
+        note: "Limited staff coverage pauses the trip.",
         icon: <AlertTriangle size={18} />,
-        tags: ["Labor drain", "Interrupted flow"],
+        tags: ["Staff strain", "Interrupted flow"],
+        kind: "help" as const,
       },
     ],
     []
@@ -73,78 +58,64 @@ export function ProblemStorySection() {
     []
   )
 
-  const systemBlocks = useMemo(
+  const [activeSolution, setActiveSolution] = useState(1)
+  const [isPaused, setIsPaused] = useState(false)
+
+  const solutionShowcase = useMemo(
     () => [
       {
+        id: "assistant",
+        label: "AI assistant",
         title: "AI Shopping Assistant",
-        body: "Ask anything, anytime, anywhere.",
-        icon: <Mic size={18} />,
-        chips: [
-          { text: "Voice + tap", icon: <Mic size={14} /> },
-          { text: "Location", icon: <MapPin size={14} /> },
-          { text: "Basket context", icon: <ScanLine size={14} /> },
-          { text: "Preferences", icon: <Users size={14} /> },
-        ],
+        description: "Live answers and guidance, right on the cart screen.",
+        image: "/AI_Screen.png",
+        accent: "rgba(0,255,208,0.24)",
+        accentStrong: "rgba(0,255,208,0.9)",
       },
       {
+        id: "promos",
+        label: "Personalized promos",
         title: "Personalized Promotions",
-        body: "Relevant offers that don’t interrupt.",
-        icon: <Sparkles size={18} />,
-        chips: [
-          { text: "Aisle routing", icon: <Route size={14} /> },
-          { text: "Smart swaps", icon: <ArrowRight size={14} /> },
-          { text: "Context promos", icon: <Sparkles size={14} /> },
-          { text: "Clear totals", icon: <CreditCard size={14} /> },
-        ],
+        description: "Relevant offers that match basket and aisle context.",
+        image: "/Promo.png",
+        accent: "rgba(255,170,80,0.24)",
+        accentStrong: "rgba(255,170,80,0.9)",
       },
       {
+        id: "checkout",
+        label: "Self checkout",
         title: "Self Checkout",
-        body: "Fast exit with clear guardrails.",
-        icon: <ShieldCheck size={18} />,
-        chips: [
-          { text: "Scan as you shop", icon: <ScanLine size={14} /> },
-          { text: "Tap to pay", icon: <CreditCard size={14} /> },
-          { text: "Exception checks", icon: <ShieldCheck size={14} /> },
-          { text: "Receipt ready", icon: <CheckCircle2 size={14} /> },
-        ],
+        description: "Scan, pay, and exit with a clean, verified flow.",
+        image: "/Self_Checkout.png",
+        accent: "rgba(160,120,255,0.24)",
+        accentStrong: "rgba(160,120,255,0.9)",
       },
     ],
     []
   )
 
-  const outcomes = useMemo(
-    () => [
-      {
-        title: "Faster trips",
-        note: "Less waiting and fewer detours in aisle.",
-        icon: <Clock3 size={18} />,
-      },
-      {
-        title: "More complete baskets",
-        note: "Shoppers find what they came for.",
-        icon: <CheckCircle2 size={18} />,
-      },
-      {
-        title: "Controlled checkout",
-        note: "Clear exceptions and calm exits.",
-        icon: <ShieldCheck size={18} />,
-      },
-    ],
-    []
-  )
+  const activeView = solutionShowcase[activeSolution]
+
+  useEffect(() => {
+    if (reduced || isPaused) return
+    const id = window.setInterval(() => {
+      setActiveSolution((value) => (value + 1) % solutionShowcase.length)
+    }, 5200)
+    return () => window.clearInterval(id)
+  }, [reduced, isPaused, solutionShowcase.length])
 
   return (
     <section style={{ paddingTop: 90, paddingBottom: 90 }}>
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="The problem"
-          title="Trips break in three places"
+          title="Trips break at three points"
           subtitle="Queues, findability gaps, and unanswered questions slow every basket."
         />
 
         <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
           {problems.map((p) => (
-            <ImageCard key={p.title} title={p.title} note={p.note} img={p.img} icon={p.icon} tags={p.tags} />
+            <ProblemCard key={p.title} title={p.title} note={p.note} icon={p.icon} tags={p.tags} kind={p.kind} />
           ))}
         </div>
 
@@ -184,88 +155,184 @@ export function ProblemStorySection() {
           />
         </div>
 
-        <div style={{ marginTop: 24 }}>
-          <Card style={{ padding: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-              <div style={{ fontSize: 16, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Cart intelligence stack</div>
-              <MiniTag icon={<Sparkles size={12} />} text="Real-time context" />
-            </div>
+        <div style={{ marginTop: 22 }}>
+          <Card style={{ padding: 22 }}>
+            <div style={{ display: "grid", gap: 14, justifyItems: "center", textAlign: "center" }}>
+              <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1.2, textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>
+                Solution views
+              </div>
 
-            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-              {systemBlocks.map((block) => (
-                <SystemBlock key={block.title} title={block.title} body={block.body} icon={block.icon} chips={block.chips} />
-              ))}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+                {solutionShowcase.map((view, index) => {
+                  const isActive = index === activeSolution
+                  return (
+                    <motion.button
+                      key={view.id}
+                      type="button"
+                      onClick={() => setActiveSolution(index)}
+                      aria-pressed={isActive}
+                      whileHover={reduced ? undefined : { y: -1 }}
+                      whileTap={reduced ? undefined : { scale: 0.98 }}
+                      style={{
+                        padding: "9px 14px",
+                        borderRadius: 999,
+                        border: isActive ? "1px solid rgba(255,255,255,0.30)" : "1px solid rgba(255,255,255,0.12)",
+                        background: isActive ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.22)",
+                        color: isActive ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.62)",
+                        fontSize: 12,
+                        fontWeight: 900,
+                        cursor: "pointer",
+                        transition: "border 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease",
+                      }}
+                    >
+                      {view.label}
+                    </motion.button>
+                  )
+                })}
+              </div>
+
+              <motion.div
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+                onFocusCapture={() => setIsPaused(true)}
+                onBlurCapture={() => setIsPaused(false)}
+                animate={reduced ? { opacity: 1 } : { y: [0, -6, 0] }}
+                transition={reduced ? { duration: 0.01 } : { duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
+                style={{ width: "min(980px, 100%)", marginTop: 6 }}
+              >
+                <div
+                  style={{
+                    padding: 6,
+                    borderRadius: 28,
+                    background: "linear-gradient(140deg, rgba(0,255,208,0.18), rgba(160,120,255,0.14), rgba(255,170,80,0.16))",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    boxShadow: "0 38px 120px rgba(0,0,0,0.45)",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                      borderRadius: 22,
+                      overflow: "hidden",
+                      background: "rgba(0,0,0,0.35)",
+                      aspectRatio: "16 / 9",
+                      minHeight: 380,
+                    }}
+                  >
+                    <motion.div
+                      aria-hidden
+                      animate={reduced ? { opacity: 0.5 } : { opacity: [0.35, 0.75, 0.35] }}
+                      transition={reduced ? { duration: 0.01 } : { duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+                      style={{
+                        position: "absolute",
+                        inset: -60,
+                        background: `radial-gradient(560px 320px at 20% 8%, ${activeView.accent}, rgba(0,0,0,0))`,
+                        zIndex: 0,
+                      }}
+                    />
+
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={activeView.id}
+                        src={activeView.image}
+                        alt={activeView.title}
+                        initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 0.99 }}
+                        animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                        exit={reduced ? { opacity: 1 } : { opacity: 0, scale: 1.01 }}
+                        transition={reduced ? { duration: 0.01 } : { duration: 0.45, ease: "easeOut" }}
+                        style={{
+                          position: "relative",
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          display: "block",
+                          zIndex: 1,
+                        }}
+                        loading="lazy"
+                      />
+                    </AnimatePresence>
+
+                    <motion.div
+                      aria-hidden
+                      animate={reduced ? { opacity: 0.2 } : { y: ["-12%", "112%"], opacity: [0, 0.25, 0] }}
+                      transition={reduced ? { duration: 0.01 } : { duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        height: 3,
+                        background: "linear-gradient(90deg, rgba(0,255,208,0), rgba(255,255,255,0.35), rgba(0,255,208,0))",
+                        zIndex: 2,
+                      }}
+                    />
+
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.70))", zIndex: 2 }} />
+
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 14,
+                        right: 14,
+                        bottom: 14,
+                        padding: "12px 14px",
+                        borderRadius: 16,
+                        border: "1px solid rgba(255,255,255,0.16)",
+                        background: "rgba(0,0,0,0.50)",
+                        backdropFilter: "blur(10px)",
+                        WebkitBackdropFilter: "blur(10px)",
+                        zIndex: 3,
+                        textAlign: "left",
+                      }}
+                    >
+                      <div style={{ fontSize: 14, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>{activeView.title}</div>
+                      <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.72)" }}>{activeView.description}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 10, display: "flex", justifyContent: "center", gap: 8 }}>
+                  {solutionShowcase.map((view, index) => (
+                    <span
+                      key={view.id}
+                      style={{
+                        width: index === activeSolution ? 48 : 24,
+                        height: 4,
+                        borderRadius: 999,
+                        background: index === activeSolution ? view.accentStrong : "rgba(255,255,255,0.16)",
+                        transition: "width 200ms ease, background 200ms ease",
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.56)", textAlign: "center" }}>
+                  Auto-rotating preview. Hover to pause.
+                </div>
+              </motion.div>
             </div>
           </Card>
-        </div>
-
-        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-          {outcomes.map((outcome) => (
-            <OutcomeCard key={outcome.title} title={outcome.title} note={outcome.note} icon={outcome.icon} />
-          ))}
-        </div>
-
-        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10 }}>
-          <TinyTag icon={<Mic size={14} />} text="Ask" />
-          <TinyTag icon={<Route size={14} />} text="Route" />
-          <TinyTag icon={<Sparkles size={14} />} text="Promos" />
-          <TinyTag icon={<CreditCard size={14} />} text="Pay" />
         </div>
       </div>
     </section>
   )
 }
 
-function ImageCard({
+function ProblemCard({
   title,
   note,
-  img,
   icon,
   tags,
+  kind,
 }: {
   title: string
   note: string
-  img: string
   icon: React.ReactNode
   tags?: string[]
+  kind: ProblemKind
 }) {
   return (
     <Card style={{ padding: 14 }}>
-      <div
-        style={{
-          height: 170,
-          borderRadius: 18,
-          border: "1px solid rgba(255,255,255,0.12)",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        <img
-          src={img}
-          alt={title}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          loading="lazy"
-        />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.65))" }} />
-        <div
-          style={{
-            position: "absolute",
-            left: 12,
-            top: 12,
-            width: 44,
-            height: 44,
-            borderRadius: 16,
-            border: "1px solid rgba(255,255,255,0.14)",
-            background: "rgba(0,0,0,0.22)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "rgba(255,255,255,0.90)",
-          }}
-        >
-          {icon}
-        </div>
-      </div>
+      <ProblemVisual kind={kind} icon={icon} />
 
       <div style={{ marginTop: 12, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{title}</div>
       <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.6, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>
@@ -279,6 +346,112 @@ function ImageCard({
         </div>
       ) : null}
     </Card>
+  )
+}
+
+function ProblemVisual({ kind, icon }: { kind: ProblemKind; icon: React.ReactNode }) {
+  const accent =
+    kind === "checkout"
+      ? "rgba(255,170,80,0.20)"
+      : kind === "find"
+      ? "rgba(0,255,208,0.18)"
+      : "rgba(160,120,255,0.20)"
+
+  return (
+    <div
+      style={{
+        height: 120,
+        borderRadius: 18,
+        border: "1px solid rgba(255,255,255,0.12)",
+        background: `radial-gradient(260px 120px at 12% 0%, ${accent}, rgba(0,0,0,0)), rgba(0,0,0,0.18)`,
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.55))" }} />
+      <div
+        style={{
+          position: "absolute",
+          left: 12,
+          top: 12,
+          width: 38,
+          height: 38,
+          borderRadius: 14,
+          border: "1px solid rgba(255,255,255,0.14)",
+          background: "rgba(0,0,0,0.24)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "rgba(255,255,255,0.90)",
+        }}
+      >
+        {icon}
+      </div>
+
+      {kind === "checkout" ? (
+        <div style={{ position: "absolute", left: 14, right: 14, top: 54, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 999,
+                  background: i > 3 ? "rgba(255,170,80,0.55)" : "rgba(255,255,255,0.16)",
+                }}
+              />
+            ))}
+            <span style={{ width: 40, height: 10, borderRadius: 999, background: "rgba(255,170,80,0.18)", border: "1px solid rgba(255,170,80,0.35)" }} />
+          </div>
+          <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+            <div style={{ width: "72%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(255,170,80,0.12), rgba(255,170,80,0.45))" }} />
+          </div>
+        </div>
+      ) : kind === "find" ? (
+        <div style={{ position: "absolute", left: 14, right: 14, top: 48, display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 6 }}>
+            {Array.from({ length: 15 }).map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  height: 12,
+                  borderRadius: 6,
+                  background: i === 6 || i === 11 ? "rgba(0,255,208,0.40)" : "rgba(255,255,255,0.10)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                }}
+              />
+            ))}
+          </div>
+          <div style={{ height: 6, borderRadius: 999, background: "rgba(0,255,208,0.12)" }}>
+            <div style={{ width: "54%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(0,255,208,0.10), rgba(0,255,208,0.45))" }} />
+          </div>
+        </div>
+      ) : (
+        <div style={{ position: "absolute", left: 14, right: 14, top: 52, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 999,
+                  background: i === 0 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                }}
+              />
+            ))}
+            <span style={{ marginLeft: "auto", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(160,120,255,0.40)", background: "rgba(160,120,255,0.16)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.80)" }}>
+              Help unavailable
+            </span>
+          </div>
+          <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.08)" }}>
+            <div style={{ width: "38%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(160,120,255,0.12), rgba(160,120,255,0.45))" }} />
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -313,116 +486,6 @@ function ImpactCard({
       </div>
       <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.55, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>{note}</div>
     </Card>
-  )
-}
-
-function SystemBlock({
-  title,
-  body,
-  icon,
-  chips,
-}: {
-  title: string
-  body: string
-  icon: React.ReactNode
-  chips: { text: string; icon: React.ReactNode }[]
-}) {
-  return (
-    <div
-      style={{
-        borderRadius: 20,
-        border: "1px solid rgba(255,255,255,0.12)",
-        background: "rgba(0,0,0,0.18)",
-        padding: 14,
-        display: "grid",
-        gap: 10,
-        height: "100%",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 16,
-            border: "1px solid rgba(255,255,255,0.14)",
-            background: "rgba(255,255,255,0.05)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "rgba(255,255,255,0.85)",
-          }}
-        >
-          {icon}
-        </div>
-        <div>
-          <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{title}</div>
-          <div style={{ marginTop: 4, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.64)" }}>{body}</div>
-        </div>
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {chips.map((chip) => (
-          <MiniTag key={chip.text} icon={chip.icon} text={chip.text} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function OutcomeCard({
-  title,
-  note,
-  icon,
-}: {
-  title: string
-  note: string
-  icon: React.ReactNode
-}) {
-  return (
-    <Card style={{ padding: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 16,
-            border: "1px solid rgba(255,255,255,0.14)",
-            background: "rgba(255,255,255,0.05)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "rgba(255,255,255,0.85)",
-          }}
-        >
-          {icon}
-        </div>
-        <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{title}</div>
-      </div>
-      <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.55, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>{note}</div>
-    </Card>
-  )
-}
-
-function TinyTag({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div
-      style={{
-        borderRadius: 18,
-        border: "1px solid rgba(255,255,255,0.12)",
-        background: "rgba(255,255,255,0.03)",
-        padding: 12,
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        justifyContent: "center",
-        color: "rgba(255,255,255,0.82)",
-        fontWeight: 950,
-        fontSize: 13,
-      }}
-    >
-      <span style={{ display: "inline-flex", opacity: 0.9 }}>{icon}</span>
-      <span>{text}</span>
-    </div>
   )
 }
 
