@@ -35,10 +35,12 @@ export function Button({
   children,
   onClick,
   variant = "solid",
+  style,
 }: {
   children: React.ReactNode
   onClick?: () => void
   variant?: "solid" | "ghost"
+  style?: React.CSSProperties
 }) {
   const base: React.CSSProperties = {
     borderRadius: 16,
@@ -74,7 +76,7 @@ export function Button({
   return (
     <button
       onClick={onClick}
-      style={{ ...base, ...(variant === "solid" ? solid : ghost) }}
+      style={{ ...base, ...(variant === "solid" ? solid : ghost), ...style }}
       onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
       onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
       onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
