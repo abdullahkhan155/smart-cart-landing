@@ -1,34 +1,89 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { Activity, BarChart3, Clock3, MessageSquare, ShieldCheck, Sparkles, TrendingUp } from "lucide-react"
 import { Card, SectionTitle, useBreakpoint } from "./ui"
 
+type Insight = {
+  title: string
+  query: string
+  insight: string
+  action: string
+  tone: string
+}
+
+const SMOOTH_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
+
 export function ProofSection() {
   const isMobile = useBreakpoint(720)
-  const insights = [
-    {
-      title: "Trend detection",
-      query: "Where is gluten-free pasta?",
-      insight: "Gluten-free interest +320% in Aisle 7",
-      action: "Add endcap + recipe pairing",
-      tone: "rgba(88,130,255,0.85)",
-    },
-    {
-      title: "Stockout prevention",
-      query: "Is the oat milk out?",
-      insight: "Zone 3: Oat milk low (12 units)",
-      action: "Alert staff: restock in 6 mins",
-      tone: "rgba(255,170,80,0.9)",
-    },
-    {
-      title: "Merchandising",
-      query: "What's a good low-sodium sauce?",
-      insight: "High ask rate near pasta bundle",
-      action: "Feature sauce next to gluten-free pasta",
-      tone: "rgba(0,255,208,0.9)",
-    },
-  ]
+  const insightDeck: Insight[] = useMemo(
+    () => [
+      {
+        title: "Trend detection",
+        query: "Where is gluten-free pasta?",
+        insight: "Gluten-free interest +320% in Aisle 7",
+        action: "Add endcap + recipe pairing",
+        tone: "rgba(88,130,255,0.85)",
+      },
+      {
+        title: "Stockout prevention",
+        query: "Is the oat milk out?",
+        insight: "Zone 3: Oat milk low (12 units)",
+        action: "Alert staff: restock in 6 mins",
+        tone: "rgba(255,170,80,0.9)",
+      },
+      {
+        title: "Merchandising",
+        query: "What's a good low-sodium sauce?",
+        insight: "High ask rate near pasta bundle",
+        action: "Feature sauce next to gluten-free pasta",
+        tone: "rgba(0,255,208,0.9)",
+      },
+      {
+        title: "Price sensitivity",
+        query: "Any deals on sparkling water?",
+        insight: "Basket price sensitivity +18% near beverages",
+        action: "Deploy 2-for-1 sparkling aisle endcap",
+        tone: "rgba(160,120,255,0.9)",
+      },
+      {
+        title: "Seasonal lift",
+        query: "Need grilling sauce ideas",
+        insight: "BBQ condiments intent +140% today",
+        action: "Move grill kits to front, add pairing cards",
+        tone: "rgba(255,170,120,0.9)",
+      },
+      {
+        title: "Substitution risk",
+        query: "Do you have oat creamer instead?",
+        insight: "Dairy alternatives outpacing dairy by 2.1x",
+        action: "Rebalance facings in Zone 4",
+        tone: "rgba(0,255,208,0.9)",
+      },
+      {
+        title: "Impulse wins",
+        query: "Quick snack near checkout?",
+        insight: "Checkout snack conversion +28% with bundles",
+        action: "Pin promo chips + dip at lane entrance",
+        tone: "rgba(88,130,255,0.85)",
+      },
+      {
+        title: "Journey friction",
+        query: "Where do I return this cart?",
+        insight: "Return wayfinding unclear in front half",
+        action: "Add lane signage + audio prompt",
+        tone: "rgba(255,120,120,0.9)",
+      },
+    ],
+    []
+  )
+
+  const [start, setStart] = useState(0)
+  const visibleInsights = useMemo(
+    () => Array.from({ length: 3 }, (_, i) => insightDeck[(start + i) % insightDeck.length]),
+    [insightDeck, start]
+  )
 
   const bars = [0.48, 0.72, 0.62, 0.84, 0.58, 0.9, 0.76, 0.66]
   const events = [
@@ -46,8 +101,8 @@ export function ProofSection() {
           subtitle="Cart conversations surface trends, restocks, and merchandising moves that keep shelves moving."
         />
 
-        <div style={{ marginTop: isMobile ? 16 : 20, display: "grid", gridTemplateColumns: "1fr", gap: isMobile ? 14 : 18 }}>
-          <SignalPane insights={insights} />
+        <div style={{ marginTop: isMobile ? 18 : 24, display: "grid", gridTemplateColumns: "1fr", gap: isMobile ? 16 : 22 }}>
+          <SignalPane insights={visibleInsights} total={insightDeck.length} start={start} setStart={setStart} />
           <OpsPane bars={bars} events={events} />
         </div>
       </div>
@@ -55,17 +110,32 @@ export function ProofSection() {
   )
 }
 
-function SignalPane({ insights }: { insights: typeof defaultInsights }) {
+function SignalPane({
+  insights,
+  total,
+  start,
+  setStart,
+}: {
+  insights: Insight[]
+  total: number
+  start: number
+  setStart: React.Dispatch<React.SetStateAction<number>>
+}) {
   const isMobile = useBreakpoint(720)
+  useEffect(() => {
+    const id = window.setInterval(() => setStart((s) => (s + 1) % total), 5600)
+    return () => window.clearInterval(id)
+  }, [setStart, total])
+
   return (
-    <Card style={{ padding: isMobile ? 16 : 24, display: "grid", gap: isMobile ? 12 : 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+    <Card style={{ padding: isMobile ? 18 : 28, display: "grid", gap: isMobile ? 14 : 20 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
         <div style={{ display: "grid", gap: 4 }}>
           <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.68)" }}>Signal stream</div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 980, color: "rgba(255,255,255,0.94)" }}>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 980, color: "rgba(255,255,255,0.94)", lineHeight: 1.3 }}>
             Cart asks {"->"} store actions
           </div>
-          <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>
+          <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 850, color: "rgba(255,255,255,0.70)", lineHeight: 1.5 }}>
             Live intent turns into ops moves.
           </div>
         </div>
@@ -84,10 +154,64 @@ function SignalPane({ insights }: { insights: typeof defaultInsights }) {
         </span>
       </div>
 
-      <div style={{ display: "grid", gap: isMobile ? 10 : 14 }}>
-        {insights.map((insight) => (
-          <InsightCard key={insight.title} {...insight} />
-        ))}
+      <div style={{ position: "relative", display: "grid", gap: isMobile ? 14 : 16 }}>
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: -4,
+            right: 0,
+            height: 2,
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: 999,
+            overflow: "hidden",
+          }}
+        >
+          <motion.div
+            key={start}
+            initial={{ scaleX: 0, transformOrigin: "0% 50%" }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 5.5, ease: SMOOTH_EASE }}
+            style={{ height: "100%", background: "linear-gradient(90deg, rgba(0,255,208,0.8), rgba(160,120,255,0.85), rgba(255,170,80,0.8))" }}
+          />
+        </div>
+
+        <AnimatePresence mode="popLayout">
+          {insights.map((insight, i) => (
+            <motion.div
+              key={`${insight.title}-${i}-${start}`}
+              layout
+              initial={{ opacity: 0, y: 14, scale: 0.985, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, scale: 0.99, filter: "blur(6px)" }}
+              transition={{ duration: 0.95, ease: SMOOTH_EASE }}
+            >
+              <InsightCard {...insight} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 6 }}>
+        {Array.from({ length: total }).map((_, i) => {
+          const active = i === start
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setStart(i)}
+              style={{
+                width: active ? 20 : 10,
+                height: 10,
+                borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.20)",
+                background: active ? "linear-gradient(90deg, rgba(0,255,208,0.9), rgba(160,120,255,0.9))" : "rgba(255,255,255,0.10)",
+                cursor: "pointer",
+                transition: "all 180ms ease",
+              }}
+            />
+          )
+        })}
       </div>
     </Card>
   )
@@ -275,21 +399,21 @@ function InsightCard({
         borderRadius: 16,
         border: `1px solid ${tone}`,
         background: "linear-gradient(150deg, rgba(0,0,0,0.28), rgba(0,0,0,0.18))",
-        padding: isMobile ? 12 : 16,
+        padding: isMobile ? 16 : 20,
         display: "grid",
-        gap: isMobile ? 6 : 8,
+        gap: isMobile ? 10 : 12,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: tone, fontSize: 11, fontWeight: 900, letterSpacing: 0.3, textTransform: "uppercase" }}>
         <span style={{ width: 8, height: 8, borderRadius: 999, background: tone }} />
         <span>{title}</span>
       </div>
-      <div style={{ display: "grid", gap: 4, color: "rgba(255,255,255,0.85)" }}>
-        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.68)" }}>Shopper query</div>
+      <div style={{ display: "grid", gap: isMobile ? 6 : 8, color: "rgba(255,255,255,0.85)", lineHeight: 1.55 }}>
+        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.68)", letterSpacing: 0.2 }}>Shopper query</div>
         <div style={{ fontSize: 15, fontWeight: 980 }}>"{query}"</div>
-        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.68)" }}>System insight</div>
+        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.68)", letterSpacing: 0.2 }}>System insight</div>
         <div style={{ fontSize: 14, fontWeight: 980 }}>{insight}</div>
-        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>
+        <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.70)", letterSpacing: 0.2 }}>
           Action: <span style={{ color: tone }}>{action}</span>
         </div>
       </div>

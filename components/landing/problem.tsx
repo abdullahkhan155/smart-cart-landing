@@ -203,11 +203,11 @@ export function ProblemStorySection() {
               >
                 <div
                   style={{
-                    padding: 6,
-                    borderRadius: 28,
-                    background: "linear-gradient(140deg, rgba(0,255,208,0.18), rgba(160,120,255,0.14), rgba(255,170,80,0.16))",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    boxShadow: "0 38px 120px rgba(0,0,0,0.45)",
+                    padding: 8,
+                    borderRadius: 30,
+                    background: `linear-gradient(140deg, ${activeView.accent}, rgba(255,255,255,0.04), ${activeView.accentStrong})`,
+                    border: `1px solid ${activeView.accentStrong}`,
+                    boxShadow: "0 44px 140px rgba(0,0,0,0.48)",
                   }}
                 >
                   <div
@@ -215,9 +215,9 @@ export function ProblemStorySection() {
                       position: "relative",
                       borderRadius: isMobile ? 18 : 22,
                       overflow: "hidden",
-                      background: "rgba(0,0,0,0.35)",
-                      aspectRatio: isMobile ? "4 / 3" : "16 / 9",
-                      minHeight: isMobile ? 240 : 340,
+                      background: "rgba(0,0,0,0.32)",
+                      aspectRatio: "4 / 3",
+                      minHeight: isMobile ? 260 : 380,
                     }}
                   >
                     <AnimatePresence mode="wait">
@@ -234,6 +234,7 @@ export function ProblemStorySection() {
                           width: "100%",
                           height: "100%",
                           objectFit: "contain",
+                          objectPosition: "50% 50%",
                           display: "block",
                           zIndex: 1,
                         }}
@@ -241,7 +242,7 @@ export function ProblemStorySection() {
                       />
                     </AnimatePresence>
 
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.70))", zIndex: 2 }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.38))", zIndex: 2 }} />
 
                     <div
                       style={{
@@ -251,8 +252,8 @@ export function ProblemStorySection() {
                         bottom: isMobile ? 10 : 14,
                         padding: isMobile ? "10px 12px" : "12px 14px",
                         borderRadius: 16,
-                        border: "1px solid rgba(255,255,255,0.16)",
-                        background: "rgba(0,0,0,0.50)",
+                        border: `1px solid ${activeView.accentStrong}`,
+                        background: "rgba(0,0,0,0.46)",
                         backdropFilter: "blur(10px)",
                         WebkitBackdropFilter: "blur(10px)",
                         zIndex: 3,
