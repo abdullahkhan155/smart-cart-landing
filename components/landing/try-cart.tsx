@@ -9,9 +9,10 @@ type Mode = "ask" | "promo" | "checkout"
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 const FLOW: Mode[] = ["ask", "promo", "checkout"]
+const PROMO_SLOWDOWN = 2.45
 const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
   ask: [1200, 1500, 1500],
-  promo: [1300, 1500],
+  promo: [1300 * PROMO_SLOWDOWN, 1500 * PROMO_SLOWDOWN],
   checkout: [1100, 1400, 1500],
 }
 
@@ -125,7 +126,10 @@ function useTryCartDemo() {
 
   useEffect(() => {
     if (scriptStep < totalSteps - 1) return
-    const timer = window.setTimeout(() => setMode(FLOW[(flowIndex + 1) % FLOW.length]), reduced ? 2600 : 3200)
+    const timer = window.setTimeout(
+      () => setMode(FLOW[(flowIndex + 1) % FLOW.length]),
+      mode === "promo" ? (reduced ? 3600 : 4600) : reduced ? 2600 : 3200
+    )
     return () => window.clearTimeout(timer)
   }, [mode, scriptStep, totalSteps, flowIndex, reduced])
 
@@ -176,7 +180,7 @@ function TryCartCard({
         }}
       />
 
-      <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
+      <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 38, height: 38, borderRadius: 14, border: "1px solid rgba(255,255,255,0.16)", background: "rgba(0,0,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -193,6 +197,21 @@ function TryCartCard({
             <MiniChip text="In aisle" tone="rgba(255,255,255,0.75)" />
             <ActionButton icon={<Sparkles size={12} />} label="Replay demo" onClick={restartScript} />
           </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: isMobile ? "8px 10px" : "10px 12px",
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.14)",
+            background: "linear-gradient(140deg, rgba(255,255,255,0.04), rgba(0,0,0,0.18))",
+            boxShadow: "0 12px 44px rgba(0,0,0,0.28)",
+          }}
+        >
+          <FlowRail flow={flow} activeIndex={flowIndex} onSelect={(i) => setMode(flow[i])} />
         </div>
 
         <div style={{ display: "grid", gap: 12 }}>
@@ -212,14 +231,15 @@ function TryCartCard({
             <AnimatePresence mode="wait">
               <motion.div
                 key={mode}
-                initial={reduced ? false : { opacity: 0, y: 12 }}
+                initial={reduced ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={reduced ? undefined : { opacity: 0, y: -12 }}
+                exit={reduced ? undefined : { opacity: 0, y: -8 }}
                 transition={{ duration: 0.48, ease: EASE }}
                 style={{
                   position: "relative",
                   zIndex: 2,
                   height: "100%",
+                  minHeight: isMobile ? 460 : 520,
                   padding: isMobile ? 16 : 20,
                   paddingRight: isMobile ? 14 : 18,
                   paddingBottom: isMobile ? 24 : 28,
@@ -243,16 +263,6 @@ function TryCartCard({
             </AnimatePresence>
           </div>
 
-          <div style={{ display: "grid", gap: 10, gridTemplateColumns: isMobile ? "1fr" : "1fr minmax(200px, 240px)" }}>
-            <FlowRail flow={flow} activeIndex={flowIndex} onSelect={(i) => setMode(flow[i])} />
-            <ActionButton
-              icon={<ArrowRight size={14} />}
-              label={mode === "ask" ? "Continue to promo" : mode === "promo" ? "Go to checkout" : "Back to ask"}
-              highlight
-              onClick={() => setMode(flow[(flowIndex + 1) % flow.length])}
-              disabled={scriptStep < totalSteps - 1}
-            />
-          </div>
         </div>
       </div>
     </Card>
@@ -262,7 +272,7 @@ function TryCartCard({
 function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; activeIndex: number; onSelect: (i: number) => void }) {
   const pct = ((activeIndex + 1) / flow.length) * 100
   return (
-    <div style={{ display: "grid", gap: 6, minWidth: 260 }}>
+    <div style={{ display: "grid", gap: 6, width: "100%" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         {flow.map((step, i) => {
           const isActive = i === activeIndex
@@ -276,12 +286,16 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                padding: "8px 10px",
+                padding: "10px 12px",
                 borderRadius: 999,
-                border: isActive ? "1px solid rgba(0,255,208,0.35)" : "1px solid rgba(255,255,255,0.12)",
-                background: isActive ? "rgba(0,255,208,0.10)" : isDone ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.14)",
-                color: isActive ? "rgba(0,255,208,0.90)" : "rgba(255,255,255,0.72)",
-                fontSize: 12,
+                border: isActive ? "1px solid rgba(0,255,208,0.50)" : "1px solid rgba(255,255,255,0.16)",
+                background: isActive
+                  ? "linear-gradient(120deg, rgba(0,255,208,0.18), rgba(160,120,255,0.16))"
+                  : isDone
+                  ? "rgba(0,0,0,0.20)"
+                  : "rgba(0,0,0,0.16)",
+                color: isActive ? "rgba(0,255,208,0.95)" : "rgba(255,255,255,0.82)",
+                fontSize: 12.5,
                 fontWeight: 900,
                 cursor: "pointer",
               }}
@@ -291,8 +305,8 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
                   width: 16,
                   height: 16,
                   borderRadius: 999,
-                  border: "1px solid rgba(255,255,255,0.25)",
-                  background: isDone ? "rgba(0,255,208,0.20)" : isActive ? "rgba(0,255,208,0.10)" : "transparent",
+                  border: "1px solid rgba(255,255,255,0.28)",
+                  background: isDone ? "rgba(0,255,208,0.22)" : isActive ? "rgba(0,255,208,0.12)" : "transparent",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -306,8 +320,8 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
           )
         })}
       </div>
-      <div style={{ height: 4, borderRadius: 999, background: "rgba(255,255,255,0.10)", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, rgba(0,255,208,0.8), rgba(160,120,255,0.7))", borderRadius: 999 }} />
+      <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.10)", overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, rgba(0,255,208,0.85), rgba(160,120,255,0.78), rgba(255,170,80,0.78))", borderRadius: 999 }} />
       </div>
     </div>
   )
@@ -360,8 +374,10 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
 
 function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
   const isTyping = step < 1
-  const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, ease: EASE } }
-  const rise = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: EASE } }
+  const slowFade = { duration: 0.9, ease: EASE }
+  const slowRise = { duration: 1.05, ease: EASE }
+  const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: slowFade }
+  const rise = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: slowRise }
   return (
     <div style={{ display: "grid", gap: 14, height: "100%" }}>
       <motion.div {...fade} style={{ borderRadius: 18, border: "1px solid rgba(255,170,80,0.28)", background: "linear-gradient(140deg, rgba(255,170,80,0.28), rgba(0,0,0,0.24))", padding: 16, display: "grid", gap: 10 }}>

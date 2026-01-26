@@ -187,19 +187,18 @@ export default function Page() {
                   </div>
                 </div>
 
-                <nav style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }} aria-label="Primary">
-                  <button style={navButton} type="button" onClick={() => goTo("story")}>Story</button>
-                  <button style={navButton} type="button" onClick={() => goTo("how")}>How</button>
-                  <button style={navButton} type="button" onClick={() => goTo("proof")}>Proof</button>
-                  <button style={navButton} type="button" onClick={() => goTo("cta")}>Demo</button>
-                </nav>
+                <div style={{ flex: 1 }} />
 
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <Button variant="ghost" onClick={() => goTo("how")}>
-                    <Mic size={16} />
-                    <span>See assistant</span>
-                  </Button>
-                  <Button onClick={() => goTo("cta")}>
+                  <Button
+                    onClick={() => goTo("cta")}
+                    style={{
+                      background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
+                      boxShadow: "0 12px 38px rgba(0,255,208,0.25)",
+                      padding: "12px 18px",
+                      fontWeight: 800,
+                    }}
+                  >
                     <span>Request demo</span>
                     <ArrowRight size={16} />
                   </Button>
@@ -229,8 +228,8 @@ export default function Page() {
                   </motion.div>
 
                   <motion.h1 variants={introItem} style={heroTitle}>
-                    <span>AI cart.</span>
-                    <span style={heroAccent}>Guided checkout.</span>
+                    <span>AI Shopping Cart</span>
+                    <span style={heroAccent}>Assistant.</span>
                   </motion.h1>
 
                   <motion.p variants={introItem} style={{ marginTop: 14, fontSize: 16, lineHeight: 1.7, color: "var(--muted)", maxWidth: 620, fontWeight: 600 }}>
@@ -238,13 +237,18 @@ export default function Page() {
                   </motion.p>
 
                   <motion.div variants={introItem} style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
-                    <Button onClick={() => goTo("how")}>
-                      <span>See how it works</span>
-                      <ArrowRight size={16} />
-                    </Button>
-                    <Button variant="ghost" onClick={() => goTo("cta")}>
+                    <Button
+                      onClick={() => goTo("cta")}
+                      style={{
+                        background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
+                        boxShadow: "0 16px 46px rgba(0,255,208,0.26)",
+                        padding: "14px 20px",
+                        fontSize: 15,
+                        fontWeight: 800,
+                      }}
+                    >
                       <span>Get a demo</span>
-                      <ArrowRight size={16} style={{ opacity: 0.9 }} />
+                      <ArrowRight size={16} />
                     </Button>
                   </motion.div>
 
@@ -429,50 +433,65 @@ function HeroImageFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSS
   return (
     <section style={{ paddingTop: 12, paddingBottom: 52 }}>
       <div style={wrap}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 26, alignItems: "center" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(420px, 1.25fr) minmax(280px, 0.95fr)",
+            gap: 28,
+            alignItems: "center",
+          }}
+        >
           <motion.div animate={floatAnimation} transition={floatTransition} style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: -12, background: "radial-gradient(380px 240px at 30% 20%, rgba(0,255,208,0.18), rgba(0,0,0,0))", filter: "blur(24px)" }} />
+            <div style={{ position: "absolute", inset: -18, background: "radial-gradient(560px 360px at 32% 18%, rgba(0,255,208,0.22), rgba(0,0,0,0))", filter: "blur(30px)" }} />
             <div
               style={{
                 position: "relative",
-                borderRadius: 26,
+                borderRadius: 34,
                 overflow: "hidden",
-                border: "1px solid var(--line)",
+                border: "1px solid rgba(255,255,255,0.08)",
                 background: "var(--panel)",
-                boxShadow: "0 40px 120px rgba(0,0,0,0.45)",
+                boxShadow: "0 46px 160px rgba(0,0,0,0.58), 0 0 0 1px rgba(255,255,255,0.05)",
               }}
             >
               <img
                 src="/1st_Image.png"
                 alt="Smart cart experience in aisle"
-                style={{ width: "100%", height: "100%", maxHeight: 360, objectFit: "cover", display: "block" }}
+                style={{
+                  width: "100%",
+                  display: "block",
+                  aspectRatio: "4 / 3",
+                  maxHeight: 560,
+                  objectFit: "cover",
+                  objectPosition: "50% 50%",
+                  transform: "scale(1)",
+                }}
                 loading="lazy"
               />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.62))" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.22))" }} />
+              <div style={{ position: "absolute", inset: 12, borderRadius: 24, border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.25)", pointerEvents: "none" }} />
 
               <div style={{ position: "absolute", left: 14, top: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <Pill icon={<Mic size={14} />} text="Ask in aisle" />
                 <Pill icon={<Sparkles size={14} />} text="Smart promos" />
               </div>
 
-              <div
-                style={{
-                  position: "absolute",
-                  left: 14,
-                  bottom: 14,
-                  right: 14,
-                  padding: "10px 12px",
-                  borderRadius: 18,
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  background: "rgba(0,0,0,0.35)",
-                  backdropFilter: "blur(10px)",
-                  WebkitBackdropFilter: "blur(10px)",
-                }}
-              >
-                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>Cart screen, real time</div>
-                <div style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>
-                  Live location, answers, and promos while you shop.
-                </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: 14,
+                padding: "12px 14px",
+                borderRadius: 18,
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(0,0,0,0.26)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                boxShadow: "0 12px 60px rgba(0,0,0,0.35)",
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 750, color: "var(--ink)" }}>Cart screen, real time</div>
+              <div style={{ marginTop: 4, fontSize: 12, fontWeight: 650, color: "var(--muted)" }}>
+                Live location, answers, and promos while you shop.
               </div>
             </div>
           </motion.div>
