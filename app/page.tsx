@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion"
+import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion"
 import { ArrowRight, BarChart3, CreditCard, MapPin, Mic, ShoppingCart, Sparkles } from "lucide-react"
 import { Manrope, Space_Grotesk } from "next/font/google"
 import {
@@ -29,6 +29,7 @@ export default function Page() {
 
   const [mx, setMx] = useState(0.5)
   const [my, setMy] = useState(0.5)
+  const [showDemo, setShowDemo] = useState(false)
 
   const { scrollYProgress } = useScroll()
   const progressScale = useSpring(scrollYProgress, { stiffness: 220, damping: 30 })
@@ -191,7 +192,7 @@ export default function Page() {
 
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   <Button
-                    onClick={() => goTo("cta")}
+                    onClick={() => setShowDemo(true)}
                     style={{
                       background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
                       boxShadow: "0 12px 38px rgba(0,255,208,0.25)",
@@ -207,7 +208,7 @@ export default function Page() {
             </div>
           </div>
 
-          <motion.section id="story" style={{ paddingTop: 68, paddingBottom: 44, opacity: heroOpacity, y: heroShift }}>
+          <motion.section id="story" style={{ paddingTop: 20, paddingBottom: 44, opacity: heroOpacity, y: heroShift }}>
             <div style={wrap}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28, alignItems: "center" }}>
                 <motion.div
@@ -238,7 +239,7 @@ export default function Page() {
 
                   <motion.div variants={introItem} style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
                     <Button
-                      onClick={() => goTo("cta")}
+                      onClick={() => setShowDemo(true)}
                       style={{
                         background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
                         boxShadow: "0 16px 46px rgba(0,255,208,0.26)",
@@ -290,10 +291,13 @@ export default function Page() {
           <HowItWorksSection />
           <ProofSection />
           <FaqSection />
-          <CtaSection reduced={reduced} />
+          <CtaSection reduced={reduced} onRequestDemo={() => setShowDemo(true)} />
           <Footer />
         </div>
       </div>
+      <AnimatePresence>
+        {showDemo ? <DemoModal key="demo-modal" onClose={() => setShowDemo(false)} /> : null}
+      </AnimatePresence>
     </div>
   )
 }
@@ -317,6 +321,20 @@ function HeroMetric({ label, value, icon, tone }: { label: string; value: string
 function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProperties }) {
   const floatAnimation = reduced ? {} : { y: [0, -10, 0] }
   const floatTransition = reduced ? { duration: 0.01 } : { duration: 7, repeat: Infinity, ease: "easeInOut" as const }
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [playing, setPlaying] = useState(true)
+
+  const togglePlay = () => {
+    const v = videoRef.current
+    if (!v) return
+    if (v.paused) {
+      v.play()
+      setPlaying(true)
+    } else {
+      v.pause()
+      setPlaying(false)
+    }
+  }
 
   return (
     <section style={{ paddingTop: 12, paddingBottom: 32 }}>
@@ -336,7 +354,7 @@ function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProp
             </div>
             <div style={{ display: "grid", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 13, fontWeight: 700 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 999, background: "var(--accent)", boxShadow: "0 0 10px rgba(0,255,208,0.6)" }} />
+                <span style={{ width: 8, height: 8, borderRadius: 999, background: "var(--accent)" }} />
                 Real-time cart UI, no kiosk detours.
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 13, fontWeight: 700 }}>
@@ -347,21 +365,18 @@ function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProp
           </div>
 
           <motion.div animate={floatAnimation} transition={floatTransition} style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: -18, background: "radial-gradient(520px 260px at 12% 10%, rgba(0,255,208,0.16), rgba(0,0,0,0))", filter: "blur(28px)" }} />
+            <div style={{ position: "absolute", inset: -18, background: "linear-gradient(120deg, rgba(0,255,208,0.08), rgba(160,120,255,0.08))" }} />
             <div
               style={{
                 position: "relative",
                 overflow: "hidden",
-                borderRadius: "30px 30px 46px 30px",
-                clipPath: "inset(0 round 30px 30px 46px 30px)",
+                borderRadius: 28,
                 border: "1px solid rgba(255,255,255,0.10)",
                 background: "linear-gradient(120deg, rgba(0,0,0,0.72), rgba(20,24,40,0.65))",
                 boxShadow: "0 28px 110px rgba(0,0,0,0.55)",
               }}
             >
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(600px 320px at 18% 0%, rgba(0,255,208,0.14), rgba(0,0,0,0))" }} />
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(520px 260px at 84% 0%, rgba(160,120,255,0.12), rgba(0,0,0,0))" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0))" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.55))" }} />
 
               <video
                 src="/Shopping_Assistant.mp4"
@@ -369,14 +384,16 @@ function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProp
                 muted
                 loop
                 playsInline
+                ref={videoRef}
                 style={{
                   width: "100%",
-                  height: "100%",
-                  maxHeight: 420,
-                  objectFit: "cover",
                   display: "block",
-                  opacity: 0.94,
+                  aspectRatio: "4 / 3",
+                  maxHeight: 520,
+                  objectFit: "cover",
+                  opacity: 0.96,
                 }}
+                onEnded={() => setPlaying(false)}
               />
 
               <div
@@ -393,8 +410,8 @@ function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProp
                   left: 18,
                   bottom: 18,
                   display: "grid",
-                  gap: 6,
-                  maxWidth: 300,
+                  gap: 8,
+                  maxWidth: 320,
                 }}
               >
                 <div
@@ -418,11 +435,244 @@ function VideoFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSSProp
                   AI answers, aisle-aware promos, and self checkout all running on-cart—no kiosks, no detours.
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={togglePlay}
+                style={{
+                  position: "absolute",
+                  right: 16,
+                  bottom: 16,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.16)",
+                  background: "rgba(0,0,0,0.32)",
+                  color: "rgba(255,255,255,0.9)",
+                  fontWeight: 900,
+                  cursor: "pointer",
+                  backdropFilter: "blur(8px)",
+                  WebkitBackdropFilter: "blur(8px)",
+                }}
+              >
+                {playing ? "Pause" : "Play"}
+              </button>
             </div>
           </motion.div>
         </div>
       </div>
     </section>
+  )
+}
+
+function DemoModal({ onClose }: { onClose: () => void }) {
+  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const doSubmit = async () => {
+      setSubmitting(true)
+      setError(null)
+      try {
+        const res = await fetch("/api/demo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fullName, email }),
+        })
+        const text = await res.text()
+        let data: any = null
+        try {
+          data = JSON.parse(text)
+        } catch {
+          data = { ok: false, message: `Request failed (HTTP ${res.status})` }
+        }
+        if (!res.ok || !data?.ok) {
+          throw new Error(data?.message || `Request failed (HTTP ${res.status})`)
+        }
+        setSubmitted(true)
+      } catch (err: any) {
+        setError(err?.message || "Something went wrong")
+      } finally {
+        setSubmitting(false)
+      }
+    }
+    doSubmit()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.65)",
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        zIndex: 200,
+      }}
+      onClick={onClose}
+    >
+      <motion.div
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: -10 }}
+        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          width: "min(520px, 100%)",
+          borderRadius: 20,
+          border: "1px solid rgba(255,255,255,0.16)",
+          background: "linear-gradient(140deg, rgba(0,255,208,0.12), rgba(88,130,255,0.10), rgba(0,0,0,0.72))",
+          boxShadow: "0 40px 140px rgba(0,0,0,0.55)",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 260px at 18% 0%, rgba(0,255,208,0.18), transparent)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 260px at 82% 0%, rgba(160,120,255,0.16), transparent)" }} />
+
+        <div style={{ position: "relative", padding: 22, display: "grid", gap: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 12px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.16)", background: "rgba(0,0,0,0.22)", color: "rgba(255,255,255,0.86)", fontSize: 12, fontWeight: 900, letterSpacing: 0.3 }}>
+              <Sparkles size={14} />
+              <span>Live cart demo</span>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                border: "1px solid rgba(255,255,255,0.16)",
+                background: "rgba(0,0,0,0.26)",
+                color: "rgba(255,255,255,0.82)",
+                borderRadius: 12,
+                padding: "6px 10px",
+                cursor: "pointer",
+                fontWeight: 800,
+              }}
+            >
+              Close
+            </button>
+          </div>
+
+          <div style={{ fontSize: 24, fontWeight: 980, color: "rgba(255,255,255,0.95)", letterSpacing: -0.4 }}>
+            See the cart in action
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 760, color: "rgba(255,255,255,0.76)" }}>
+            Share your details and we’ll send a live demo slot.
+          </div>
+
+          {submitted ? (
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                display: "grid",
+                gap: 12,
+                padding: "16px 14px",
+                borderRadius: 16,
+                border: "1px solid rgba(255,255,255,0.16)",
+                background: "linear-gradient(140deg, rgba(0,255,208,0.16), rgba(88,130,255,0.12), rgba(0,0,0,0.55))",
+              }}
+            >
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.86)" }}>
+                <span style={{ width: 8, height: 8, borderRadius: 999, background: "rgba(0,255,208,0.9)", boxShadow: "0 0 16px rgba(0,255,208,0.45)" }} />
+                <span>Request received</span>
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 980, color: "rgba(255,255,255,0.95)" }}>Thanks - you're in.</div>
+              <div style={{ fontSize: 14, fontWeight: 750, color: "rgba(255,255,255,0.74)" }}>
+                You'll get a live demo slot shortly.
+              </div>
+              <Button
+                onClick={onClose}
+                style={{
+                  justifyContent: "center",
+                  background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  boxShadow: "0 18px 60px rgba(0,255,208,0.24)",
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  fontWeight: 850,
+                  width: "100%",
+                }}
+              >
+                <span>Done</span>
+                <ArrowRight size={16} />
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={submit} style={{ display: "grid", gap: 10 }}>
+              <input
+                type="text"
+                required
+                placeholder="Full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(0,0,0,0.28)",
+                  color: "white",
+                  fontWeight: 800,
+                }}
+              />
+              <input
+                type="email"
+                required
+                placeholder="Work email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(0,0,0,0.28)",
+                  color: "white",
+                  fontWeight: 800,
+                }}
+              />
+              <Button
+                type="submit"
+                style={{
+                  justifyContent: "center",
+                  background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  boxShadow: "0 18px 60px rgba(0,255,208,0.24)",
+                  padding: "13px 16px",
+                  fontSize: 15,
+                  fontWeight: 850,
+                  width: "100%",
+                  opacity: submitting ? 0.8 : 1,
+                  cursor: submitting ? "wait" : "pointer",
+                }}
+                disabled={submitting}
+              >
+                <span>{submitting ? "Sending..." : "Get my demo"}</span>
+                <ArrowRight size={16} />
+              </Button>
+              {error ? (
+                <div style={{ color: "rgba(255,120,120,0.9)", fontWeight: 800, fontSize: 12 }}>{error}</div>
+              ) : null}
+            </form>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -436,7 +686,7 @@ function HeroImageFeature({ reduced, wrap }: { reduced: boolean; wrap: React.CSS
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(420px, 1.25fr) minmax(280px, 0.95fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
             gap: 28,
             alignItems: "center",
           }}

@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { AnimatePresence, motion, useInView } from "framer-motion"
 import { AlertTriangle, ArrowRight, Clock3, MapPin, Users } from "lucide-react"
 import { Card, SectionTitle, useBreakpoint, usePrefersReducedMotion } from "./ui"
 
@@ -59,8 +59,10 @@ export function ProblemStorySection() {
     []
   )
 
-  const [activeSolution, setActiveSolution] = useState(1)
+  const [activeSolution, setActiveSolution] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const showcaseRef = useRef<HTMLDivElement | null>(null)
+  const showcaseInView = useInView(showcaseRef, { amount: 0.4 })
 
   const solutionShowcase = useMemo(
     () => [
@@ -98,12 +100,13 @@ export function ProblemStorySection() {
   const activeView = solutionShowcase[activeSolution]
 
   useEffect(() => {
-    if (reduced || isPaused) return
+    if (reduced || isPaused || !showcaseInView) return
+    setActiveSolution(0)
     const id = window.setInterval(() => {
       setActiveSolution((value) => (value + 1) % solutionShowcase.length)
     }, 5200)
     return () => window.clearInterval(id)
-  }, [reduced, isPaused, solutionShowcase.length])
+  }, [reduced, isPaused, solutionShowcase.length, showcaseInView])
 
   return (
     <section style={{ paddingTop: isMobile ? 70 : 80, paddingBottom: isMobile ? 50 : 60 }}>
@@ -156,7 +159,7 @@ export function ProblemStorySection() {
           />
         </div>
 
-        <div style={{ marginTop: isMobile ? 18 : 22 }}>
+        <div ref={showcaseRef} style={{ marginTop: isMobile ? 18 : 22 }}>
           <Card style={{ padding: isMobile ? 16 : 22 }}>
             <div style={{ display: "grid", gap: 14, justifyItems: "center", textAlign: "center" }}>
               <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1.2, textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>

@@ -36,11 +36,15 @@ export function Button({
   onClick,
   variant = "solid",
   style,
+  type = "button",
+  disabled,
 }: {
   children: React.ReactNode
   onClick?: () => void
   variant?: "solid" | "ghost"
   style?: React.CSSProperties
+  type?: "button" | "submit" | "reset"
+  disabled?: boolean
 }) {
   const base: React.CSSProperties = {
     borderRadius: 16,
@@ -75,9 +79,14 @@ export function Button({
 
   return (
     <button
+      type={type}
       onClick={onClick}
+      disabled={disabled}
       style={{ ...base, ...(variant === "solid" ? solid : ghost), ...style }}
-      onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
+      onMouseDown={(e) => {
+        if (disabled) return
+        e.currentTarget.style.transform = "scale(0.98)"
+      }}
       onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
       onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     >

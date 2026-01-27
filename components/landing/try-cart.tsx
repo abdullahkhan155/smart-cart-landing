@@ -11,7 +11,7 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 const FLOW: Mode[] = ["ask", "promo", "checkout"]
 const PROMO_SLOWDOWN = 2.45
 const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
-  ask: [1200, 1500, 1500],
+  ask: [1100, 1400, 1500, 1400, 1400],
   promo: [1300 * PROMO_SLOWDOWN, 1500 * PROMO_SLOWDOWN],
   checkout: [1100, 1400, 1500],
 }
@@ -222,7 +222,7 @@ function TryCartCard({
               overflow: "hidden",
               border: "1px solid rgba(255,255,255,0.14)",
               background: "rgba(0,0,0,0.30)",
-              minHeight: 520,
+              minHeight: isMobile ? 520 : 600,
               maxHeight: isMobile ? 560 : 680,
             }}
           >
@@ -239,7 +239,8 @@ function TryCartCard({
                   position: "relative",
                   zIndex: 2,
                   height: "100%",
-                  minHeight: isMobile ? 460 : 520,
+                  minHeight: isMobile ? 520 : 600,
+                  maxHeight: isMobile ? 560 : 680,
                   padding: isMobile ? 16 : 20,
                   paddingRight: isMobile ? 14 : 18,
                   paddingBottom: isMobile ? 24 : 28,
@@ -350,9 +351,23 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
           </Bubble>
         </motion.div>
       ) : null}
+      {step >= 3 ? (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+          <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.26)">
+            I can save you $4 with an olive oil + pasta bundle nearby. Want it?
+          </Bubble>
+        </motion.div>
+      ) : null}
+      {step >= 4 ? (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+          <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
+            Yes, add it and guide me.
+          </Bubble>
+        </motion.div>
+      ) : null}
       {isTyping ? <TypingBubble label="Assistant is typing" /> : null}
 
-      {step >= 3 ? (
+      {step >= 2 ? (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.75)", letterSpacing: 0.2 }}>Route preview</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }}>
@@ -363,10 +378,23 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
         </div>
       ) : null}
 
+      {step >= 4 ? (
+        <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
+          <div style={{ borderRadius: 14, border: "1px solid rgba(0,255,208,0.24)", background: "rgba(0,255,208,0.08)", padding: 10, display: "grid", gap: 4 }}>
+            <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(0,255,208,0.85)" }}>Bundle ready</div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: "rgba(255,255,255,0.88)" }}>Olive oil + pasta saved to cart</div>
+          </div>
+          <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.16)", background: "rgba(0,0,0,0.20)", padding: 10, display: "grid", gap: 4 }}>
+            <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>Next step</div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: "rgba(255,255,255,0.88)" }}>Guiding to Aisle 7 shelf 3</div>
+          </div>
+        </div>
+      ) : null}
+
       <div style={{ marginTop: "auto", display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
         <ActionButton icon={<MapPin size={14} />} label="Show route" />
         <ActionButton icon={<Sparkles size={14} />} label="Swap option" />
-        <ActionButton icon={<ArrowRight size={14} />} label="Continue to promo" highlight onClick={onNext} disabled={step < 3} />
+        <ActionButton icon={<ArrowRight size={14} />} label="Jump to promo view" highlight onClick={onNext} disabled={step < 4} />
       </div>
     </div>
   )
@@ -407,6 +435,7 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
         <SavingsRow label="Olive oil" value="$11.80" badge="Bundle match" />
         <SavingsRow label="Pasta (2x)" value="$9.00" badge="In basket" />
         <SavingsRow label="Bonus item" value="$4.20" badge="Suggested" />
+        <SavingsRow label="Sauce pairing" value="$4.50" badge="High intent" />
       </motion.div>
 
       <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
@@ -450,14 +479,17 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
 
 function CheckoutScreen({ step }: { step: number }) {
   const isTyping = step < 3
-  const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, ease: EASE } }
+  const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, ease: EASE } }
   return (
-    <div style={{ display: "grid", gap: 12, height: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>Cart</div>
+    <div style={{ display: "grid", gap: 10, height: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div style={{ display: "inline-flex", gap: 8, alignItems: "center", padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.16)", background: "rgba(0,0,0,0.22)", fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.82)" }}>
           <span style={{ width: 7, height: 7, borderRadius: 999, background: "rgba(0,255,208,0.9)" }} />
           <span>Secure checkout</span>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <InlinePill icon={<Sparkles size={12} />} text="Promo applied -$4" />
+          <InlinePill icon={<Check size={12} />} text="3 items scanned" />
         </div>
       </div>
 
@@ -725,6 +757,28 @@ function MiniChip({ text, tone }: { text: string; tone: string }) {
       }}
     >
       <span style={{ width: 6, height: 6, borderRadius: 999, background: tone, boxShadow: `0 0 12px ${tone}` }} />
+      <span>{text}</span>
+    </span>
+  )
+}
+
+function InlinePill({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "6px 10px",
+        borderRadius: 999,
+        border: "1px solid rgba(255,255,255,0.14)",
+        background: "rgba(0,0,0,0.18)",
+        color: "rgba(255,255,255,0.82)",
+        fontSize: 11.5,
+        fontWeight: 900,
+      }}
+    >
+      <span style={{ display: "inline-flex", opacity: 0.9 }}>{icon}</span>
       <span>{text}</span>
     </span>
   )
