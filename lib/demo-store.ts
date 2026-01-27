@@ -1,8 +1,21 @@
 import Database from "better-sqlite3"
 import path from "path"
 import fs from "fs"
+import os from "os"
 
-const dbPath = path.join(process.cwd(), "data", "demo.db")
+function getDbPath() {
+  const configuredDir = process.env.DEMO_DB_DIR || process.env.DEMO_DATA_DIR
+  if (configuredDir) return path.join(configuredDir, "demo.db")
+
+  // Serverless file systems (e.g. Vercel) are read-only except for /tmp.
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join(os.tmpdir(), "smart-cart-landing", "demo.db")
+  }
+
+  return path.join(process.cwd(), "data", "demo.db")
+}
+
+const dbPath = getDbPath()
 
 // Ensure database and table exist
 function getDb() {

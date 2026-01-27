@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getSupabaseAdmin } from "@/lib/supabase-admin"
 import crypto from "crypto"
 
 export const runtime = "nodejs"
@@ -9,7 +9,23 @@ async function saveLocal(fullName: string, email: string) {
   await saveDemoRequest(fullName, email)
 }
 
-function formatSupabaseError(error: any) {
+function isProductionRuntime() {
+  return process.env.NODE_ENV === "production" || !!process.env.VERCEL
+}
+
+type SupabaseErrorLike = {
+  message?: string
+  code?: string
+  details?: string
+  hint?: string
+}
+
+function errorMessage(err: unknown) {
+  if (err instanceof Error) return err.message
+  return typeof err === "string" ? err : "unknown error"
+}
+
+function formatSupabaseError(error: SupabaseErrorLike | null) {
   if (!error) return "unknown"
   const parts = [error.message, error.code, error.details, error.hint].filter(Boolean)
   return parts.join(" | ")
@@ -17,11 +33,12 @@ function formatSupabaseError(error: any) {
 
 export async function GET() {
   // Safe, minimal health info for local debugging.
+  const supabaseAdmin = getSupabaseAdmin()
   return NextResponse.json({
     ok: true,
     hasSupabase: !!supabaseAdmin,
     hasUrl: !!process.env.SUPABASE_URL,
-    hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    hasServiceRoleKey: !!(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY),
   })
 }
 
@@ -35,15 +52,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, message: "Name and email required" }, { status: 400 })
     }
 
+    const supabaseAdmin = getSupabaseAdmin()
     if (!supabaseAdmin) {
-      // Fallback to local SQLite if Supabase is not configured
+      if (isProductionRuntime()) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message:
+              "Supabase is not configured on the server. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel Project Settings → Environment Variables, then redeploy.",
+          },
+          { status: 500 }
+        )
+      }
+
+      // Dev fallback to local SQLite if Supabase is not configured
       try {
         await saveLocal(fullName, email)
         return NextResponse.json({ ok: true, storage: "local" })
-      } catch (fallbackErr: any) {
+      } catch (fallbackErr: unknown) {
         console.error("Local save failed", fallbackErr)
         return NextResponse.json(
-          { ok: false, message: `Local save failed: ${fallbackErr?.message || "unknown error"}` },
+          { ok: false, message: `Local save failed: ${errorMessage(fallbackErr)}` },
           { status: 500 }
         )
       }
@@ -57,17 +86,24 @@ export async function POST(request: Request) {
     })
     if (error) {
       console.error("Supabase insert failed", error)
-      // try local fallback
+      if (isProductionRuntime()) {
+        return NextResponse.json(
+          { ok: false, message: `Supabase insert failed: ${formatSupabaseError(error)}` },
+          { status: 502 }
+        )
+      }
+
+      // Dev fallback
       try {
         await saveLocal(fullName, email)
         return NextResponse.json({ ok: true, storage: "local-fallback" })
-      } catch (fallbackErr: any) {
+      } catch (fallbackErr: unknown) {
         console.error("Local fallback also failed", fallbackErr)
         return NextResponse.json(
           {
             ok: false,
             message: `Supabase error: ${formatSupabaseError(error)}; local fallback failed: ${
-              fallbackErr?.message || "unknown error"
+              errorMessage(fallbackErr)
             }`,
           },
           { status: 500 }
