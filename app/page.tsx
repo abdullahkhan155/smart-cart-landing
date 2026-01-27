@@ -287,8 +287,8 @@ export default function Page() {
 
           <HeroImageFeature reduced={reduced} wrap={wrap} />
           <VideoFeature reduced={reduced} wrap={wrap} />
-          <ProblemStorySection />
           <HowItWorksSection />
+          <ProblemStorySection />
           <ProofSection />
           <FaqSection />
           <CtaSection reduced={reduced} onRequestDemo={() => setShowDemo(true)} />

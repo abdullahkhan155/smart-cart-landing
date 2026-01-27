@@ -62,6 +62,7 @@ export function ProblemStorySection() {
   const [activeSolution, setActiveSolution] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const showcaseRef = useRef<HTMLDivElement | null>(null)
+  const resumeTimeoutRef = useRef<number | null>(null)
   const showcaseInView = useInView(showcaseRef, { amount: 0.4 })
 
   const solutionShowcase = useMemo(
@@ -93,15 +94,40 @@ export function ProblemStorySection() {
         accent: "rgba(160,120,255,0.24)",
         accentStrong: "rgba(160,120,255,0.9)",
       },
+      {
+        id: "security",
+        label: "Security",
+        title: "Security & Loss Prevention",
+        description: "Real-time cart verification with alerts to keep shrink low.",
+        image: "/Security.png",
+        accent: "rgba(0,190,120,0.22)",
+        accentStrong: "rgba(0,190,120,0.9)",
+      },
     ],
     []
   )
 
   const activeView = solutionShowcase[activeSolution]
 
+  const handleSelect = (index: number) => {
+    setActiveSolution(index)
+
+    if (reduced) return
+
+    // Pause auto-rotation briefly after manual selection so it doesn't immediately jump back
+    setIsPaused(true)
+    if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
+    resumeTimeoutRef.current = window.setTimeout(() => setIsPaused(false), 7000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
+    }
+  }, [])
+
   useEffect(() => {
     if (reduced || isPaused || !showcaseInView) return
-    setActiveSolution(0)
     const id = window.setInterval(() => {
       setActiveSolution((value) => (value + 1) % solutionShowcase.length)
     }, 5200)
@@ -173,7 +199,7 @@ export function ProblemStorySection() {
                     <motion.button
                       key={view.id}
                       type="button"
-                      onClick={() => setActiveSolution(index)}
+                      onClick={() => handleSelect(index)}
                       aria-pressed={isActive}
                       whileHover={reduced ? undefined : { y: -1 }}
                       whileTap={reduced ? undefined : { scale: 0.98 }}

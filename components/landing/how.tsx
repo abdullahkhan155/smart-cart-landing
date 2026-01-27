@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react"
-import { motion } from "framer-motion"
-import { BarChart3, CreditCard, MapPin, Mic, ScanLine, ShieldCheck, Sparkles } from "lucide-react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { AnimatePresence, motion, useInView } from "framer-motion"
+import { BarChart3, CheckCircle2, CreditCard, MapPin, Mic, ScanLine, ShieldCheck, Sparkles } from "lucide-react"
 import { Card, Pill, SectionTitle, usePrefersReducedMotion } from "./ui"
 
-type Scene = "assist" | "promo" | "scan" | "pay" | "verify" | "insights"
+type Scene = "assist" | "promo" | "scan" | "pay" | "security" | "insights"
 
 function useIsNarrow(breakpoint = 980) {
   const [narrow, setNarrow] = useState(false)
@@ -19,55 +19,261 @@ function useIsNarrow(breakpoint = 980) {
   return narrow
 }
 
+type Step = {
+  k: string
+  title: string
+  body: string
+  scene: Scene
+  icon: React.ReactNode
+  accent: string
+  accentStrong: string
+  image?: string
+}
+
 export function HowItWorksSection() {
   const reduced = usePrefersReducedMotion()
   const narrow = useIsNarrow(980)
-  const [active, setActive] = useState(0)
+  const compact = useIsNarrow(720)
 
   const steps = useMemo(
     () =>
       [
-        { k: "Step 01", title: "Ask the cart", body: "The assistant answers with one clear next action.", scene: "assist" as const },
-        { k: "Step 02", title: "Show a nearby promo", body: "Aisle based promos appear when they help.", scene: "promo" as const },
-        { k: "Step 03", title: "Scan as you shop", body: "Fast confirmation and a clear total.", scene: "scan" as const },
-        { k: "Step 04", title: "Pay on cart", body: "Tap, pay, and exit without a lane.", scene: "pay" as const },
-        { k: "Step 05", title: "Verify when needed", body: "Calm checks only for exceptions.", scene: "verify" as const },
-        { k: "Step 06", title: "Measure and improve", body: "Dashboards for throughput and exceptions.", scene: "insights" as const },
+        {
+          k: "Step 01",
+          title: "Ask in aisle",
+          body: "Talk or tap. The cart gives one clear next move and points you to the shelf.",
+          scene: "assist" as const,
+          icon: <Mic size={16} />,
+          accent: "rgba(0,255,208,0.16)",
+          accentStrong: "rgba(0,255,208,0.92)",
+          image: "/AI_Screen.png",
+        },
+        {
+          k: "Step 02",
+          title: "Surface the right deal",
+          body: "Promos appear when they save money and match what\'s in your basket.",
+          scene: "promo" as const,
+          icon: <Sparkles size={16} />,
+          accent: "rgba(255,170,80,0.14)",
+          accentStrong: "rgba(255,170,80,0.92)",
+          image: "/Promo.png",
+        },
+        {
+          k: "Step 03",
+          title: "Scan as you pick",
+          body: "Instant confirmation, fewer mistakes, and a running total that stays obvious.",
+          scene: "scan" as const,
+          icon: <ScanLine size={16} />,
+          accent: "rgba(0,255,208,0.12)",
+          accentStrong: "rgba(0,255,208,0.88)",
+          image: "/Self_Checkout.png",
+        },
+        {
+          k: "Step 04",
+          title: "Pay on cart",
+          body: "Tap to pay, get a receipt, and finish the trip without a lane.",
+          scene: "pay" as const,
+          icon: <CreditCard size={16} />,
+          accent: "rgba(160,120,255,0.14)",
+          accentStrong: "rgba(160,120,255,0.92)",
+          image: "/Self_Checkout.png",
+        },
+        {
+          k: "Step 05",
+          title: "Keep every basket secure",
+          body: "Real-time integrity checks reduce shrink without slowing honest shoppers.",
+          scene: "security" as const,
+          icon: <ShieldCheck size={16} />,
+          accent: "rgba(0,190,120,0.14)",
+          accentStrong: "rgba(0,190,120,0.92)",
+          image: "/Security.png",
+        },
+        {
+          k: "Step 06",
+          title: "Measure and improve",
+          body: "Dashboards track throughput, promo lift, and exceptions - so the system keeps getting better.",
+          scene: "insights" as const,
+          icon: <BarChart3 size={16} />,
+          accent: "rgba(0,255,208,0.12)",
+          accentStrong: "rgba(0,255,208,0.88)",
+        },
       ] as const,
     []
   )
 
+  const [active, setActive] = useState(0)
+  const [manualPaused, setManualPaused] = useState(false)
+  const [hoverPaused, setHoverPaused] = useState(false)
+  const resumeTimeoutRef = useRef<number | null>(null)
+  const lastPauseResetRef = useRef(0)
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const stepRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const activeRef = useRef(0)
+  const inView = useInView(sectionRef, { amount: 0.35 })
+  const isPaused = manualPaused || hoverPaused
+
+  useEffect(() => {
+    activeRef.current = active
+  }, [active])
+
+  const pauseAutoplay = useCallback((ms: number) => {
+    if (reduced) return
+    setManualPaused(true)
+    if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
+    resumeTimeoutRef.current = window.setTimeout(() => setManualPaused(false), ms)
+  }, [reduced])
+
+  const handleSelect = (index: number) => {
+    setActive(index)
+    pauseAutoplay(10000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (reduced || !inView) return
+
+    let raf = 0
+
+    const computeActiveFromScroll = () => {
+      raf = 0
+
+      // User scroll = user intent. Pause autoplay briefly while scrolling in this section.
+      const now = Date.now()
+      if (now - lastPauseResetRef.current > 180) {
+        lastPauseResetRef.current = now
+        pauseAutoplay(5000)
+      }
+
+      const focusY = window.innerHeight * (compact ? 0.52 : 0.44)
+
+      let bestIndex = activeRef.current
+      let bestDistance = Number.POSITIVE_INFINITY
+      let foundVisible = false
+
+      for (let i = 0; i < steps.length; i++) {
+        const el = stepRefs.current[i]
+        if (!el) continue
+        const r = el.getBoundingClientRect()
+        if (r.bottom <= 0 || r.top >= window.innerHeight) continue
+        foundVisible = true
+        const center = (r.top + r.bottom) / 2
+        const dist = Math.abs(center - focusY)
+        if (dist < bestDistance) {
+          bestDistance = dist
+          bestIndex = i
+        }
+      }
+
+      // If nothing is visible (fast scroll / edge cases), pick the closest step overall.
+      if (!foundVisible) {
+        for (let i = 0; i < steps.length; i++) {
+          const el = stepRefs.current[i]
+          if (!el) continue
+          const r = el.getBoundingClientRect()
+          const center = (r.top + r.bottom) / 2
+          const dist = Math.abs(center - focusY)
+          if (dist < bestDistance) {
+            bestDistance = dist
+            bestIndex = i
+          }
+        }
+      }
+
+      setActive((prev) => (prev === bestIndex ? prev : bestIndex))
+    }
+
+    const onScroll = () => {
+      if (raf) return
+      raf = window.requestAnimationFrame(computeActiveFromScroll)
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll)
+    onScroll()
+
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
+      if (raf) window.cancelAnimationFrame(raf)
+    }
+  }, [compact, inView, pauseAutoplay, reduced, steps.length])
+
+  useEffect(() => {
+    if (reduced || isPaused || !inView) return
+    const id = window.setInterval(() => {
+      setActive((v) => (v + 1) % steps.length)
+    }, 6800)
+    return () => window.clearInterval(id)
+  }, [reduced, isPaused, inView, steps.length])
+
+  const activeStep = steps[active]
+
   return (
-    <section id="how" style={{ paddingTop: 90, paddingBottom: 90 }}>
-      <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
+    <section ref={sectionRef} id="how" style={{ position: "relative", paddingTop: 92, paddingBottom: 92 }}>
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          background:
+            "radial-gradient(900px 520px at 50% 10%, rgba(0,255,208,0.10), rgba(0,0,0,0)), radial-gradient(900px 520px at 92% 30%, rgba(160,120,255,0.12), rgba(0,0,0,0)), radial-gradient(900px 520px at 8% 70%, rgba(255,170,80,0.10), rgba(0,0,0,0))",
+          filter: "blur(2px)",
+          opacity: 0.9,
+        }}
+      />
+
+      <div style={{ width: "min(1200px, calc(100% - 40px))", margin: "0 auto", position: "relative" }}>
         <SectionTitle
           eyebrow="How it works"
           title="Get Assistance. Find Deals. Checkout Faster."
-          subtitle="Everything starts with help in aisle. Checkout becomes the finish."
+          subtitle="A cart that helps first, sells smarter, and ends the trip without a line."
         />
 
-        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "420px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
-          <div style={narrow ? {} : { position: "sticky", top: 96 }}>
-            <Card style={{ padding: 16 }}>
+        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "560px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
+          <div style={narrow ? { position: "sticky", top: compact ? 76 : 86, zIndex: 20 } : { position: "sticky", top: 96 }}>
+            <Card style={{ padding: compact ? 14 : 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <div>
-                  <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Live scene</div>
+                  <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Interactive cart demo</div>
                   <div style={{ marginTop: 4, fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.62)" }}>
-                    Click a step to preview it
+                    {compact ? "Tap a step (or icons) to explore." : "Tap a step (or the tabs) to explore. Auto-plays while visible."}
                   </div>
                 </div>
-                <Pill icon={<Sparkles size={14} />} text={steps[active].k} />
+                <Pill icon={<Sparkles size={14} />} text={activeStep.k} />
               </div>
 
               <div style={{ marginTop: 12 }}>
-                <SceneVisual scene={steps[active].scene} reduced={reduced} />
+                <CartOSDemo
+                  step={activeStep}
+                  reduced={reduced}
+                  paused={isPaused}
+                  stacked={narrow}
+                  compact={compact}
+                  onHoverChange={(hovering) => {
+                    if (reduced) return
+                    setHoverPaused(hovering)
+                  }}
+                  onSelectScene={(scene) => {
+                    const idx = steps.findIndex((s) => s.scene === scene)
+                    if (idx !== -1) handleSelect(idx)
+                  }}
+                />
               </div>
 
-              <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Pill icon={<Mic size={14} />} text="Assistant" />
-                <Pill icon={<Sparkles size={14} />} text="Promos" />
-                <Pill icon={<CreditCard size={14} />} text="Checkout" />
-              </div>
+              {!compact ? (
+                <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <Pill icon={<Mic size={14} />} text="Assistant" />
+                  <Pill icon={<Sparkles size={14} />} text="Promos" />
+                  <Pill icon={<ScanLine size={14} />} text="Scan" />
+                  <Pill icon={<CreditCard size={14} />} text="Checkout" />
+                </div>
+              ) : null}
             </Card>
           </div>
 
@@ -79,12 +285,17 @@ export function HowItWorksSection() {
                   step={s.k}
                   title={s.title}
                   body={s.body}
+                  icon={s.icon}
+                  accent={s.accentStrong}
                   active={i === active}
-                  onClick={() => setActive(i)}
-                  onEnter={() => setActive(i)}
+                  onClick={() => handleSelect(i)}
+                  buttonRef={(el) => {
+                    stepRefs.current[i] = el
+                  }}
                 />
               ))}
             </div>
+            <div aria-hidden style={{ height: compact ? 180 : narrow ? 240 : 280 }} />
           </div>
         </div>
       </div>
@@ -96,24 +307,27 @@ function StepCard({
   step,
   title,
   body,
+  icon,
+  accent,
   active,
   onClick,
-  onEnter,
+  buttonRef,
 }: {
   step: string
   title: string
   body: string
+  icon: React.ReactNode
+  accent: string
   active: boolean
   onClick: () => void
-  onEnter: () => void
+  buttonRef?: (el: HTMLButtonElement | null) => void
 }) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
-      onViewportEnter={onEnter}
-      viewport={{ amount: 0.6, margin: "-20% 0px -35% 0px" }}
-      animate={{ opacity: active ? 1 : 0.58, y: active ? 0 : 10 }}
+      ref={buttonRef}
+      animate={{ opacity: active ? 1 : 0.54, y: active ? 0 : 10 }}
       transition={{ duration: 0.28 }}
       style={{
         width: "100%",
@@ -121,265 +335,520 @@ function StepCard({
         cursor: "pointer",
         padding: 18,
         borderRadius: 22,
-        border: active ? "1px solid rgba(255,255,255,0.24)" : "1px solid rgba(255,255,255,0.10)",
-        background: active ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)",
+        border: active ? "1px solid rgba(255,255,255,0.26)" : "1px solid rgba(255,255,255,0.10)",
+        background: active
+          ? "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))"
+          : "rgba(255,255,255,0.03)",
         color: "white",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.16)", color: "rgba(255,255,255,0.78)", fontSize: 12, fontWeight: 950 }}>
-        <span style={{ width: 7, height: 7, borderRadius: 999, background: "rgba(255,255,255,0.75)" }} />
-        <span>{step}</span>
-      </div>
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `radial-gradient(720px 320px at 14% 20%, ${active ? `${accent.replace("0.92", "0.20").replace("0.88", "0.20")}` : "rgba(0,0,0,0)"}, rgba(0,0,0,0))`,
+          opacity: active ? 1 : 0,
+          transition: "opacity 240ms ease",
+          pointerEvents: "none",
+        }}
+      />
 
-      <div style={{ marginTop: 10, fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
-      <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.75, color: "rgba(255,255,255,0.72)", fontWeight: 850 }}>{body}</div>
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.14)",
+                background: active ? "rgba(0,0,0,0.30)" : "rgba(0,0,0,0.18)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: active ? accent : "rgba(255,255,255,0.75)",
+                boxShadow: active ? `0 0 30px ${accent.replace("0.92", "0.20").replace("0.88", "0.20")}` : undefined,
+              }}
+            >
+              {icon}
+            </div>
+
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.16)", color: "rgba(255,255,255,0.78)", fontSize: 12, fontWeight: 950 }}>
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: active ? accent : "rgba(255,255,255,0.75)" }} />
+              <span>{step}</span>
+            </div>
+          </div>
+
+          <div aria-hidden style={{ width: 70, height: 2, borderRadius: 999, background: active ? `linear-gradient(90deg, ${accent}, rgba(0,0,0,0))` : "rgba(255,255,255,0.10)" }} />
+        </div>
+
+        <div style={{ marginTop: 12, fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
+        <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.75, color: "rgba(255,255,255,0.72)", fontWeight: 850 }}>{body}</div>
+      </div>
     </motion.button>
   )
 }
 
-function SceneShell({ children }: { children: React.ReactNode }) {
+function CartOSDemo({
+  step,
+  reduced,
+  paused,
+  stacked,
+  compact,
+  onHoverChange,
+  onSelectScene,
+}: {
+  step: Step
+  reduced: boolean
+  paused: boolean
+  stacked: boolean
+  compact: boolean
+  onHoverChange?: (hovering: boolean) => void
+  onSelectScene?: (scene: Scene) => void
+}) {
+  const stageHeight = compact ? 220 : stacked ? 300 : 390
+  const shellPadding = compact ? 12 : 14
+  const tabButtonPadding = compact ? "9px 8px" : "10px 10px"
+  const demoCorner = compact ? 20 : 22
+
+  const nav = useMemo(
+    () =>
+      [
+        { scene: "assist" as const, icon: <Mic size={14} />, label: "Assistant" },
+        { scene: "promo" as const, icon: <Sparkles size={14} />, label: "Promos" },
+        { scene: "scan" as const, icon: <ScanLine size={14} />, label: "Scan" },
+        { scene: "pay" as const, icon: <CreditCard size={14} />, label: "Pay" },
+        { scene: "security" as const, icon: <ShieldCheck size={14} />, label: "Security" },
+        { scene: "insights" as const, icon: <BarChart3 size={14} />, label: "Insights" },
+      ],
+    []
+  )
+
   return (
-    <div style={{ position: "relative", height: 250, borderRadius: 18, overflow: "hidden" }}>
+    <div
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
+      onFocusCapture={() => onHoverChange?.(true)}
+      onBlurCapture={() => onHoverChange?.(false)}
+      style={{
+        position: "relative",
+        borderRadius: demoCorner,
+        overflow: "hidden",
+        border: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(0,0,0,0.24)",
+        boxShadow: "0 60px 160px rgba(0,0,0,0.55)",
+      }}
+    >
       <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: -2,
+          background: `radial-gradient(900px 420px at 20% 10%, ${step.accent}, rgba(0,0,0,0)), radial-gradient(900px 420px at 92% 40%, rgba(160,120,255,0.12), rgba(0,0,0,0)), radial-gradient(900px 420px at 50% 120%, rgba(255,170,80,0.10), rgba(0,0,0,0))`,
+          opacity: 0.9,
+          pointerEvents: "none",
+        }}
+      />
+
+      <div aria-hidden style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.55))", pointerEvents: "none" }} />
+
+      <div style={{ position: "relative", padding: shellPadding }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              aria-hidden
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 999,
+                background: step.accentStrong,
+                boxShadow: `0 0 18px ${step.accentStrong.replace("0.92", "0.22").replace("0.88", "0.20")}`,
+              }}
+            />
+            <div style={{ fontSize: 12, fontWeight: 950, letterSpacing: 0.3, color: "rgba(255,255,255,0.82)" }}>SMART CART OS</div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.62)" }}>
+              <span style={{ opacity: 0.85 }}>Aisle</span> <span style={{ color: "rgba(255,255,255,0.86)" }}>6</span>
+            </div>
+            <div aria-hidden style={{ width: 1, height: 12, background: "rgba(255,255,255,0.16)" }} />
+            <Pill icon={<MapPin size={14} />} text="In store" />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 12, position: "relative", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.25)" }}>
+          <div aria-hidden style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg, rgba(255,255,255,0.04), rgba(0,0,0,0), rgba(255,255,255,0.03))" }} />
+
+          <div style={{ position: "relative", height: stageHeight }}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step.scene}
+                initial={reduced ? { opacity: 1 } : { opacity: 0, y: 10, scale: 0.99 }}
+                animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+                exit={reduced ? { opacity: 1 } : { opacity: 0, y: -10, scale: 1.01 }}
+                transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut" }}
+                style={{ position: "absolute", inset: 0 }}
+              >
+                {step.scene === "insights" ? (
+                  <InsightsPanel reduced={reduced} tone={step.accentStrong} />
+                ) : (
+                  <SceneImage image={step.image ?? ""} reduced={reduced} tone={step.accentStrong} />
+                )}
+
+                <SceneOverlays scene={step.scene} reduced={reduced} tone={step.accentStrong} />
+              </motion.div>
+            </AnimatePresence>
+
+            <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(520px 260px at 50% 0%, rgba(255,255,255,0.05), rgba(0,0,0,0))" }} />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8 }}>
+          {nav.map((n) => {
+            const isActive = n.scene === step.scene
+            return (
+              <button
+                key={n.scene}
+                type="button"
+                onClick={() => onSelectScene?.(n.scene)}
+                aria-label={n.label}
+                aria-pressed={isActive}
+                style={{
+                  cursor: "pointer",
+                  userSelect: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  padding: tabButtonPadding,
+                  borderRadius: 16,
+                  border: isActive ? "1px solid rgba(255,255,255,0.22)" : "1px solid rgba(255,255,255,0.10)",
+                  background: isActive ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.22)",
+                  color: isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.62)",
+                  fontSize: 12,
+                  fontWeight: 920,
+                  transition: "transform 160ms ease, background 160ms ease, border 160ms ease, color 160ms ease",
+                }}
+                onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
+                onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                title={n.label}
+              >
+                <span style={{ display: "inline-flex", opacity: isActive ? 0.92 : 0.82, color: isActive ? step.accentStrong : undefined }}>{n.icon}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div style={{ marginTop: 10, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.56)", textAlign: "center" }}>
+          {reduced ? "Tap a step to switch views." : paused ? "Paused while you explore." : "Auto-rotating preview. Hover to pause."}
+        </div>
+      </div>
+
+      <div
+        aria-hidden
         style={{
           position: "absolute",
           inset: 0,
-          borderRadius: 18,
-          border: "1px solid rgba(255,255,255,0.10)",
           background:
-            "radial-gradient(560px 260px at 14% 10%, rgba(0,255,208,0.12), rgba(0,0,0,0)), radial-gradient(560px 260px at 84% 8%, rgba(160,120,255,0.12), rgba(0,0,0,0)), radial-gradient(560px 260px at 50% 110%, rgba(255,170,80,0.10), rgba(0,0,0,0)), rgba(0,0,0,0.18)",
+            "radial-gradient(600px 220px at 18% 0%, rgba(255,255,255,0.06), rgba(0,0,0,0)), radial-gradient(600px 220px at 92% 20%, rgba(255,255,255,0.03), rgba(0,0,0,0))",
+          mixBlendMode: "screen",
+          opacity: 0.55,
+          pointerEvents: "none",
         }}
       />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.28))" }} />
-      <div style={{ position: "relative", height: "100%" }}>{children}</div>
     </div>
   )
 }
 
-function SceneVisual({ scene, reduced }: { scene: Scene; reduced: boolean }) {
-  if (scene === "assist") return <AssistScene reduced={reduced} />
-  if (scene === "promo") return <PromoScene reduced={reduced} />
-  if (scene === "scan") return <ScanScene reduced={reduced} />
-  if (scene === "pay") return <PayScene reduced={reduced} />
-  if (scene === "verify") return <VerifyScene reduced={reduced} />
-  return <InsightsScene reduced={reduced} />
+function SceneImage({ image, reduced, tone }: { image: string; reduced: boolean; tone: string }) {
+  return (
+    <div style={{ position: "absolute", inset: 0 }}>
+      <motion.img
+        src={image}
+        alt=""
+        loading="lazy"
+        animate={reduced ? { scale: 1 } : { scale: [1, 1.015, 1], filter: ["saturate(1)", "saturate(1.15)", "saturate(1)"] }}
+        transition={reduced ? { duration: 0.01 } : { duration: 7.8, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          objectPosition: "50% 50%",
+          display: "block",
+          filter: "saturate(1.05) contrast(1.02)",
+        }}
+      />
+
+      <div aria-hidden style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.44))" }} />
+      <div aria-hidden style={{ position: "absolute", inset: 0, background: `radial-gradient(520px 280px at 50% 15%, ${tone.replace("0.92", "0.12").replace("0.88", "0.10")}, rgba(0,0,0,0))` }} />
+    </div>
+  )
 }
 
-function AssistScene({ reduced }: { reduced: boolean }) {
-  return (
-    <SceneShell>
-      <div style={{ position: "absolute", left: 16, top: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Pill icon={<Mic size={14} />} text="Ask" />
-        <Pill icon={<MapPin size={14} />} text="Aisle 6" />
+function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolean; tone: string }) {
+  if (scene === "assist") {
+    return (
+      <div style={{ position: "absolute", inset: 0 }}>
+        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Listening" body={'Ask: "Where is pasta sauce?"'} />
+        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, bottom: 14 }} title="Route ready" body="Aisle 6 - Top shelf" />
       </div>
+    )
+  }
 
-      <div style={{ position: "absolute", left: 16, right: 16, top: 62, display: "grid", gap: 10 }}>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Bubble text="Where is pasta sauce?" kind="user" />
-        </div>
+  if (scene === "promo") {
+    return (
+      <div style={{ position: "absolute", inset: 0 }}>
+        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Deal nearby" body="Olive oil - 15% off in Aisle 7" />
         <motion.div
-          animate={reduced ? { opacity: 1 } : { opacity: [0.65, 1, 0.65] }}
-          transition={reduced ? { duration: 1 } : { duration: 2.0, repeat: Infinity, ease: "easeInOut" }}
-          style={{ display: "flex" }}
+          aria-hidden
+          animate={reduced ? { opacity: 0.7 } : { opacity: [0.0, 0.85, 0.0], y: [10, 0, -10] }}
+          transition={reduced ? { duration: 1 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            right: 16,
+            top: 74,
+            width: 10,
+            height: 10,
+            borderRadius: 999,
+            background: tone,
+            boxShadow: `0 0 20px ${tone.replace("0.92", "0.22").replace("0.88", "0.20")}`,
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (scene === "scan") {
+    return (
+      <div style={{ position: "absolute", inset: 0 }}>
+        <motion.div
+          aria-hidden
+          animate={reduced ? { opacity: 0.6 } : { y: [26, 270, 26], opacity: [0, 0.9, 0] }}
+          transition={reduced ? { duration: 1 } : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            left: 20,
+            right: 20,
+            height: 4,
+            borderRadius: 999,
+            background: `linear-gradient(90deg, rgba(0,0,0,0), ${tone}, rgba(0,0,0,0))`,
+            boxShadow: `0 0 26px ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}`,
+            top: 0,
+          }}
+        />
+        <DemoToast reduced={reduced} tone={tone} at={{ right: 14, top: 14 }} title="Added" body="Olive oil -$1.20" />
+        <BasketMini reduced={reduced} tone={tone} />
+      </div>
+    )
+  }
+
+  if (scene === "pay") {
+    return (
+      <div style={{ position: "absolute", inset: 0 }}>
+        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Total ready" body="$48.72 - Tap to pay" />
+        <motion.div
+          initial={reduced ? false : { y: 18, opacity: 0 }}
+          animate={reduced ? { opacity: 1 } : { y: [18, 8, 18], opacity: [0.9, 1, 0.9] }}
+          transition={reduced ? { duration: 0.01 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            left: 14,
+            right: 14,
+            bottom: 14,
+            padding: 12,
+            borderRadius: 18,
+            border: "1px solid rgba(255,255,255,0.16)",
+            background: "rgba(0,0,0,0.48)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+          }}
         >
-          <Bubble text="Aisle 6, top shelf. Want low sodium?" kind="ai" />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.90)" }}>Pay on cart</div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>No lane</div>
+          </div>
+          <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "12px 12px", borderRadius: 14, border: `1px solid ${tone.replace("0.92", "0.24").replace("0.88", "0.22")}`, background: tone.replace("0.92", "0.14").replace("0.88", "0.12"), color: "rgba(255,255,255,0.92)", fontWeight: 980, fontSize: 13 }}>
+            <CheckCircle2 size={16} />
+            <span>Tap to pay</span>
+          </div>
         </motion.div>
       </div>
+    )
+  }
 
-      <div style={{ position: "absolute", left: 16, bottom: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Chip text="Show route" />
-        <Chip text="Swap option" />
+  if (scene === "security") {
+    return (
+      <div style={{ position: "absolute", inset: 0 }}>
+        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Integrity" body="All items accounted for" />
+        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, bottom: 14 }} title="Low friction" body="Alerts only when something is off" />
+        <motion.div
+          aria-hidden
+          animate={reduced ? { opacity: 0.55 } : { opacity: [0.2, 0.65, 0.2], scale: [0.98, 1.02, 0.98] }}
+          transition={reduced ? { duration: 1 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            right: 20,
+            top: 78,
+            width: 120,
+            height: 120,
+            borderRadius: 999,
+            border: `1px solid ${tone.replace("0.92", "0.35").replace("0.88", "0.33")}`,
+            boxShadow: `0 0 28px ${tone.replace("0.92", "0.16").replace("0.88", "0.14")}`,
+          }}
+        />
       </div>
-    </SceneShell>
+    )
+  }
+
+  return null
+}
+
+function DemoToast({
+  title,
+  body,
+  at,
+  reduced,
+  tone,
+}: {
+  title: string
+  body: string
+  at: Partial<Record<"left" | "right" | "top" | "bottom", number>>
+  reduced: boolean
+  tone: string
+}) {
+  return (
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 10 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut" }}
+      style={{
+        position: "absolute",
+        ...at,
+        maxWidth: 240,
+        padding: "10px 12px",
+        borderRadius: 16,
+        border: "1px solid rgba(255,255,255,0.16)",
+        background: "rgba(0,0,0,0.48)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ fontSize: 12, fontWeight: 980, color: "rgba(255,255,255,0.90)" }}>{title}</div>
+        <div aria-hidden style={{ width: 8, height: 8, borderRadius: 999, background: tone, boxShadow: `0 0 16px ${tone.replace("0.92", "0.22").replace("0.88", "0.20")}` }} />
+      </div>
+      <div style={{ marginTop: 4, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.70)", lineHeight: 1.45 }}>{body}</div>
+    </motion.div>
   )
 }
 
-function PromoScene({ reduced }: { reduced: boolean }) {
+function BasketMini({ reduced, tone }: { reduced: boolean; tone: string }) {
+  const items = [
+    { name: "Pasta", price: "$2.99" },
+    { name: "Olive oil", price: "$8.49" },
+    { name: "Chips", price: "$3.79" },
+    { name: "Bread", price: "$2.59" },
+  ]
+
   return (
-    <SceneShell>
-      <div style={{ position: "absolute", left: 16, top: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Pill icon={<Sparkles size={14} />} text="Promo" />
-        <Pill icon={<MapPin size={14} />} text="Aisle 7" />
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 10 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut", delay: 0.05 }}
+      style={{
+        position: "absolute",
+        left: 14,
+        bottom: 14,
+        width: 270,
+        borderRadius: 18,
+        border: "1px solid rgba(255,255,255,0.14)",
+        background: "rgba(0,0,0,0.48)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ padding: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.90)", fontSize: 12 }}>Basket</div>
+        <div style={{ fontWeight: 950, color: "rgba(255,255,255,0.70)", fontSize: 12 }}>Total $48.72</div>
       </div>
-
-      <motion.div
-        animate={reduced ? { opacity: 1 } : { opacity: [0.6, 1, 0.6] }}
-        transition={reduced ? { duration: 1 } : { duration: 2.0, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          left: 16,
-          right: 16,
-          top: 68,
-          borderRadius: 18,
-          border: "1px solid rgba(255,170,80,0.26)",
-          background: "rgba(255,170,80,0.10)",
-          padding: 14,
-        }}
-      >
-        <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Near you</div>
-        <div style={{ marginTop: 8, fontSize: 14, fontWeight: 850, color: "rgba(255,255,255,0.74)", lineHeight: 1.6 }}>
-          Olive oil 15% off in Aisle 7
-        </div>
-        <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <Chip text="Apply deal" />
-          <Chip text="Route me" />
-        </div>
-      </motion.div>
-    </SceneShell>
-  )
-}
-
-function ScanScene({ reduced }: { reduced: boolean }) {
-  return (
-    <SceneShell>
-      <motion.div
-        animate={reduced ? { opacity: 0.7 } : { y: [22, 200, 22], opacity: [0, 0.9, 0] }}
-        transition={reduced ? { duration: 1 } : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          left: 22,
-          right: 22,
-          height: 4,
-          borderRadius: 999,
-          background: "linear-gradient(90deg, rgba(0,255,208,0), rgba(0,255,208,0.85), rgba(0,255,208,0))",
-          boxShadow: "0 0 26px rgba(0,255,208,0.20)",
-          top: 0,
-        }}
-      />
-
-      <div style={{ position: "absolute", left: 16, right: 16, top: 54, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.03)", padding: 12 }}>
-            <div style={{ height: 10, width: 100 + i * 6, borderRadius: 999, background: "rgba(255,255,255,0.10)" }} />
-            <div style={{ marginTop: 10, height: 10, width: 120, borderRadius: 999, background: "rgba(255,255,255,0.08)" }} />
-          </div>
+      <div style={{ height: 1, background: "rgba(255,255,255,0.10)" }} />
+      <div style={{ padding: 12, display: "grid", gap: 8 }}>
+        {items.map((it, idx) => (
+          <motion.div
+            key={it.name}
+            initial={reduced ? false : { opacity: 0, x: -12 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut", delay: idx * 0.06 }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div aria-hidden style={{ width: 9, height: 9, borderRadius: 999, background: tone.replace("0.92", "0.85").replace("0.88", "0.80"), boxShadow: `0 0 14px ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}` }} />
+              <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.78)" }}>{it.name}</div>
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 950, color: "rgba(255,255,255,0.76)" }}>{it.price}</div>
+          </motion.div>
         ))}
       </div>
-
-      <div style={{ position: "absolute", left: 16, bottom: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Pill icon={<ScanLine size={14} />} text="Scan" />
-        <Pill icon={<Sparkles size={14} />} text="Clear total" />
-      </div>
-    </SceneShell>
+    </motion.div>
   )
 }
 
-function PayScene({ reduced }: { reduced: boolean }) {
-  return (
-    <SceneShell>
-      <div style={{ position: "absolute", left: 16, top: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Pill icon={<CreditCard size={14} />} text="Pay" />
-        <Pill icon={<Sparkles size={14} />} text="No line" />
-      </div>
-
-      <motion.div
-        animate={reduced ? { y: 0 } : { y: [16, 0, 16] }}
-        transition={reduced ? { duration: 1 } : { duration: 2.0, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          right: 18,
-          top: 70,
-          width: 240,
-          height: 130,
-          borderRadius: 20,
-          border: "1px solid rgba(255,255,255,0.14)",
-          background: "rgba(255,255,255,0.04)",
-          padding: 12,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(255,255,255,0.85)", fontWeight: 980, fontSize: 13 }}>
-          <span>Total</span>
-          <span>48.72</span>
-        </div>
-        <div style={{ marginTop: 10, height: 12, borderRadius: 999, background: "rgba(255,255,255,0.10)" }} />
-        <div style={{ marginTop: 10, height: 44, borderRadius: 14, background: "rgba(160,120,255,0.14)", border: "1px solid rgba(160,120,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, color: "rgba(255,255,255,0.82)", fontSize: 12, fontWeight: 980 }}>
-          <CreditCard size={16} style={{ opacity: 0.9 }} />
-          <span>Pay now</span>
-        </div>
-      </motion.div>
-    </SceneShell>
-  )
-}
-
-function VerifyScene({ reduced }: { reduced: boolean }) {
-  return (
-    <SceneShell>
-      <div style={{ position: "absolute", left: 16, top: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Pill icon={<ShieldCheck size={14} />} text="Check" />
-        <Pill icon={<Sparkles size={14} />} text="Calm" />
-      </div>
-
-      <div style={{ position: "absolute", left: 18, top: 78, display: "grid", gap: 10 }}>
-        <div style={{ width: 280, height: 14, borderRadius: 999, background: "rgba(255,255,255,0.10)" }} />
-        <div style={{ width: 240, height: 12, borderRadius: 999, background: "rgba(255,255,255,0.08)" }} />
-        <div style={{ width: 210, height: 12, borderRadius: 999, background: "rgba(255,255,255,0.08)" }} />
-      </div>
-
-      <motion.div
-        animate={reduced ? { opacity: 0.6 } : { opacity: [0.25, 0.65, 0.25] }}
-        transition={reduced ? { duration: 1 } : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          right: 22,
-          top: 76,
-          width: 100,
-          height: 100,
-          borderRadius: 999,
-          border: "1px solid rgba(255,170,80,0.34)",
-          boxShadow: "0 0 28px rgba(255,170,80,0.14)",
-        }}
-      />
-    </SceneShell>
-  )
-}
-
-function InsightsScene({ reduced }: { reduced: boolean }) {
+function InsightsPanel({ reduced, tone }: { reduced: boolean; tone: string }) {
   const bars = [0.55, 0.85, 0.62, 0.72, 0.46, 0.68]
   return (
-    <SceneShell>
-      <div style={{ position: "absolute", left: 16, top: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Pill icon={<BarChart3 size={14} />} text="Throughput" />
-        <Pill icon={<ShieldCheck size={14} />} text="Exceptions" />
+    <div style={{ position: "absolute", inset: 0, padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+        <div>
+          <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Store dashboard</div>
+          <div style={{ marginTop: 4, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>Throughput, promo lift, exceptions</div>
+        </div>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(0,0,0,0.28)", color: "rgba(255,255,255,0.78)", fontSize: 12, fontWeight: 950 }}>
+          <BarChart3 size={14} style={{ opacity: 0.9 }} />
+          <span>Today</span>
+        </div>
       </div>
 
-      <div style={{ position: "absolute", left: 16, right: 16, bottom: 16, height: 150, borderRadius: 18, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.03)", padding: 14 }}>
+      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+        <MetricChip label="Time saved" value="12m" tone={tone} />
+        <MetricChip label="Promo lift" value="+9%" tone={tone} />
+        <MetricChip label="Exceptions" value="Low" tone={tone} />
+      </div>
+
+      <div style={{ marginTop: 12, position: "absolute", left: 16, right: 16, bottom: 16, height: 160, borderRadius: 18, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(0,0,0,0.25)", padding: 14 }}>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: "100%" }}>
           {bars.map((b, i) => (
             <motion.div
               key={i}
               animate={reduced ? { height: `${b * 100}%` } : { height: [`${b * 60}%`, `${b * 100}%`, `${b * 60}%`] }}
-              transition={reduced ? { duration: 1 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }}
+              transition={reduced ? { duration: 0.01 } : { duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }}
               style={{
                 width: "100%",
                 borderRadius: 14,
-                background: "linear-gradient(180deg, rgba(0,255,208,0.16), rgba(255,255,255,0.06))",
+                background: `linear-gradient(180deg, ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}, rgba(255,255,255,0.05))`,
                 border: "1px solid rgba(255,255,255,0.10)",
               }}
             />
           ))}
         </div>
       </div>
-    </SceneShell>
-  )
-}
-
-function Bubble({ text, kind }: { text: string; kind: "user" | "ai" }) {
-  const style: React.CSSProperties =
-    kind === "user"
-      ? { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)" }
-      : { background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.16)" }
-
-  return (
-    <div style={{ maxWidth: 380, padding: "10px 12px", borderRadius: 16, color: "rgba(255,255,255,0.78)", fontSize: 13, lineHeight: 1.55, fontWeight: 850, ...style }}>
-      {text}
     </div>
   )
 }
 
-function Chip({ text }: { text: string }) {
+function MetricChip({ label, value, tone }: { label: string; value: string; tone: string }) {
   return (
-    <span style={{ padding: "7px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", fontSize: 12, fontWeight: 950, color: "rgba(255,255,255,0.70)" }}>
-      {text}
-    </span>
+    <div style={{ padding: 12, borderRadius: 18, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.25)" }}>
+      <div style={{ fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>{label}</div>
+      <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{value}</div>
+        <div aria-hidden style={{ width: 10, height: 10, borderRadius: 999, background: tone, boxShadow: `0 0 18px ${tone.replace("0.92", "0.22").replace("0.88", "0.20")}` }} />
+      </div>
+    </div>
   )
 }
