@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
@@ -107,49 +107,92 @@ export function HowItWorksSection() {
   const resumeTimeoutRef = useRef<number | null>(null)
   const lastPauseResetRef = useRef(0)
   const sectionRef = useRef<HTMLElement | null>(null)
+  const stickyCardRef = useRef<HTMLDivElement | null>(null)
   const stepRefs = useRef<Array<HTMLButtonElement | null>>([])
   const activeRef = useRef(0)
+  const ignoreScrollSyncUntilRef = useRef(0)
+  const lastActiveUpdateRef = useRef(0)
+  const scrollEndTimeoutRef = useRef<number | null>(null)
+  const scrollingRef = useRef(false)
   const inView = useInView(sectionRef, { amount: 0.35 })
   const isPaused = manualPaused || hoverPaused
+  const [scrolling, setScrolling] = useState(false)
+  const perfReduced = compact && scrolling
 
   useEffect(() => {
     activeRef.current = active
   }, [active])
 
   const pauseAutoplay = useCallback((ms: number) => {
-    if (reduced) return
+    if (reduced || compact) return
     setManualPaused(true)
     if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
     resumeTimeoutRef.current = window.setTimeout(() => setManualPaused(false), ms)
-  }, [reduced])
+  }, [compact, reduced])
 
-  const handleSelect = (index: number) => {
+  const scrollStepIntoView = useCallback((index: number) => {
+    if (!narrow) return
+    const el = stepRefs.current[index]
+    if (!el) return
+
+    const stickyHeight = stickyCardRef.current?.getBoundingClientRect().height ?? 0
+    const topPadding = 14
+    const rect = el.getBoundingClientRect()
+    const absoluteTop = rect.top + window.scrollY
+
+    window.scrollTo({
+      top: Math.max(0, absoluteTop - stickyHeight - topPadding),
+      behavior: "smooth",
+    })
+  }, [narrow])
+
+  const handleSelect = useCallback((index: number) => {
+    ignoreScrollSyncUntilRef.current = Date.now() + 900
     setActive(index)
     pauseAutoplay(10000)
-  }
+    scrollStepIntoView(index)
+  }, [pauseAutoplay, scrollStepIntoView])
 
   useEffect(() => {
     return () => {
       if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
+      if (scrollEndTimeoutRef.current) window.clearTimeout(scrollEndTimeoutRef.current)
     }
   }, [])
 
   useEffect(() => {
-    if (reduced || !inView) return
+    if (!inView) return
 
     let raf = 0
 
     const computeActiveFromScroll = () => {
       raf = 0
 
-      // User scroll = user intent. Pause autoplay briefly while scrolling in this section.
       const now = Date.now()
-      if (now - lastPauseResetRef.current > 180) {
+      if (now < ignoreScrollSyncUntilRef.current) return
+
+      if (compact) {
+        if (!scrollingRef.current) {
+          scrollingRef.current = true
+          setScrolling(true)
+        }
+        if (scrollEndTimeoutRef.current) window.clearTimeout(scrollEndTimeoutRef.current)
+        scrollEndTimeoutRef.current = window.setTimeout(() => {
+          scrollingRef.current = false
+          setScrolling(false)
+        }, 140)
+      }
+
+      // User scroll = user intent. Pause autoplay briefly while scrolling in this section.
+      if (!compact && now - lastPauseResetRef.current > 180) {
         lastPauseResetRef.current = now
         pauseAutoplay(5000)
       }
 
-      const focusY = window.innerHeight * (compact ? 0.52 : 0.44)
+      const stickyEnabled = narrow
+      const stickyHeight = stickyEnabled ? (stickyCardRef.current?.getBoundingClientRect().height ?? 0) : 0
+      const hiddenTop = stickyEnabled ? stickyHeight + 12 : 0
+      const focusY = stickyEnabled ? hiddenTop + (window.innerHeight - hiddenTop) * 0.38 : window.innerHeight * 0.44
 
       let bestIndex = activeRef.current
       let bestDistance = Number.POSITIVE_INFINITY
@@ -159,7 +202,7 @@ export function HowItWorksSection() {
         const el = stepRefs.current[i]
         if (!el) continue
         const r = el.getBoundingClientRect()
-        if (r.bottom <= 0 || r.top >= window.innerHeight) continue
+        if (r.bottom <= hiddenTop || r.top >= window.innerHeight) continue
         foundVisible = true
         const center = (r.top + r.bottom) / 2
         const dist = Math.abs(center - focusY)
@@ -184,6 +227,10 @@ export function HowItWorksSection() {
         }
       }
 
+      if (compact) {
+        if (now - lastActiveUpdateRef.current < 110) return
+        lastActiveUpdateRef.current = now
+      }
       setActive((prev) => (prev === bestIndex ? prev : bestIndex))
     }
 
@@ -200,16 +247,17 @@ export function HowItWorksSection() {
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("resize", onScroll)
       if (raf) window.cancelAnimationFrame(raf)
+      if (scrollEndTimeoutRef.current) window.clearTimeout(scrollEndTimeoutRef.current)
     }
-  }, [compact, inView, pauseAutoplay, reduced, steps.length])
+  }, [compact, inView, narrow, pauseAutoplay, steps.length])
 
   useEffect(() => {
-    if (reduced || isPaused || !inView) return
+    if (reduced || compact || isPaused || !inView) return
     const id = window.setInterval(() => {
       setActive((v) => (v + 1) % steps.length)
     }, 6800)
     return () => window.clearInterval(id)
-  }, [reduced, isPaused, inView, steps.length])
+  }, [reduced, compact, isPaused, inView, steps.length])
 
   const activeStep = steps[active]
 
@@ -236,7 +284,14 @@ export function HowItWorksSection() {
         />
 
         <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "560px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
-          <div style={narrow ? { position: "sticky", top: compact ? 76 : 86, zIndex: 20 } : { position: "sticky", top: 96 }}>
+          <div
+            ref={stickyCardRef}
+            style={
+              narrow
+                ? { position: "sticky", top: compact ? 76 : 86, zIndex: 20 }
+                : { position: "sticky", top: 96 }
+            }
+          >
             <Card style={{ padding: compact ? 14 : 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <div>
@@ -252,11 +307,12 @@ export function HowItWorksSection() {
                 <CartOSDemo
                   step={activeStep}
                   reduced={reduced}
+                  perfReduced={perfReduced}
                   paused={isPaused}
                   stacked={narrow}
                   compact={compact}
                   onHoverChange={(hovering) => {
-                    if (reduced) return
+                    if (reduced || compact) return
                     setHoverPaused(hovering)
                   }}
                   onSelectScene={(scene) => {
@@ -289,13 +345,14 @@ export function HowItWorksSection() {
                   accent={s.accentStrong}
                   active={i === active}
                   onClick={() => handleSelect(i)}
+                  compact={compact}
                   buttonRef={(el) => {
                     stepRefs.current[i] = el
                   }}
                 />
               ))}
             </div>
-            <div aria-hidden style={{ height: compact ? 180 : narrow ? 240 : 280 }} />
+            <div aria-hidden style={{ height: compact ? 80 : narrow ? 240 : 280 }} />
           </div>
         </div>
       </div>
@@ -311,6 +368,7 @@ function StepCard({
   accent,
   active,
   onClick,
+  compact,
   buttonRef,
 }: {
   step: string
@@ -320,21 +378,26 @@ function StepCard({
   accent: string
   active: boolean
   onClick: () => void
+  compact?: boolean
   buttonRef?: (el: HTMLButtonElement | null) => void
 }) {
+  const pad = compact ? 14 : 18
+  const iconBox = compact ? 34 : 38
+  const iconRadius = compact ? 12 : 14
+
   return (
     <motion.button
       type="button"
       onClick={onClick}
       ref={buttonRef}
-      animate={{ opacity: active ? 1 : 0.54, y: active ? 0 : 10 }}
-      transition={{ duration: 0.28 }}
+      animate={{ opacity: active ? 1 : 0.58, y: compact ? 0 : active ? 0 : 10 }}
+      transition={{ duration: compact ? 0.22 : 0.28 }}
       style={{
         width: "100%",
         textAlign: "left",
         cursor: "pointer",
-        padding: 18,
-        borderRadius: 22,
+        padding: pad,
+        borderRadius: compact ? 20 : 22,
         border: active ? "1px solid rgba(255,255,255,0.26)" : "1px solid rgba(255,255,255,0.10)",
         background: active
           ? "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))"
@@ -342,6 +405,8 @@ function StepCard({
         color: "white",
         position: "relative",
         overflow: "hidden",
+        touchAction: "manipulation",
+        WebkitTapHighlightColor: "transparent",
       }}
     >
       <div
@@ -361,9 +426,9 @@ function StepCard({
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
             <div
               style={{
-                width: 38,
-                height: 38,
-                borderRadius: 14,
+                width: iconBox,
+                height: iconBox,
+                borderRadius: iconRadius,
                 border: "1px solid rgba(255,255,255,0.14)",
                 background: active ? "rgba(0,0,0,0.30)" : "rgba(0,0,0,0.18)",
                 display: "flex",
@@ -385,8 +450,8 @@ function StepCard({
           <div aria-hidden style={{ width: 70, height: 2, borderRadius: 999, background: active ? `linear-gradient(90deg, ${accent}, rgba(0,0,0,0))` : "rgba(255,255,255,0.10)" }} />
         </div>
 
-        <div style={{ marginTop: 12, fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
-        <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.75, color: "rgba(255,255,255,0.72)", fontWeight: 850 }}>{body}</div>
+        <div style={{ marginTop: 12, fontSize: compact ? 17 : 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
+        <div style={{ marginTop: 8, fontSize: compact ? 13 : 14, lineHeight: 1.75, color: "rgba(255,255,255,0.72)", fontWeight: 850 }}>{body}</div>
       </div>
     </motion.button>
   )
@@ -395,6 +460,7 @@ function StepCard({
 function CartOSDemo({
   step,
   reduced,
+  perfReduced,
   paused,
   stacked,
   compact,
@@ -403,16 +469,21 @@ function CartOSDemo({
 }: {
   step: Step
   reduced: boolean
+  perfReduced: boolean
   paused: boolean
   stacked: boolean
   compact: boolean
   onHoverChange?: (hovering: boolean) => void
   onSelectScene?: (scene: Scene) => void
 }) {
+  const animReduced = reduced || perfReduced
   const stageHeight = compact ? 220 : stacked ? 300 : 390
   const shellPadding = compact ? 12 : 14
   const tabButtonPadding = compact ? "9px 8px" : "10px 10px"
   const demoCorner = compact ? 20 : 22
+  const navWrapStyle: React.CSSProperties = compact
+    ? { marginTop: 12, display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 2 }
+    : { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8 }
 
   const nav = useMemo(
     () =>
@@ -487,19 +558,19 @@ function CartOSDemo({
             <AnimatePresence mode="wait">
               <motion.div
                 key={step.scene}
-                initial={reduced ? { opacity: 1 } : { opacity: 0, y: 10, scale: 0.99 }}
-                animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-                exit={reduced ? { opacity: 1 } : { opacity: 0, y: -10, scale: 1.01 }}
-                transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut" }}
+                initial={animReduced ? { opacity: 1 } : compact ? { opacity: 0, y: 8 } : { opacity: 0, y: 10, scale: 0.99 }}
+                animate={animReduced ? { opacity: 1 } : compact ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, scale: 1 }}
+                exit={animReduced ? { opacity: 1 } : compact ? { opacity: 0, y: -8 } : { opacity: 0, y: -10, scale: 1.01 }}
+                transition={animReduced ? { duration: 0.01 } : { duration: compact ? 0.26 : 0.35, ease: "easeOut" }}
                 style={{ position: "absolute", inset: 0 }}
               >
                 {step.scene === "insights" ? (
-                  <InsightsPanel reduced={reduced} tone={step.accentStrong} />
+                  <InsightsPanel reduced={animReduced} tone={step.accentStrong} lite={compact} />
                 ) : (
-                  <SceneImage image={step.image ?? ""} reduced={reduced} tone={step.accentStrong} />
+                  <SceneImage image={step.image ?? ""} reduced={animReduced} tone={step.accentStrong} lite={compact} />
                 )}
 
-                <SceneOverlays scene={step.scene} reduced={reduced} tone={step.accentStrong} />
+                <SceneOverlays scene={step.scene} reduced={animReduced} tone={step.accentStrong} lite={compact} />
               </motion.div>
             </AnimatePresence>
 
@@ -507,7 +578,7 @@ function CartOSDemo({
           </div>
         </div>
 
-        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8 }}>
+        <div style={navWrapStyle}>
           {nav.map((n) => {
             const isActive = n.scene === step.scene
             return (
@@ -526,12 +597,18 @@ function CartOSDemo({
                   gap: 8,
                   padding: tabButtonPadding,
                   borderRadius: 16,
+                  minWidth: compact ? 44 : undefined,
+                  minHeight: compact ? 44 : undefined,
+                  flex: compact ? "0 0 auto" : undefined,
+                  scrollSnapAlign: compact ? "start" : undefined,
                   border: isActive ? "1px solid rgba(255,255,255,0.22)" : "1px solid rgba(255,255,255,0.10)",
                   background: isActive ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.22)",
                   color: isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.62)",
                   fontSize: 12,
                   fontWeight: 920,
                   transition: "transform 160ms ease, background 160ms ease, border 160ms ease, color 160ms ease",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
                 }}
                 onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
                 onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -565,22 +642,28 @@ function CartOSDemo({
   )
 }
 
-function SceneImage({ image, reduced, tone }: { image: string; reduced: boolean; tone: string }) {
+function SceneImage({ image, reduced, tone, lite }: { image: string; reduced: boolean; tone: string; lite: boolean }) {
   return (
     <div style={{ position: "absolute", inset: 0 }}>
       <motion.img
         src={image}
         alt=""
         loading="lazy"
-        animate={reduced ? { scale: 1 } : { scale: [1, 1.015, 1], filter: ["saturate(1)", "saturate(1.15)", "saturate(1)"] }}
-        transition={reduced ? { duration: 0.01 } : { duration: 7.8, repeat: Infinity, ease: "easeInOut" }}
+        animate={
+          reduced
+            ? { scale: 1 }
+            : lite
+              ? { scale: [1, 1.01, 1] }
+              : { scale: [1, 1.015, 1], filter: ["saturate(1)", "saturate(1.15)", "saturate(1)"] }
+        }
+        transition={reduced ? { duration: 0.01 } : { duration: lite ? 8.4 : 7.8, repeat: Infinity, ease: "easeInOut" }}
         style={{
           width: "100%",
           height: "100%",
           objectFit: "contain",
           objectPosition: "50% 50%",
           display: "block",
-          filter: "saturate(1.05) contrast(1.02)",
+          filter: lite ? "none" : "saturate(1.05) contrast(1.02)",
         }}
       />
 
@@ -590,12 +673,12 @@ function SceneImage({ image, reduced, tone }: { image: string; reduced: boolean;
   )
 }
 
-function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolean; tone: string }) {
+function SceneOverlays({ scene, reduced, tone, lite }: { scene: Scene; reduced: boolean; tone: string; lite: boolean }) {
   if (scene === "assist") {
     return (
       <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Listening" body={'Ask: "Where is pasta sauce?"'} />
-        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, bottom: 14 }} title="Route ready" body="Aisle 6 - Top shelf" />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Listening" body={'Ask: "Where is pasta sauce?"'} />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, bottom: 14 }} title="Route ready" body="Aisle 6 - Top shelf" />
       </div>
     )
   }
@@ -603,7 +686,7 @@ function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolea
   if (scene === "promo") {
     return (
       <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Deal nearby" body="Olive oil - 15% off in Aisle 7" />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Deal nearby" body="Olive oil - 15% off in Aisle 7" />
         <motion.div
           aria-hidden
           animate={reduced ? { opacity: 0.7 } : { opacity: [0.0, 0.85, 0.0], y: [10, 0, -10] }}
@@ -641,8 +724,8 @@ function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolea
             top: 0,
           }}
         />
-        <DemoToast reduced={reduced} tone={tone} at={{ right: 14, top: 14 }} title="Added" body="Olive oil -$1.20" />
-        <BasketMini reduced={reduced} tone={tone} />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ right: 14, top: 14 }} title="Added" body="Olive oil -$1.20" />
+        <BasketMini reduced={reduced} tone={tone} lite={lite} />
       </div>
     )
   }
@@ -650,7 +733,7 @@ function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolea
   if (scene === "pay") {
     return (
       <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Total ready" body="$48.72 - Tap to pay" />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Total ready" body="$48.72 - Tap to pay" />
         <motion.div
           initial={reduced ? false : { y: 18, opacity: 0 }}
           animate={reduced ? { opacity: 1 } : { y: [18, 8, 18], opacity: [0.9, 1, 0.9] }}
@@ -663,9 +746,9 @@ function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolea
             padding: 12,
             borderRadius: 18,
             border: "1px solid rgba(255,255,255,0.16)",
-            background: "rgba(0,0,0,0.48)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
+            background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
+            backdropFilter: lite ? undefined : "blur(10px)",
+            WebkitBackdropFilter: lite ? undefined : "blur(10px)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
@@ -684,8 +767,8 @@ function SceneOverlays({ scene, reduced, tone }: { scene: Scene; reduced: boolea
   if (scene === "security") {
     return (
       <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, top: 14 }} title="Integrity" body="All items accounted for" />
-        <DemoToast reduced={reduced} tone={tone} at={{ left: 14, bottom: 14 }} title="Low friction" body="Alerts only when something is off" />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Integrity" body="All items accounted for" />
+        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, bottom: 14 }} title="Low friction" body="Alerts only when something is off" />
         <motion.div
           aria-hidden
           animate={reduced ? { opacity: 0.55 } : { opacity: [0.2, 0.65, 0.2], scale: [0.98, 1.02, 0.98] }}
@@ -714,12 +797,14 @@ function DemoToast({
   at,
   reduced,
   tone,
+  lite,
 }: {
   title: string
   body: string
   at: Partial<Record<"left" | "right" | "top" | "bottom", number>>
   reduced: boolean
   tone: string
+  lite: boolean
 }) {
   return (
     <motion.div
@@ -733,9 +818,9 @@ function DemoToast({
         padding: "10px 12px",
         borderRadius: 16,
         border: "1px solid rgba(255,255,255,0.16)",
-        background: "rgba(0,0,0,0.48)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
+        background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
+        backdropFilter: lite ? undefined : "blur(10px)",
+        WebkitBackdropFilter: lite ? undefined : "blur(10px)",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
@@ -747,7 +832,7 @@ function DemoToast({
   )
 }
 
-function BasketMini({ reduced, tone }: { reduced: boolean; tone: string }) {
+function BasketMini({ reduced, tone, lite }: { reduced: boolean; tone: string; lite: boolean }) {
   const items = [
     { name: "Pasta", price: "$2.99" },
     { name: "Olive oil", price: "$8.49" },
@@ -767,9 +852,9 @@ function BasketMini({ reduced, tone }: { reduced: boolean; tone: string }) {
         width: 270,
         borderRadius: 18,
         border: "1px solid rgba(255,255,255,0.14)",
-        background: "rgba(0,0,0,0.48)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
+        background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
+        backdropFilter: lite ? undefined : "blur(10px)",
+        WebkitBackdropFilter: lite ? undefined : "blur(10px)",
         overflow: "hidden",
       }}
     >
@@ -799,7 +884,7 @@ function BasketMini({ reduced, tone }: { reduced: boolean; tone: string }) {
   )
 }
 
-function InsightsPanel({ reduced, tone }: { reduced: boolean; tone: string }) {
+function InsightsPanel({ reduced, tone, lite }: { reduced: boolean; tone: string; lite: boolean }) {
   const bars = [0.55, 0.85, 0.62, 0.72, 0.46, 0.68]
   return (
     <div style={{ position: "absolute", inset: 0, padding: 16 }}>
@@ -825,8 +910,18 @@ function InsightsPanel({ reduced, tone }: { reduced: boolean; tone: string }) {
           {bars.map((b, i) => (
             <motion.div
               key={i}
-              animate={reduced ? { height: `${b * 100}%` } : { height: [`${b * 60}%`, `${b * 100}%`, `${b * 60}%`] }}
-              transition={reduced ? { duration: 0.01 } : { duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }}
+              animate={
+                reduced || lite
+                  ? { height: `${b * 100}%` }
+                  : { height: [`${b * 60}%`, `${b * 100}%`, `${b * 60}%`] }
+              }
+              transition={
+                reduced
+                  ? { duration: 0.01 }
+                  : lite
+                    ? { duration: 0.55, ease: "easeOut", delay: i * 0.03 }
+                    : { duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }
+              }
               style={{
                 width: "100%",
                 borderRadius: 14,
