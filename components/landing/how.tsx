@@ -50,7 +50,7 @@ export function HowItWorksSection() {
         },
         {
           k: "Step 02",
-          title: "Surface the right deal",
+          title: "Get Personalized Promos",
           body: "Promos appear when they save money and match what\'s in your basket.",
           scene: "promo" as const,
           icon: <Sparkles size={16} />,
@@ -283,7 +283,7 @@ export function HowItWorksSection() {
           subtitle="A cart that helps first, sells smarter, and ends the trip without a line."
         />
 
-        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "560px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
+        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(560px, 640px) minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
           <div
             ref={stickyCardRef}
             style={
@@ -477,7 +477,7 @@ function CartOSDemo({
   onSelectScene?: (scene: Scene) => void
 }) {
   const animReduced = reduced || perfReduced
-  const stageHeight = compact ? 220 : stacked ? 300 : 390
+  const stageHeight = compact ? 280 : stacked ? 420 : 520
   const shellPadding = compact ? 12 : 14
   const tabButtonPadding = compact ? "9px 8px" : "10px 10px"
   const demoCorner = compact ? 20 : 22

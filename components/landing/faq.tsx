@@ -49,7 +49,7 @@ export function FaqSection() {
   )
 
   return (
-    <section style={{ paddingTop: 90, paddingBottom: 90 }}>
+    <section id="faq" style={{ paddingTop: 90, paddingBottom: 90 }}>
       <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle eyebrow="FAQ" title="Got Questions?" subtitle="What shoppers see, how stores run it, and how we keep it secure." />
 

@@ -2,8 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion"
-import { ArrowRight, BarChart3, CreditCard, MapPin, Mic, ShoppingCart, Sparkles } from "lucide-react"
+import { ArrowRight, BarChart3, CreditCard, MapPin, Mic, ShoppingCart, Sparkles, Store } from "lucide-react"
 import { Manrope, Space_Grotesk } from "next/font/google"
+import Link from "next/link"
 import {
   AnimatedBackdrop,
   Button,
@@ -190,7 +191,26 @@ export default function Page() {
 
                 <div style={{ flex: 1 }} />
 
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <Link
+                    href="/retailers"
+                    style={{
+                      ...navButton,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      textDecoration: "none",
+                      background: "linear-gradient(135deg, rgba(88,130,255,0.22), rgba(0,255,208,0.16))",
+                      border: "1px solid rgba(255,255,255,0.30)",
+                      color: "rgba(255,255,255,0.94)",
+                      boxShadow: "0 14px 40px rgba(88,130,255,0.25), 0 0 0 1px rgba(255,255,255,0.08) inset",
+                      letterSpacing: 0.8,
+                      padding: "11px 16px",
+                    }}
+                  >
+                    <Store size={15} />
+                    For retailers
+                  </Link>
                   <Button
                     onClick={() => setShowDemo(true)}
                     style={{
@@ -200,7 +220,7 @@ export default function Page() {
                       fontWeight: 800,
                     }}
                   >
-                    <span>Request demo</span>
+                    <span>Get my demo</span>
                     <ArrowRight size={16} />
                   </Button>
                 </div>
@@ -248,7 +268,7 @@ export default function Page() {
                         fontWeight: 800,
                       }}
                     >
-                      <span>Get a demo</span>
+                      <span>Get my demo</span>
                       <ArrowRight size={16} />
                     </Button>
                   </motion.div>
