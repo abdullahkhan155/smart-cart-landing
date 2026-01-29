@@ -283,7 +283,7 @@ export function HowItWorksSection() {
           subtitle="A cart that helps first, sells smarter, and ends the trip without a line."
         />
 
-        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(560px, 640px) minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
+        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(500px, 560px) minmax(0, 1fr)", gap: 16, alignItems: "start" }}>
           <div
             ref={stickyCardRef}
             style={
@@ -292,7 +292,7 @@ export function HowItWorksSection() {
                 : { position: "sticky", top: 96 }
             }
           >
-            <Card style={{ padding: compact ? 14 : 16 }}>
+            <Card style={{ padding: compact ? 12 : 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <div>
                   <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Interactive cart demo</div>
@@ -477,7 +477,7 @@ function CartOSDemo({
   onSelectScene?: (scene: Scene) => void
 }) {
   const animReduced = reduced || perfReduced
-  const stageHeight = compact ? 280 : stacked ? 420 : 520
+  const stageHeight = compact ? 240 : stacked ? 340 : 400
   const shellPadding = compact ? 12 : 14
   const tabButtonPadding = compact ? "9px 8px" : "10px 10px"
   const demoCorner = compact ? 20 : 22

@@ -213,7 +213,7 @@ export default function RetailersPage() {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    For shoppers
+                    Back
                   </Link>
                   <Button
                     onClick={() => setShowDemo(true)}
