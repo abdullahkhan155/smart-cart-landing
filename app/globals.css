@@ -1,17 +1,39 @@
+@import "tailwindcss";
+
 :root {
+  --background: #04060a;
+  --foreground: rgba(255, 255, 255, 0.94);
+  
+  --muted: rgba(255, 255, 255, 0.66);
+  --muted-foreground: rgba(255, 255, 255, 0.5);
+  
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-strong: rgba(255, 255, 255, 0.10);
+  --line: rgba(255, 255, 255, 0.14);
+  
+  --accent: #00ffd0; 
+  --accent-2: #5882ff;
+  --accent-3: #ffaa50;
+
+  font-family: 'Manrope', system-ui, sans-serif;
   color-scheme: dark;
 }
 
-html,
 body {
-  height: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(1100px 700px at 14% 18%, rgba(0, 255, 208, 0.1), rgba(0, 0, 0, 0)),
+    radial-gradient(900px 700px at 86% 10%, rgba(88, 130, 255, 0.1), rgba(0, 0, 0, 0)),
+    radial-gradient(900px 700px at 55% 86%, rgba(255, 170, 80, 0.08), rgba(0, 0, 0, 0));
 }
 
-body {
-  margin: 0;
-  background:
-    radial-gradient(1100px 700px at 14% 18%, rgba(0, 255, 208, 0.14), rgba(0, 0, 0, 0)),
-    radial-gradient(900px 700px at 86% 10%, rgba(160, 120, 255, 0.14), rgba(0, 0, 0, 0)),
-    radial-gradient(900px 700px at 55% 86%, rgba(255, 170, 80, 0.10), rgba(0, 0, 0, 0)),
-    linear-gradient(180deg, #070914, #05070b 55%, #04060a);
+@theme {
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
 }

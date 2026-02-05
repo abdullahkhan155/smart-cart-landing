@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 export function clamp(n: number, a: number, b: number) {
   return Math.max(a, Math.min(b, n))
@@ -31,149 +32,68 @@ export function useBreakpoint(maxWidth: number) {
   return matches
 }
 
-export function Button({
-  children,
-  onClick,
-  variant = "solid",
-  style,
-  type = "button",
-  disabled,
-}: {
-  children: React.ReactNode
-  onClick?: () => void
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "solid" | "ghost"
   style?: React.CSSProperties
-  type?: "button" | "submit" | "reset"
-  disabled?: boolean
-}) {
-  const base: React.CSSProperties = {
-    borderRadius: 16,
-    padding: "12px 16px",
-    fontSize: 14,
-    fontWeight: 900,
-    letterSpacing: 0.2,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 10,
-    cursor: "pointer",
-    userSelect: "none",
-    color: "rgba(255,255,255,0.92)",
-    border: "1px solid rgba(255,255,255,0.16)",
-    background: "rgba(255,255,255,0.06)",
-    backdropFilter: "blur(14px)",
-    WebkitBackdropFilter: "blur(14px)",
-    boxShadow: "0 24px 90px rgba(0,0,0,0.28)",
-    transition: "transform 180ms ease, background 180ms ease, border 180ms ease",
-  }
+}
 
-  const solid: React.CSSProperties = {
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06))",
-    border: "1px solid rgba(255,255,255,0.22)",
-  }
-
-  const ghost: React.CSSProperties = {
-    background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,255,255,0.10)",
-  }
-
+export function Button({
+  children,
+  className,
+  variant = "solid",
+  style,
+  ...props
+}: ButtonProps) {
   return (
     <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      style={{ ...base, ...(variant === "solid" ? solid : ghost), ...style }}
-      onMouseDown={(e) => {
-        if (disabled) return
-        e.currentTarget.style.transform = "scale(0.98)"
-      }}
-      onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+      className={cn(
+        "inline-flex items-center gap-2.5 px-4 py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none",
+        variant === "solid" && "bg-white/5 border border-white/20 text-white/90 shadow-2xl hover:bg-white/10 backdrop-blur-md",
+        variant === "ghost" && "bg-white/5 border border-white/10 text-white/80 hover:bg-white/10",
+        className
+      )}
+      style={style}
+      {...props}
     >
       {children}
     </button>
   )
 }
 
-export function Pill({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "8px 10px",
-        borderRadius: 999,
-        border: "1px solid rgba(255,255,255,0.14)",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
-        color: "rgba(255,255,255,0.84)",
-        fontSize: 12,
-        fontWeight: 900,
-        letterSpacing: 0.2,
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-      }}
-    >
-      <span style={{ opacity: 0.9, display: "inline-flex" }}>{icon}</span>
-      <span>{text}</span>
-    </span>
-  )
-}
+// Pill is now in Pill.tsx, removing from here to avoid duplication if we export from index
 
 export function Card({
   children,
-  style,
+  className,
   glow = true,
+  style,
 }: {
   children: React.ReactNode
-  style?: React.CSSProperties
+  className?: string
   glow?: boolean
+  style?: React.CSSProperties
 }) {
   return (
     <div
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        borderRadius: 24,
-        border: "1px solid rgba(255,255,255,0.12)",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
-        boxShadow: "0 36px 140px rgba(0,0,0,0.40)",
-        backdropFilter: "blur(18px)",
-        WebkitBackdropFilter: "blur(18px)",
-        ...style,
-      }}
+      className={cn(
+        "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/5 to-white/5 shadow-2xl backdrop-blur-xl",
+        className
+      )}
+      style={style}
     >
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(90deg, rgba(0,255,208,0.10), rgba(160,120,255,0.10), rgba(255,170,80,0.08))",
-          opacity: 0.7,
-          pointerEvents: "none",
-        }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/10 via-[var(--accent-2)]/10 to-[var(--accent-3)]/10 opacity-70 pointer-events-none" />
 
-      {glow ? (
+      {glow && (
         <motion.div
           aria-hidden
           initial={{ opacity: 0.45 }}
           animate={{ opacity: [0.35, 0.75, 0.35] }}
           transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(700px 320px at 14% 0%, rgba(0,255,208,0.14), rgba(0,0,0,0)), radial-gradient(700px 320px at 84% 0%, rgba(160,120,255,0.14), rgba(0,0,0,0)), radial-gradient(700px 320px at 55% 120%, rgba(255,170,80,0.10), rgba(0,0,0,0))",
-            pointerEvents: "none",
-          }}
+          className="absolute inset-0 bg-[radial-gradient(700px_320px_at_14%_0%,rgba(0,255,208,0.14),transparent),radial-gradient(700px_320px_at_84%_0%,rgba(160,120,255,0.14),transparent)] pointer-events-none"
         />
-      ) : null}
+      )}
 
-      <div style={{ position: "relative" }}>{children}</div>
+      <div className="relative">{children}</div>
     </div>
   )
 }
@@ -187,54 +107,18 @@ export function SectionTitle({
   title: string
   subtitle: string
 }) {
-  const isTablet = useBreakpoint(1024)
-  const isMobile = useBreakpoint(640)
-  const titleSize = isMobile ? "clamp(28px, 7vw, 36px)" : isTablet ? "clamp(34px, 4vw, 44px)" : "clamp(38px, 3.6vw, 46px)"
-  const subtitleSize = isMobile ? 14 : 16
-
   return (
-    <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center", padding: isMobile ? "0 4px" : 0 }}>
-      <div
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "8px 12px",
-          borderRadius: 999,
-          border: "1px solid rgba(255,255,255,0.14)",
-          background: "rgba(255,255,255,0.05)",
-          color: "rgba(255,255,255,0.84)",
-          fontSize: 12,
-          fontWeight: 950,
-          letterSpacing: 0.35,
-          textTransform: "uppercase",
-        }}
-      >
-        <span style={{ width: 8, height: 8, borderRadius: 999, background: "rgba(255,255,255,0.75)" }} />
+    <div className="max-w-4xl mx-auto text-center px-4">
+      <div className="inline-flex items-center gap-2.5 px-3 py-2 rounded-full border border-white/15 bg-white/5 text-xs font-black tracking-widest text-white/85 uppercase">
+        <span className="w-2 h-2 rounded-full bg-white/75" />
         <span>{eyebrow}</span>
       </div>
 
-      <h2
-        style={{
-          marginTop: 18,
-          fontSize: titleSize,
-          lineHeight: 1.08,
-          letterSpacing: -0.7,
-          color: "rgba(255,255,255,0.95)",
-          fontWeight: 980,
-        }}
-      >
+      <h2 className="mt-5 text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white/95 leading-[1.1]">
         {title}
       </h2>
 
-      <p
-        style={{
-          marginTop: 12,
-          fontSize: subtitleSize,
-          lineHeight: 1.7,
-          color: "rgba(255,255,255,0.74)",
-        }}
-      >
+      <p className="mt-4 text-base md:text-lg text-white/75 leading-relaxed max-w-2xl mx-auto">
         {subtitle}
       </p>
     </div>

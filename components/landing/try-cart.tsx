@@ -2,18 +2,19 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
-import { ArrowRight, Check, CreditCard, MapPin, Mic, Sparkles, Wand2 } from "lucide-react"
-import { Card, Pill, useBreakpoint, usePrefersReducedMotion } from "./ui"
+import { ArrowRight, Check, CreditCard, MapPin, Mic, Package, Sparkles, Star, Utensils, Wand2 } from "lucide-react"
+import { Card, useBreakpoint, usePrefersReducedMotion } from "./ui"
+import { Pill } from "./Pill"
 
 type Mode = "ask" | "promo" | "checkout"
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 const FLOW: Mode[] = ["ask", "promo", "checkout"]
-const PROMO_SLOWDOWN = 2.45
+const PROMO_SLOWDOWN = 1.6
 const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
   ask: [1100, 1400, 1500, 1400, 1400],
   promo: [1300 * PROMO_SLOWDOWN, 1500 * PROMO_SLOWDOWN],
-  checkout: [1100, 1400, 1500],
+  checkout: [1100, 1400, 1500, 2000],
 }
 
 export function TryCartSection() {
@@ -128,7 +129,7 @@ function useTryCartDemo() {
     if (scriptStep < totalSteps - 1) return
     const timer = window.setTimeout(
       () => setMode(FLOW[(flowIndex + 1) % FLOW.length]),
-      mode === "promo" ? (reduced ? 3600 : 4600) : reduced ? 2600 : 3200
+      mode === "promo" ? (reduced ? 3000 : 3200) : reduced ? 2600 : 3200
     )
     return () => window.clearTimeout(timer)
   }, [mode, scriptStep, totalSteps, flowIndex, reduced])
@@ -167,18 +168,7 @@ function TryCartCard({
 }: TryCartCardProps) {
   return (
     <Card style={{ padding: isMobile ? 14 : 18, position: "relative", overflow: "hidden" }}>
-      <motion.div
-        aria-hidden
-        animate={reduced ? { opacity: 0.35 } : { opacity: [0.25, 0.6, 0.25] }}
-        transition={reduced ? { duration: 0.01 } : { duration: 6, repeat: Infinity, ease: EASE }}
-        style={{
-          position: "absolute",
-          inset: -40,
-          background: `radial-gradient(520px 260px at 14% 12%, ${active.accent}, rgba(0,0,0,0)), radial-gradient(520px 260px at 86% 6%, rgba(160,120,255,0.20), rgba(0,0,0,0))`,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      />
+
 
       <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -222,8 +212,8 @@ function TryCartCard({
               overflow: "hidden",
               border: "1px solid rgba(255,255,255,0.14)",
               background: "rgba(0,0,0,0.30)",
-              minHeight: isMobile ? 520 : 600,
-              maxHeight: isMobile ? 560 : 680,
+              minHeight: isMobile ? 420 : 480,
+              maxHeight: isMobile ? 460 : 540,
             }}
           >
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.55))", zIndex: 1 }} />
@@ -239,8 +229,8 @@ function TryCartCard({
                   position: "relative",
                   zIndex: 2,
                   height: "100%",
-                  minHeight: isMobile ? 520 : 600,
-                  maxHeight: isMobile ? 560 : 680,
+                  minHeight: isMobile ? 420 : 480,
+                  maxHeight: isMobile ? 460 : 540,
                   padding: isMobile ? 16 : 20,
                   paddingRight: isMobile ? 14 : 18,
                   paddingBottom: isMobile ? 24 : 28,
@@ -293,8 +283,8 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
                 background: isActive
                   ? "linear-gradient(120deg, rgba(0,255,208,0.18), rgba(160,120,255,0.16))"
                   : isDone
-                  ? "rgba(0,0,0,0.20)"
-                  : "rgba(0,0,0,0.16)",
+                    ? "rgba(0,0,0,0.20)"
+                    : "rgba(0,0,0,0.16)",
                 color: isActive ? "rgba(0,255,208,0.95)" : "rgba(255,255,255,0.82)",
                 fontSize: 12.5,
                 fontWeight: 900,
@@ -331,44 +321,78 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
 function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
   const isTyping = step < 3
   return (
-    <div style={{ display: "grid", gap: 10, height: "100%" }}>
+    <div style={{ display: "grid", gap: 10, height: "100%", alignContent: "start" }}>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
-        <Bubble tone="rgba(255,255,255,0.10)" border="rgba(255,255,255,0.18)" align="right">
-          Where is gluten-free pasta?
-        </Bubble>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Bubble tone="rgba(255,255,255,0.10)" border="rgba(255,255,255,0.18)" align="right">
+            Where is gluten-free pasta?
+          </Bubble>
+        </div>
       </motion.div>
       {step >= 1 ? (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
-          <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.28)">
-            Aisle 7, mid-shelf. Want a low-sodium sauce to pair?
-          </Bubble>
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.28)">
+              Aisle 7, mid-shelf. Want a low-sodium sauce to pair?
+            </Bubble>
+          </div>
         </motion.div>
       ) : null}
       {step >= 2 ? (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
-          <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
-            Show me low-sodium options.
-          </Bubble>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
+              Show me low-sodium options.
+            </Bubble>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            style={{ marginTop: 12, display: "flex", justifyContent: "flex-start" }}
+          >
+            <div style={{ background: "rgba(30,35,45,0.95)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 16, padding: 12, display: "flex", gap: 12, maxWidth: 340 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 10, background: "rgba(255,170,80,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Utensils size={20} className="text-[#FFAA50]" />
+              </div>
+              <div style={{ display: "grid", gap: 2 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>Tuscan Low-Sodium Marinara</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>Aisle 7 • 140mg Sodium</div>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: "white" }}>$4.20</div>
+                  <div style={{ display: "flex", gap: 1 }}>
+                    {[1, 2, 3, 4, 5].map(i => <Star key={i} size={10} fill={i < 5 ? "#FFAA50" : "transparent"} color="#FFAA50" />)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
       ) : null}
       {step >= 3 ? (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
-          <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.26)">
-            I can save you $4 with an olive oil + pasta bundle nearby. Want it?
-          </Bubble>
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.26)">
+              I can save you $4 with an olive oil + pasta bundle nearby. Want it?
+            </Bubble>
+          </div>
         </motion.div>
       ) : null}
       {step >= 4 ? (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
-          <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
-            Yes, add it and guide me.
-          </Bubble>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
+              Yes, add it and guide me.
+            </Bubble>
+          </div>
         </motion.div>
       ) : null}
       {isTyping ? <TypingBubble label="Assistant is typing" /> : null}
 
       {step >= 2 ? (
-        <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.75)", letterSpacing: 0.2 }}>Route preview</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }}>
             <RouteStep label="Start" detail="Produce" active />
@@ -407,38 +431,36 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
   const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: slowFade }
   const rise = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: slowRise }
   return (
-    <div style={{ display: "grid", gap: 14, height: "100%" }}>
-      <motion.div {...fade} style={{ borderRadius: 18, border: "1px solid rgba(255,170,80,0.28)", background: "linear-gradient(140deg, rgba(255,170,80,0.28), rgba(0,0,0,0.24))", padding: 16, display: "grid", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 999, background: "rgba(255,170,80,0.95)", boxShadow: "0 0 12px rgba(255,170,80,0.65)" }} />
-            <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.4, color: "rgba(255,255,255,0.78)" }}>In aisle</span>
+    <div style={{ display: "grid", gap: 14, height: "100%", alignContent: "center" }}>
+      <motion.div {...fade} style={{ borderRadius: 18, border: "1px solid rgba(255,170,80,0.28)", background: "linear-gradient(140deg, rgba(255,170,80,0.28), rgba(0,0,0,0.24))", padding: 20, display: "grid", gap: 10, textAlign: "center", justifyItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <span style={{ width: 8, height: 8, borderRadius: 999, background: "rgba(255,170,80,0.95)", boxShadow: "0 0 12px rgba(255,170,80,0.65)" }} />
+          <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.4, color: "rgba(255,255,255,0.78)" }}>Smart Offer</span>
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 980, color: "rgba(255,255,255,0.96)" }}>Olive oil + pasta</div>
+
+        <div style={{ display: "flex", gap: 12, padding: "12px 0" }}>
+          <div style={{ width: 56, height: 56, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Utensils size={24} color="rgba(255,255,255,0.8)" />
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>
-            <span>Shelf 3</span>
-            <span>Nearby</span>
-            {step >= 2 ? <Tag text="Applied to cart" /> : <Tag text="Ready to apply" />}
+          <div style={{ fontSize: 24, fontWeight: 300, color: "rgba(255,255,255,0.4)", alignSelf: "center" }}>+</div>
+          <div style={{ width: 56, height: 56, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Package size={24} color="rgba(255,255,255,0.8)" />
           </div>
         </div>
-        <div style={{ fontSize: 24, fontWeight: 980, color: "rgba(255,255,255,0.96)" }}>Olive oil + pasta</div>
-        <div style={{ fontSize: 15, fontWeight: 850, color: "rgba(255,255,255,0.82)" }}>Save $4 when bundled</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Tag text="Matches your basket" />
-          <Tag text="Bundle save" />
-          <Tag text="High intent" />
-        </div>
+
+        <div style={{ fontSize: 16, fontWeight: 850, color: "rgba(255,255,255,0.82)" }}>Save $4.00 instantly</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginTop: -4 }}>Because you bought Pasta</div>
+        {step >= 2 ? (
+          <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 99, background: "rgba(255,255,255,0.1)", fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.9)" }}>
+            Added to cart
+          </div>
+        ) : null}
       </motion.div>
 
       {isTyping ? <motion.div {...fade}><TypingBubble label="Finding best promo" tone="rgba(255,170,80,0.9)" /></motion.div> : null}
 
-      <motion.div {...fade} style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-        <SavingsRow label="Olive oil" value="$11.80" badge="Bundle match" />
-        <SavingsRow label="Pasta (2x)" value="$9.00" badge="In basket" />
-        <SavingsRow label="Bonus item" value="$4.20" badge="Suggested" />
-        <SavingsRow label="Sauce pairing" value="$4.50" badge="High intent" />
-      </motion.div>
-
-      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", marginTop: 20 }}>
         <motion.div key={`before-${step >= 1}`} {...fade}>
           <StatBlock
             label="Before savings"
@@ -448,29 +470,19 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
             desc="Cart total before promo"
           />
         </motion.div>
-        <motion.div key={`bundle-${step >= 2}`} {...fade}>
-          <StatBlock
-            label="Bundle savings"
-            value={step >= 2 ? "- $4.00" : "…"}
-            tone="rgba(0,255,208,0.95)"
-            subtle={step < 2}
-            desc="Applied to basket"
-          />
-        </motion.div>
         <motion.div key={`newtotal-${step >= 2}`} {...fade}>
           <StatBlock
             label="New total"
             value={step >= 2 ? "$21.00" : "…"}
             tone="rgba(255,255,255,0.98)"
             subtle={step < 2}
-            desc="Updated at checkout"
+            desc="After bundle applied"
           />
         </motion.div>
       </div>
 
       <motion.div {...rise} style={{ marginTop: "auto", display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
         <ActionButton icon={<Sparkles size={14} />} label={step >= 2 ? "Promo applied" : "Apply promo"} highlight disabled={step < 1} />
-        <ActionButton icon={<MapPin size={14} />} label="Show shelf" />
         <ActionButton icon={<ArrowRight size={14} />} label="Go to checkout" highlight onClick={onNext} disabled={step < 2} />
       </motion.div>
     </div>
@@ -501,6 +513,16 @@ function CheckoutScreen({ step }: { step: number }) {
         {step >= 2 ? <motion.div {...fade}><ReceiptLine label="Promo applied" note="Bundle save" value="- $4.00" dim /></motion.div> : null}
         {step >= 2 ? <motion.div {...fade}><ReceiptLine label="Total" note="Tax included" value="$21.00" strong /></motion.div> : null}
       </div>
+
+      {step >= 4 ? (
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: "center", padding: 20, background: "rgba(0,255,208,0.1)", borderRadius: 20, border: "1px solid rgba(0,255,208,0.2)" }}>
+          <div style={{ width: 40, height: 40, background: "rgba(0,255,208,0.9)", borderRadius: 99, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+            <Check size={20} className="text-black" />
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "white" }}>Payment Successful</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>You earned <span style={{ color: "#00FFD0", fontWeight: 700 }}>42 Vela Points</span></div>
+        </motion.div>
+      ) : null}
 
       {isTyping ? <motion.div {...fade}><TypingBubble label="Preparing checkout" tone="rgba(0,255,208,0.9)" /></motion.div> : null}
 

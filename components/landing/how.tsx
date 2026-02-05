@@ -3,7 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
 import { BarChart3, CheckCircle2, CreditCard, MapPin, Mic, ScanLine, ShieldCheck, Sparkles } from "lucide-react"
-import { Card, Pill, SectionTitle, usePrefersReducedMotion } from "./ui"
+import { Card, SectionTitle, usePrefersReducedMotion } from "./ui"
+import { Pill } from "./Pill"
 
 type Scene = "assist" | "promo" | "scan" | "pay" | "security" | "insights"
 
@@ -41,7 +42,7 @@ export function HowItWorksSection() {
         {
           k: "Step 01",
           title: "Ask in aisle",
-          body: "Talk or tap. The cart gives one clear next move and points you to the shelf.",
+          body: "Get immediate answers and aisle locations.",
           scene: "assist" as const,
           icon: <Mic size={16} />,
           accent: "rgba(0,255,208,0.16)",
@@ -51,7 +52,7 @@ export function HowItWorksSection() {
         {
           k: "Step 02",
           title: "Get Personalized Promos",
-          body: "Promos appear when they save money and match what\'s in your basket.",
+          body: "See relevant deals as you shop.",
           scene: "promo" as const,
           icon: <Sparkles size={16} />,
           accent: "rgba(255,170,80,0.14)",
@@ -61,7 +62,7 @@ export function HowItWorksSection() {
         {
           k: "Step 03",
           title: "Scan as you pick",
-          body: "Instant confirmation, fewer mistakes, and a running total that stays obvious.",
+          body: "Scan items instantly and track your total.",
           scene: "scan" as const,
           icon: <ScanLine size={16} />,
           accent: "rgba(0,255,208,0.12)",
@@ -71,7 +72,7 @@ export function HowItWorksSection() {
         {
           k: "Step 04",
           title: "Pay on cart",
-          body: "Tap to pay, get a receipt, and finish the trip without a lane.",
+          body: "Skip the line and pay directly on the device.",
           scene: "pay" as const,
           icon: <CreditCard size={16} />,
           accent: "rgba(160,120,255,0.14)",
@@ -80,8 +81,8 @@ export function HowItWorksSection() {
         },
         {
           k: "Step 05",
-          title: "Keep every basket secure",
-          body: "Real-time integrity checks reduce shrink without slowing honest shoppers.",
+          title: "Secure every basket",
+          body: "Real-time checks keep inventory safe.",
           scene: "security" as const,
           icon: <ShieldCheck size={16} />,
           accent: "rgba(0,190,120,0.14)",
@@ -91,7 +92,7 @@ export function HowItWorksSection() {
         {
           k: "Step 06",
           title: "Measure and improve",
-          body: "Dashboards track throughput, promo lift, and exceptions - so the system keeps getting better.",
+          body: "Track performance and optimize the store.",
           scene: "insights" as const,
           icon: <BarChart3 size={16} />,
           accent: "rgba(0,255,208,0.12)",
@@ -262,7 +263,7 @@ export function HowItWorksSection() {
   const activeStep = steps[active]
 
   return (
-    <section ref={sectionRef} id="how" style={{ position: "relative", paddingTop: 92, paddingBottom: 92 }}>
+    <section ref={sectionRef} id="how" style={{ position: "relative", paddingTop: 32, paddingBottom: 32 }}>
       <div
         aria-hidden
         style={{
@@ -283,7 +284,7 @@ export function HowItWorksSection() {
           subtitle="A cart that helps first, sells smarter, and ends the trip without a line."
         />
 
-        <div style={{ marginTop: 34, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(500px, 560px) minmax(0, 1fr)", gap: 16, alignItems: "start" }}>
+        <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(500px, 560px) minmax(0, 1fr)", gap: 16, alignItems: "start" }}>
           <div
             ref={stickyCardRef}
             style={
@@ -334,7 +335,7 @@ export function HowItWorksSection() {
           </div>
 
           <div style={{ width: "100%", maxWidth: 760, marginLeft: "auto", marginRight: "auto" }}>
-            <div style={{ display: "grid", gap: 12 }}>
+            <div style={{ display: "grid", gap: 8 }}>
               {steps.map((s, i) => (
                 <StepCard
                   key={s.k}
@@ -352,7 +353,7 @@ export function HowItWorksSection() {
                 />
               ))}
             </div>
-            <div aria-hidden style={{ height: compact ? 80 : narrow ? 240 : 280 }} />
+            <div aria-hidden style={{ height: compact ? 60 : narrow ? 180 : 120 }} />
           </div>
         </div>
       </div>

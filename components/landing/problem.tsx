@@ -2,8 +2,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
-import { AlertTriangle, ArrowRight, Clock3, MapPin, Users } from "lucide-react"
+import { AlertTriangle, ArrowRight, MapPin, Users } from "lucide-react"
 import { Card, SectionTitle, useBreakpoint, usePrefersReducedMotion } from "./ui"
+
 
 type ProblemKind = "checkout" | "find" | "help"
 
@@ -14,46 +15,22 @@ export function ProblemStorySection() {
   const problems = useMemo(
     () => [
       {
-        title: "Checkout take too long",
-        note: "Lines turn the last minutes into idle time.",
+        title: "Slow Checkout",
+        note: "Queues waste time.",
         icon: <Users size={18} />,
-        tags: ["Queue time", "Exit delay"],
         kind: "checkout" as const,
       },
       {
-        title: "Decision Overload",
-        note: "Too many items, promotions, and prices to track.",
+        title: "Hard to Find",
+        note: "Finding items is tough.",
         icon: <MapPin size={18} />,
-        tags: ["Lost minutes", "Missed items"],
         kind: "find" as const,
       },
       {
-        title: "Limited Staff Help",
-        note: "Lack of staff coverage pauses the trip.",
+        title: "No Help",
+        note: "Staff are busy.",
         icon: <AlertTriangle size={18} />,
-        tags: ["Staff strain", "Interrupted flow"],
         kind: "help" as const,
-      },
-    ],
-    []
-  )
-
-  const impacts = useMemo(
-    () => [
-      {
-        title: "Time per trip",
-        note: "Minutes disappear to lines and hunting.",
-        icon: <Clock3 size={18} />,
-      },
-      {
-        title: "Basket completion",
-        note: "Missed items when aisles are unclear.",
-        icon: <MapPin size={18} />,
-      },
-      {
-        title: "Staff load",
-        note: "More questions, fewer hands on shelves.",
-        icon: <Users size={18} />,
       },
     ],
     []
@@ -70,17 +47,17 @@ export function ProblemStorySection() {
       {
         id: "assistant",
         label: "AI assistant",
-        title: "AI Shopping Assistant",
-        description: "Live answers and guidance, right on the cart screen.",
+        title: "AI Assistant",
+        description: "Answers in the aisle.",
         image: "/AI_Screen.png",
         accent: "rgba(0,255,208,0.24)",
         accentStrong: "rgba(0,255,208,0.9)",
       },
       {
         id: "promos",
-        label: "Personalized promos",
-        title: "Personalized Promotions",
-        description: "Relevant offers that match basket and aisle context.",
+        label: "Smart promos",
+        title: "Smart Promos",
+        description: "Offers that matter.",
         image: "/Promo.png",
         accent: "rgba(255,170,80,0.24)",
         accentStrong: "rgba(255,170,80,0.9)",
@@ -89,7 +66,7 @@ export function ProblemStorySection() {
         id: "checkout",
         label: "Self checkout",
         title: "Self Checkout",
-        description: "Scan, pay, and exit with a clean, verified flow.",
+        description: "Scan, pay, and go.",
         image: "/Self_Checkout.png",
         accent: "rgba(160,120,255,0.24)",
         accentStrong: "rgba(160,120,255,0.9)",
@@ -97,8 +74,8 @@ export function ProblemStorySection() {
       {
         id: "security",
         label: "Security",
-        title: "Security & Loss Prevention",
-        description: "Real-time cart verification with alerts to keep shrink low.",
+        title: "Loss Prevention",
+        description: "Real-time cart verification.",
         image: "/Security.png",
         accent: "rgba(0,190,120,0.22)",
         accentStrong: "rgba(0,190,120,0.9)",
@@ -135,23 +112,17 @@ export function ProblemStorySection() {
   }, [reduced, isPaused, solutionShowcase.length, showcaseInView])
 
   return (
-    <section style={{ paddingTop: isMobile ? 70 : 80, paddingBottom: isMobile ? 50 : 60 }}>
+    <section style={{ paddingTop: isMobile ? 50 : 60, paddingBottom: isMobile ? 40 : 50 }}>
       <div style={{ width: isMobile ? "calc(100% - 24px)" : "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
         <SectionTitle
           eyebrow="The problem"
-          title="Shopping Trips are Frustrating"
-          subtitle="Queues, findability gaps, and unanswered questions slow every basket."
+          title="Shopping is Slow"
+          subtitle="Queues and confusion slow everyone down."
         />
 
         <div style={{ marginTop: isMobile ? 24 : 34, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
           {problems.map((p) => (
-            <ProblemCard key={p.title} title={p.title} note={p.note} icon={p.icon} tags={p.tags} kind={p.kind} />
-          ))}
-        </div>
-
-        <div style={{ marginTop: isMobile ? 12 : 14, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-          {impacts.map((impact) => (
-            <ImpactCard key={impact.title} title={impact.title} note={impact.note} icon={impact.icon} />
+            <ProblemCard key={p.title} title={p.title} note={p.note} icon={p.icon} kind={p.kind} />
           ))}
         </div>
 
@@ -228,7 +199,7 @@ export function ProblemStorySection() {
                 onBlurCapture={() => setIsPaused(false)}
                 animate={reduced ? { opacity: 1 } : { y: [0, -6, 0] }}
                 transition={reduced ? { duration: 0.01 } : { duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
-                style={{ width: "min(920px, 100%)", marginTop: isMobile ? 10 : 6 }}
+                style={{ width: "min(760px, 100%)", marginTop: isMobile ? 10 : 6 }}
               >
                 <div
                   style={{
@@ -246,7 +217,7 @@ export function ProblemStorySection() {
                       overflow: "hidden",
                       background: "rgba(0,0,0,0.32)",
                       aspectRatio: "4 / 3",
-                      minHeight: isMobile ? 260 : 380,
+                      minHeight: isMobile ? 240 : 320,
                     }}
                   >
                     <AnimatePresence mode="wait">
@@ -326,13 +297,11 @@ function ProblemCard({
   title,
   note,
   icon,
-  tags,
   kind,
 }: {
   title: string
   note: string
   icon: React.ReactNode
-  tags?: string[]
   kind: ProblemKind
 }) {
   return (
@@ -343,13 +312,6 @@ function ProblemCard({
       <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.6, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>
         {note}
       </div>
-      {tags?.length ? (
-        <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {tags.map((tag) => (
-            <MiniTag key={tag} text={tag} />
-          ))}
-        </div>
-      ) : null}
     </Card>
   )
 }
@@ -359,8 +321,8 @@ function ProblemVisual({ kind, icon }: { kind: ProblemKind; icon: React.ReactNod
     kind === "checkout"
       ? "rgba(255,170,80,0.20)"
       : kind === "find"
-      ? "rgba(0,255,208,0.18)"
-      : "rgba(160,120,255,0.20)"
+        ? "rgba(0,255,208,0.18)"
+        : "rgba(160,120,255,0.20)"
 
   return (
     <div
@@ -387,7 +349,7 @@ function ProblemVisual({ kind, icon }: { kind: ProblemKind; icon: React.ReactNod
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "rgba(255,255,255,0.90)",
+          color: "rgba(255,255,255,0.90)"
         }}
       >
         {icon}
@@ -457,61 +419,5 @@ function ProblemVisual({ kind, icon }: { kind: ProblemKind; icon: React.ReactNod
         </div>
       )}
     </div>
-  )
-}
-
-function ImpactCard({
-  title,
-  note,
-  icon,
-}: {
-  title: string
-  note: string
-  icon: React.ReactNode
-}) {
-  return (
-    <Card style={{ padding: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 16,
-            border: "1px solid rgba(255,255,255,0.14)",
-            background: "rgba(255,255,255,0.05)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "rgba(255,255,255,0.85)",
-          }}
-        >
-          {icon}
-        </div>
-        <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.90)" }}>{title}</div>
-      </div>
-      <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.55, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>{note}</div>
-    </Card>
-  )
-}
-
-function MiniTag({ icon, text }: { icon?: React.ReactNode; text: string }) {
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "6px 10px",
-        borderRadius: 999,
-        border: "1px solid rgba(255,255,255,0.12)",
-        background: "rgba(0,0,0,0.20)",
-        fontSize: 11,
-        fontWeight: 900,
-        color: "rgba(255,255,255,0.70)",
-      }}
-    >
-      {icon ? <span style={{ display: "inline-flex", opacity: 0.85 }}>{icon}</span> : null}
-      <span>{text}</span>
-    </span>
   )
 }
