@@ -47,15 +47,16 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center gap-2.5 px-4 py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none",
-        variant === "solid" && "bg-white/5 border border-white/20 text-white/90 shadow-2xl hover:bg-white/10 backdrop-blur-md",
-        variant === "ghost" && "bg-white/5 border border-white/10 text-white/80 hover:bg-white/10",
+        "inline-flex items-center gap-2.5 px-4 py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none relative overflow-hidden group",
+        variant === "solid" && "bg-white/10 border border-white/20 text-white shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:shadow-[0_0_30px_rgba(0,242,234,0.3)] backdrop-blur-xl",
+        variant === "ghost" && "bg-transparent border border-transparent text-white/70 hover:text-white hover:bg-white/5",
         className
       )}
       style={style}
       {...props}
     >
-      {children}
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/0 to-[var(--accent)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <span className="relative">{children}</span>
     </button>
   )
 }
@@ -76,24 +77,28 @@ export function Card({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/5 to-white/5 shadow-2xl backdrop-blur-xl",
+        "relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] shadow-2xl backdrop-blur-2xl transition-colors hover:bg-white/[0.06]",
         className
       )}
       style={style}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/10 via-[var(--accent-2)]/10 to-[var(--accent-3)]/10 opacity-70 pointer-events-none" />
+      {/* Subtle top-light for depth */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50" />
+
+      {/* Aurora sheen */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 via-transparent to-[var(--accent-2)]/5 opacity-50 pointer-events-none" />
 
       {glow && (
         <motion.div
           aria-hidden
-          initial={{ opacity: 0.45 }}
-          animate={{ opacity: [0.35, 0.75, 0.35] }}
-          transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-0 bg-[radial-gradient(700px_320px_at_14%_0%,rgba(0,255,208,0.14),transparent),radial-gradient(700px_320px_at_84%_0%,rgba(160,120,255,0.14),transparent)] pointer-events-none"
+          initial={{ opacity: 0.3 }}
+          animate={{ opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0 bg-[radial-gradient(800px_circle_at_50%_-20%,rgba(0,242,234,0.15),transparent_60%)] pointer-events-none"
         />
       )}
 
-      <div className="relative">{children}</div>
+      <div className="relative z-10">{children}</div>
     </div>
   )
 }

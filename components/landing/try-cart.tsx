@@ -10,11 +10,11 @@ type Mode = "ask" | "promo" | "checkout"
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 const FLOW: Mode[] = ["ask", "promo", "checkout"]
-const PROMO_SLOWDOWN = 1.6
+const PROMO_SLOWDOWN = 1.0 // Removed slowdown
 const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
-  ask: [1100, 1400, 1500, 1400, 1400],
-  promo: [1300 * PROMO_SLOWDOWN, 1500 * PROMO_SLOWDOWN],
-  checkout: [1100, 1400, 1500, 2000],
+  ask: [800, 1000, 1100, 1000, 1000],
+  promo: [1000, 1200],
+  checkout: [800, 1000, 1100, 1400],
 }
 
 export function TryCartSection() {
@@ -23,26 +23,11 @@ export function TryCartSection() {
 
   return (
     <section id="try" style={{ paddingTop: 100, paddingBottom: 80 }}>
-      <div style={{ width: "min(1180px, calc(100% - 32px))", margin: "0 auto" }}>
+      <div style={{ width: "min(960px, calc(100% - 32px))", margin: "0 auto" }}>
         <div style={{ display: "grid", gap: 16, justifyItems: "center", textAlign: "center" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.86)", fontSize: 12, fontWeight: 900, letterSpacing: 0.5, textTransform: "uppercase" }}>
             <Wand2 size={14} style={{ opacity: 0.9 }} />
             <span>Live cart demo</span>
-          </div>
-
-          <div style={{ fontSize: cardProps.isMobile ? "clamp(30px, 7vw, 38px)" : "clamp(34px, 4vw, 42px)", fontWeight: 980, letterSpacing: -0.6, color: "rgba(255,255,255,0.95)", lineHeight: 1.08 }}>
-            Chat, promos, and checkout on-cart, live
-          </div>
-
-          <div style={{ fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.74)", fontWeight: 750, maxWidth: 720 }}>
-            Watch the assistant answer, surface aisle-aware promos, and finish checkout in one flow. Replay or jump to any state.
-          </div>
-
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-            <Pill icon={<Mic size={14} />} text="Voice assistant" />
-            <Pill icon={<Sparkles size={14} />} text="Context promos" />
-            <Pill icon={<CreditCard size={14} />} text="Tap to pay" />
-            <Pill icon={<MapPin size={14} />} text="Live aisle" />
           </div>
         </div>
 
@@ -50,7 +35,7 @@ export function TryCartSection() {
           <TryCartCard {...cardProps} />
         </div>
       </div>
-    </section>
+    </section >
   )
 }
 
@@ -212,9 +197,10 @@ function TryCartCard({
               overflow: "hidden",
               border: "1px solid rgba(255,255,255,0.14)",
               background: "rgba(0,0,0,0.30)",
-              minHeight: isMobile ? 420 : 480,
-              maxHeight: isMobile ? 460 : 540,
+              minHeight: isMobile ? 320 : 360,
+              maxHeight: isMobile ? 360 : 420,
             }}
+
           >
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.55))", zIndex: 1 }} />
 
@@ -229,8 +215,8 @@ function TryCartCard({
                   position: "relative",
                   zIndex: 2,
                   height: "100%",
-                  minHeight: isMobile ? 420 : 480,
-                  maxHeight: isMobile ? 460 : 540,
+                  minHeight: isMobile ? 320 : 360,
+                  maxHeight: isMobile ? 360 : 420,
                   padding: isMobile ? 16 : 20,
                   paddingRight: isMobile ? 14 : 18,
                   paddingBottom: isMobile ? 24 : 28,
@@ -415,21 +401,37 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
         </div>
       ) : null}
 
-      <div style={{ marginTop: "auto", display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-        <ActionButton icon={<MapPin size={14} />} label="Show route" />
-        <ActionButton icon={<Sparkles size={14} />} label="Swap option" />
-        <ActionButton icon={<ArrowRight size={14} />} label="Jump to promo view" highlight onClick={onNext} disabled={step < 4} />
+      <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
+        <div style={{ width: "100%", maxWidth: 240 }}>
+          <ActionButton icon={<ArrowRight size={14} />} label="Jump to promo view" highlight onClick={onNext} disabled={step < 4} />
+        </div>
       </div>
     </div>
   )
 }
 
 function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
+  const [promoIndex, setPromoIndex] = useState(0)
   const isTyping = step < 1
-  const slowFade = { duration: 0.9, ease: EASE }
-  const slowRise = { duration: 1.05, ease: EASE }
+  const slowFade = { duration: 0.6, ease: EASE } // Faster
+  const slowRise = { duration: 0.7, ease: EASE } // Faster
   const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: slowFade }
   const rise = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: slowRise }
+
+  // Cycle promos
+  useEffect(() => {
+    if (step < 1) return
+    const id = setInterval(() => setPromoIndex(p => (p + 1) % 3), 3200)
+    return () => clearInterval(id)
+  }, [step])
+
+  const promos = [
+    { title: "Olive oil + pasta", icon1: <Utensils size={24} color="rgba(255,255,255,0.8)" />, icon2: <Package size={24} color="rgba(255,255,255,0.8)" />, save: "$4.00", why: "Because you bought Pasta" },
+    { title: "Chips + Salsa", icon1: <Package size={24} color="rgba(255,255,255,0.8)" />, icon2: <Utensils size={24} color="rgba(255,255,255,0.8)" />, save: "$2.50", why: "Draft night special" },
+    { title: "Coffee + Donuts", icon1: <Utensils size={24} color="rgba(255,255,255,0.8)" />, icon2: <Package size={24} color="rgba(255,255,255,0.8)" />, save: "$3.00", why: "Morning bundle" },
+  ]
+  const currentPromo = promos[promoIndex]
+
   return (
     <div style={{ display: "grid", gap: 14, height: "100%", alignContent: "center" }}>
       <motion.div {...fade} style={{ borderRadius: 18, border: "1px solid rgba(255,170,80,0.28)", background: "linear-gradient(140deg, rgba(255,170,80,0.28), rgba(0,0,0,0.24))", padding: 20, display: "grid", gap: 10, textAlign: "center", justifyItems: "center" }}>
@@ -437,20 +439,33 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
           <span style={{ width: 8, height: 8, borderRadius: 999, background: "rgba(255,170,80,0.95)", boxShadow: "0 0 12px rgba(255,170,80,0.65)" }} />
           <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.4, color: "rgba(255,255,255,0.78)" }}>Smart Offer</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 980, color: "rgba(255,255,255,0.96)" }}>Olive oil + pasta</div>
 
-        <div style={{ display: "flex", gap: 12, padding: "12px 0" }}>
-          <div style={{ width: 56, height: 56, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Utensils size={24} color="rgba(255,255,255,0.8)" />
-          </div>
-          <div style={{ fontSize: 24, fontWeight: 300, color: "rgba(255,255,255,0.4)", alignSelf: "center" }}>+</div>
-          <div style={{ width: 56, height: 56, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Package size={24} color="rgba(255,255,255,0.8)" />
-          </div>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={promoIndex}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.3 }}
+            style={{ display: "grid", gap: 10, justifyItems: "center" }}
+          >
+            <div style={{ fontSize: 28, fontWeight: 980, color: "rgba(255,255,255,0.96)" }}>{currentPromo.title}</div>
 
-        <div style={{ fontSize: 16, fontWeight: 850, color: "rgba(255,255,255,0.82)" }}>Save $4.00 instantly</div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginTop: -4 }}>Because you bought Pasta</div>
+            <div style={{ display: "flex", gap: 12, padding: "12px 0" }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {currentPromo.icon1}
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 300, color: "rgba(255,255,255,0.4)", alignSelf: "center" }}>+</div>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {currentPromo.icon2}
+              </div>
+            </div>
+
+            <div style={{ fontSize: 16, fontWeight: 850, color: "rgba(255,255,255,0.82)" }}>Save {currentPromo.save} instantly</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginTop: -4 }}>{currentPromo.why}</div>
+          </motion.div>
+        </AnimatePresence>
+
         {step >= 2 ? (
           <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 99, background: "rgba(255,255,255,0.1)", fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.9)" }}>
             Added to cart
@@ -482,7 +497,6 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
       </div>
 
       <motion.div {...rise} style={{ marginTop: "auto", display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-        <ActionButton icon={<Sparkles size={14} />} label={step >= 2 ? "Promo applied" : "Apply promo"} highlight disabled={step < 1} />
         <ActionButton icon={<ArrowRight size={14} />} label="Go to checkout" highlight onClick={onNext} disabled={step < 2} />
       </motion.div>
     </div>
@@ -723,20 +737,21 @@ function ActionButton({
         alignItems: "center",
         justifyContent: "center",
         gap: 8,
-        padding: "10px 12px",
-        borderRadius: 14,
-        border: highlight ? "1px solid rgba(0,255,208,0.35)" : "1px solid rgba(255,255,255,0.14)",
-        background: highlight ? "rgba(0,255,208,0.12)" : "rgba(0,0,0,0.22)",
-        color: disabled ? "rgba(255,255,255,0.50)" : "rgba(255,255,255,0.90)",
-        fontSize: 12,
-        fontWeight: 900,
+        padding: "12px 20px",
+        borderRadius: 999,
+        border: highlight ? "none" : "1px solid rgba(255,255,255,0.14)",
+        background: highlight ? "linear-gradient(to right, #00FFD0, #5882FF)" : "rgba(0,0,0,0.22)",
+        color: highlight ? "#000" : (disabled ? "rgba(255,255,255,0.50)" : "rgba(255,255,255,0.90)"),
+        fontSize: 13,
+        fontWeight: 800,
         cursor: disabled ? "not-allowed" : "pointer",
         width: "100%",
         opacity: disabled ? 0.7 : 1,
+        boxShadow: highlight ? "0 4px 14px rgba(0,255,208,0.3)" : "none",
       }}
     >
-      <span style={{ display: "inline-flex", opacity: 0.9 }}>{icon}</span>
       <span>{label}</span>
+      {icon ? <span style={{ display: "inline-flex", opacity: highlight ? 0.8 : 0.9 }}>{icon}</span> : null}
     </button>
   )
 }

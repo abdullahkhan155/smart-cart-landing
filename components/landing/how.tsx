@@ -6,7 +6,7 @@ import { BarChart3, CheckCircle2, CreditCard, MapPin, Mic, ScanLine, ShieldCheck
 import { Card, SectionTitle, usePrefersReducedMotion } from "./ui"
 import { Pill } from "./Pill"
 
-type Scene = "assist" | "promo" | "scan" | "pay" | "security" | "insights"
+type Scene = "assist" | "promo" | "scan" | "pay" | "security"
 
 function useIsNarrow(breakpoint = 980) {
   const [narrow, setNarrow] = useState(false)
@@ -23,7 +23,7 @@ function useIsNarrow(breakpoint = 980) {
 type Step = {
   k: string
   title: string
-  body: string
+
   scene: Scene
   icon: React.ReactNode
   accent: string
@@ -42,7 +42,6 @@ export function HowItWorksSection() {
         {
           k: "Step 01",
           title: "Ask in aisle",
-          body: "Get immediate answers and aisle locations.",
           scene: "assist" as const,
           icon: <Mic size={16} />,
           accent: "rgba(0,255,208,0.16)",
@@ -52,7 +51,6 @@ export function HowItWorksSection() {
         {
           k: "Step 02",
           title: "Get Personalized Promos",
-          body: "See relevant deals as you shop.",
           scene: "promo" as const,
           icon: <Sparkles size={16} />,
           accent: "rgba(255,170,80,0.14)",
@@ -62,7 +60,6 @@ export function HowItWorksSection() {
         {
           k: "Step 03",
           title: "Scan as you pick",
-          body: "Scan items instantly and track your total.",
           scene: "scan" as const,
           icon: <ScanLine size={16} />,
           accent: "rgba(0,255,208,0.12)",
@@ -72,7 +69,6 @@ export function HowItWorksSection() {
         {
           k: "Step 04",
           title: "Pay on cart",
-          body: "Skip the line and pay directly on the device.",
           scene: "pay" as const,
           icon: <CreditCard size={16} />,
           accent: "rgba(160,120,255,0.14)",
@@ -82,21 +78,11 @@ export function HowItWorksSection() {
         {
           k: "Step 05",
           title: "Secure every basket",
-          body: "Real-time checks keep inventory safe.",
           scene: "security" as const,
           icon: <ShieldCheck size={16} />,
           accent: "rgba(0,190,120,0.14)",
           accentStrong: "rgba(0,190,120,0.92)",
           image: "/Security.png",
-        },
-        {
-          k: "Step 06",
-          title: "Measure and improve",
-          body: "Track performance and optimize the store.",
-          scene: "insights" as const,
-          icon: <BarChart3 size={16} />,
-          accent: "rgba(0,255,208,0.12)",
-          accentStrong: "rgba(0,255,208,0.88)",
         },
       ] as const,
     []
@@ -263,7 +249,7 @@ export function HowItWorksSection() {
   const activeStep = steps[active]
 
   return (
-    <section ref={sectionRef} id="how" style={{ position: "relative", paddingTop: 32, paddingBottom: 32 }}>
+    <section ref={sectionRef} id="how" style={{ position: "relative", paddingTop: 20, paddingBottom: 20 }}>
       <div
         aria-hidden
         style={{
@@ -277,14 +263,14 @@ export function HowItWorksSection() {
         }}
       />
 
-      <div style={{ width: "min(1200px, calc(100% - 40px))", margin: "0 auto", position: "relative" }}>
+      <div style={{ width: "min(1080px, calc(100% - 40px))", margin: "0 auto", position: "relative" }}>
         <SectionTitle
           eyebrow="How it works"
           title="Get Assistance. Find Deals. Checkout Faster."
           subtitle="A cart that helps first, sells smarter, and ends the trip without a line."
         />
 
-        <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(500px, 560px) minmax(0, 1fr)", gap: 16, alignItems: "start" }}>
+        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(480px, 520px) minmax(0, 1fr)", gap: 16, alignItems: "start" }}>
           <div
             ref={stickyCardRef}
             style={
@@ -293,13 +279,10 @@ export function HowItWorksSection() {
                 : { position: "sticky", top: 96 }
             }
           >
-            <Card style={{ padding: compact ? 12 : 14 }}>
+            <Card style={{ padding: compact ? 10 : 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <div>
-                  <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Interactive cart demo</div>
-                  <div style={{ marginTop: 4, fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.62)" }}>
-                    {compact ? "Tap a step (or icons) to explore." : "Tap a step (or the tabs) to explore. Auto-plays while visible."}
-                  </div>
+
                 </div>
                 <Pill icon={<Sparkles size={14} />} text={activeStep.k} />
               </div>
@@ -341,7 +324,6 @@ export function HowItWorksSection() {
                   key={s.k}
                   step={s.k}
                   title={s.title}
-                  body={s.body}
                   icon={s.icon}
                   accent={s.accentStrong}
                   active={i === active}
@@ -353,7 +335,7 @@ export function HowItWorksSection() {
                 />
               ))}
             </div>
-            <div aria-hidden style={{ height: compact ? 60 : narrow ? 180 : 120 }} />
+            <div aria-hidden style={{ height: compact ? 40 : narrow ? 100 : 80 }} />
           </div>
         </div>
       </div>
@@ -364,7 +346,6 @@ export function HowItWorksSection() {
 function StepCard({
   step,
   title,
-  body,
   icon,
   accent,
   active,
@@ -374,7 +355,6 @@ function StepCard({
 }: {
   step: string
   title: string
-  body: string
   icon: React.ReactNode
   accent: string
   active: boolean
@@ -382,9 +362,9 @@ function StepCard({
   compact?: boolean
   buttonRef?: (el: HTMLButtonElement | null) => void
 }) {
-  const pad = compact ? 14 : 18
-  const iconBox = compact ? 34 : 38
-  const iconRadius = compact ? 12 : 14
+  const pad = compact ? 12 : 16
+  const iconBox = compact ? 32 : 36
+  const iconRadius = compact ? 10 : 12
 
   return (
     <motion.button
@@ -451,8 +431,7 @@ function StepCard({
           <div aria-hidden style={{ width: 70, height: 2, borderRadius: 999, background: active ? `linear-gradient(90deg, ${accent}, rgba(0,0,0,0))` : "rgba(255,255,255,0.10)" }} />
         </div>
 
-        <div style={{ marginTop: 12, fontSize: compact ? 17 : 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
-        <div style={{ marginTop: 8, fontSize: compact ? 13 : 14, lineHeight: 1.75, color: "rgba(255,255,255,0.72)", fontWeight: 850 }}>{body}</div>
+        <div style={{ marginTop: 10, fontSize: compact ? 17 : 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
       </div>
     </motion.button>
   )
@@ -478,13 +457,13 @@ function CartOSDemo({
   onSelectScene?: (scene: Scene) => void
 }) {
   const animReduced = reduced || perfReduced
-  const stageHeight = compact ? 240 : stacked ? 340 : 400
-  const shellPadding = compact ? 12 : 14
+  const stageHeight = compact ? 220 : stacked ? 300 : 340
+  const shellPadding = compact ? 10 : 12
   const tabButtonPadding = compact ? "9px 8px" : "10px 10px"
   const demoCorner = compact ? 20 : 22
   const navWrapStyle: React.CSSProperties = compact
     ? { marginTop: 12, display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 2 }
-    : { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8 }
+    : { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 8 }
 
   const nav = useMemo(
     () =>
@@ -494,7 +473,6 @@ function CartOSDemo({
         { scene: "scan" as const, icon: <ScanLine size={14} />, label: "Scan" },
         { scene: "pay" as const, icon: <CreditCard size={14} />, label: "Pay" },
         { scene: "security" as const, icon: <ShieldCheck size={14} />, label: "Security" },
-        { scene: "insights" as const, icon: <BarChart3 size={14} />, label: "Insights" },
       ],
     []
   )
@@ -565,11 +543,7 @@ function CartOSDemo({
                 transition={animReduced ? { duration: 0.01 } : { duration: compact ? 0.26 : 0.35, ease: "easeOut" }}
                 style={{ position: "absolute", inset: 0 }}
               >
-                {step.scene === "insights" ? (
-                  <InsightsPanel reduced={animReduced} tone={step.accentStrong} lite={compact} />
-                ) : (
-                  <SceneImage image={step.image ?? ""} reduced={animReduced} tone={step.accentStrong} lite={compact} />
-                )}
+                <SceneImage image={step.image ?? ""} reduced={animReduced} tone={step.accentStrong} lite={compact} />
 
                 <SceneOverlays scene={step.scene} reduced={animReduced} tone={step.accentStrong} lite={compact} />
               </motion.div>
@@ -815,13 +789,15 @@ function DemoToast({
       style={{
         position: "absolute",
         ...at,
-        maxWidth: 240,
-        padding: "10px 12px",
+        maxWidth: lite ? 180 : 240,
+        padding: lite ? "8px 10px" : "10px 12px",
         borderRadius: 16,
         border: "1px solid rgba(255,255,255,0.16)",
         background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
         backdropFilter: lite ? undefined : "blur(10px)",
         WebkitBackdropFilter: lite ? undefined : "blur(10px)",
+        transform: lite ? "scale(0.9)" : undefined,
+        transformOrigin: "center",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
@@ -848,9 +824,9 @@ function BasketMini({ reduced, tone, lite }: { reduced: boolean; tone: string; l
       transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut", delay: 0.05 }}
       style={{
         position: "absolute",
-        left: 14,
-        bottom: 14,
-        width: 270,
+        left: lite ? 10 : 14,
+        bottom: lite ? 10 : 14,
+        width: lite ? 200 : 270,
         borderRadius: 18,
         border: "1px solid rgba(255,255,255,0.14)",
         background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",

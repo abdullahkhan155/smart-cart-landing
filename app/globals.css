@@ -1,19 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: #04060a;
-  --foreground: rgba(255, 255, 255, 0.94);
-  
-  --muted: rgba(255, 255, 255, 0.66);
-  --muted-foreground: rgba(255, 255, 255, 0.5);
-  
-  --panel: rgba(255, 255, 255, 0.05);
-  --panel-strong: rgba(255, 255, 255, 0.10);
-  --line: rgba(255, 255, 255, 0.14);
-  
-  --accent: #00ffd0; 
-  --accent-2: #5882ff;
-  --accent-3: #ffaa50;
+  /* Vibrant Aurora Theme - Updated */
+  --background: #050505;
+  /* Deep Black/Green from Hero */
+  --foreground: #ffffff;
+
+  --muted: rgba(255, 255, 255, 0.7);
+  --muted-foreground: rgba(255, 255, 255, 0.55);
+
+  --panel: rgba(255, 255, 255, 0.08);
+  --panel-strong: rgba(255, 255, 255, 0.14);
+  --line: rgba(255, 255, 255, 0.18);
+
+  /* Neon/Vibrant Accents */
+  --accent: #00f2ea;
+  /* Cyan */
+  --accent-2: #2563eb;
+  /* Royal Blue */
+  --accent-3: #ffae00;
+  /* Gold */
+
+  /* Additional decorative gradients */
+  --gradient-aurora: linear-gradient(135deg, #050505 0%, #1a1a1a 50%, #050505 100%);
 
   font-family: 'Manrope', system-ui, sans-serif;
   color-scheme: dark;
@@ -24,10 +33,12 @@ body {
   color: var(--foreground);
   margin: 0;
   min-height: 100vh;
-  background-image: 
-    radial-gradient(1100px 700px at 14% 18%, rgba(0, 255, 208, 0.1), rgba(0, 0, 0, 0)),
-    radial-gradient(900px 700px at 86% 10%, rgba(88, 130, 255, 0.1), rgba(0, 0, 0, 0)),
-    radial-gradient(900px 700px at 55% 86%, rgba(255, 170, 80, 0.08), rgba(0, 0, 0, 0));
+  /* Matching Hero background */
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(0, 242, 234, 0.04), transparent 30%),
+    radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.04), transparent 30%),
+    linear-gradient(to bottom, #050505, #0a0a0a, #050505);
+  background-attachment: fixed;
 }
 
 @theme {
@@ -36,4 +47,29 @@ body {
   --color-accent-3: var(--accent-3);
   --color-panel: var(--panel);
   --color-line: var(--line);
+}
+
+@layer utilities {
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 6s linear infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }

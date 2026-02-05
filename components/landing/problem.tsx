@@ -135,7 +135,6 @@ export function ProblemStorySection() {
               alignItems: "center",
               gap: 10,
               padding: "10px 14px",
-              borderRadius: 999,
               border: "1px solid rgba(255,255,255,0.14)",
               background: "linear-gradient(90deg, rgba(0,255,208,0.12), rgba(160,120,255,0.12), rgba(255,170,80,0.12))",
               color: "rgba(255,255,255,0.74)",
@@ -307,7 +306,6 @@ function ProblemCard({
   return (
     <Card style={{ padding: 14 }}>
       <ProblemVisual kind={kind} icon={icon} />
-
       <div style={{ marginTop: 12, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{title}</div>
       <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.6, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>
         {note}
