@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
-import { BarChart3, CheckCircle2, CreditCard, MapPin, Mic, ScanLine, ShieldCheck, Sparkles } from "lucide-react"
+import { BarChart3, CheckCircle2, CreditCard, MapPin, Mic, ScanLine, ShieldCheck, Sparkles, Zap, TrendingUp, Lock, ArrowRight } from "lucide-react"
 import { Card, SectionTitle, usePrefersReducedMotion } from "./ui"
 import { Pill } from "./Pill"
 
@@ -23,12 +23,59 @@ function useIsNarrow(breakpoint = 980) {
 type Step = {
   k: string
   title: string
-
+  subtitle: string
   scene: Scene
   icon: React.ReactNode
   accent: string
   accentStrong: string
-  image?: string
+}
+
+const stepDescriptions: Record<Scene, { headline: string; body: string; stats: { label: string; value: string }[] }> = {
+  assist: {
+    headline: "Voice-Powered Help",
+    body: "Find products and navigate aisles hands-free with AI.",
+    stats: [
+      { label: "Recognition", value: "98.7%" },
+      { label: "Response", value: "<1s" },
+      { label: "Languages", value: "12+" },
+    ],
+  },
+  promo: {
+    headline: "Deals That Find You",
+    body: "Personalized offers triggered by your location in-store.",
+    stats: [
+      { label: "Avg. Saved", value: "$12.40" },
+      { label: "Promo Lift", value: "+22%" },
+      { label: "Relevance", value: "94%" },
+    ],
+  },
+  scan: {
+    headline: "Shop Without Stopping",
+    body: "Scan items as you go with a running total in real time.",
+    stats: [
+      { label: "Scan Speed", value: "0.3s" },
+      { label: "Accuracy", value: "99.9%" },
+      { label: "Items/min", value: "15+" },
+    ],
+  },
+  pay: {
+    headline: "Skip the Line Entirely",
+    body: "Tap to pay on the cart and walk out. No lanes, no waiting.",
+    stats: [
+      { label: "Time Saved", value: "12 min" },
+      { label: "Methods", value: "All" },
+      { label: "Security", value: "PCI L1" },
+    ],
+  },
+  security: {
+    headline: "Trust Built In",
+    body: "Weight sensors and computer vision verify every item seamlessly.",
+    stats: [
+      { label: "Accuracy", value: "99.8%" },
+      { label: "False Alerts", value: "<0.1%" },
+      { label: "Shrink ↓", value: "65%" },
+    ],
+  },
 }
 
 export function HowItWorksSection() {
@@ -42,47 +89,47 @@ export function HowItWorksSection() {
         {
           k: "Step 01",
           title: "Ask in aisle",
+          subtitle: "AI voice assistant",
           scene: "assist" as const,
           icon: <Mic size={16} />,
           accent: "rgba(0,255,208,0.16)",
           accentStrong: "rgba(0,255,208,0.92)",
-          image: "/AI_Screen.png",
         },
         {
           k: "Step 02",
           title: "Get Personalized Promos",
+          subtitle: "Deals as you shop",
           scene: "promo" as const,
           icon: <Sparkles size={16} />,
           accent: "rgba(255,170,80,0.14)",
           accentStrong: "rgba(255,170,80,0.92)",
-          image: "/Promo.png",
         },
         {
           k: "Step 03",
           title: "Scan as you pick",
+          subtitle: "Real-time total",
           scene: "scan" as const,
           icon: <ScanLine size={16} />,
           accent: "rgba(0,255,208,0.12)",
           accentStrong: "rgba(0,255,208,0.88)",
-          image: "/Self_Checkout.png",
         },
         {
           k: "Step 04",
           title: "Pay on cart",
+          subtitle: "No-lane checkout",
           scene: "pay" as const,
           icon: <CreditCard size={16} />,
           accent: "rgba(160,120,255,0.14)",
           accentStrong: "rgba(160,120,255,0.92)",
-          image: "/Self_Checkout.png",
         },
         {
           k: "Step 05",
           title: "Secure every basket",
+          subtitle: "Vision verification",
           scene: "security" as const,
           icon: <ShieldCheck size={16} />,
           accent: "rgba(0,190,120,0.14)",
           accentStrong: "rgba(0,190,120,0.92)",
-          image: "/Security.png",
         },
       ] as const,
     []
@@ -154,7 +201,6 @@ export function HowItWorksSection() {
 
     const computeActiveFromScroll = () => {
       raf = 0
-
       const now = Date.now()
       if (now < ignoreScrollSyncUntilRef.current) return
 
@@ -170,7 +216,6 @@ export function HowItWorksSection() {
         }, 140)
       }
 
-      // User scroll = user intent. Pause autoplay briefly while scrolling in this section.
       if (!compact && now - lastPauseResetRef.current > 180) {
         lastPauseResetRef.current = now
         pauseAutoplay(5000)
@@ -199,7 +244,6 @@ export function HowItWorksSection() {
         }
       }
 
-      // If nothing is visible (fast scroll / edge cases), pick the closest step overall.
       if (!foundVisible) {
         for (let i = 0; i < steps.length; i++) {
           const el = stepRefs.current[i]
@@ -266,7 +310,7 @@ export function HowItWorksSection() {
       <div style={{ width: "min(1080px, calc(100% - 40px))", margin: "0 auto", position: "relative" }}>
         <SectionTitle
           eyebrow="How it works"
-          title="Get Assistance. Find Deals. Checkout Faster."
+          title="From Aisle to Exit, Reimagined."
           subtitle="A cart that helps first, sells smarter, and ends the trip without a line."
         />
 
@@ -324,6 +368,7 @@ export function HowItWorksSection() {
                   key={s.k}
                   step={s.k}
                   title={s.title}
+                  subtitle={s.subtitle}
                   icon={s.icon}
                   accent={s.accentStrong}
                   active={i === active}
@@ -335,7 +380,7 @@ export function HowItWorksSection() {
                 />
               ))}
             </div>
-            <div aria-hidden style={{ height: compact ? 40 : narrow ? 100 : 80 }} />
+            <div aria-hidden style={{ height: compact ? 120 : narrow ? 340 : 300 }} />
           </div>
         </div>
       </div>
@@ -346,6 +391,7 @@ export function HowItWorksSection() {
 function StepCard({
   step,
   title,
+  subtitle,
   icon,
   accent,
   active,
@@ -355,6 +401,7 @@ function StepCard({
 }: {
   step: string
   title: string
+  subtitle: string
   icon: React.ReactNode
   accent: string
   active: boolean
@@ -362,8 +409,8 @@ function StepCard({
   compact?: boolean
   buttonRef?: (el: HTMLButtonElement | null) => void
 }) {
-  const pad = compact ? 12 : 16
-  const iconBox = compact ? 32 : 36
+  const pad = compact ? 14 : 18
+  const iconBox = compact ? 34 : 40
   const iconRadius = compact ? 10 : 12
 
   return (
@@ -371,18 +418,18 @@ function StepCard({
       type="button"
       onClick={onClick}
       ref={buttonRef}
-      animate={{ opacity: active ? 1 : 0.58, y: compact ? 0 : active ? 0 : 10 }}
-      transition={{ duration: compact ? 0.22 : 0.28 }}
+      animate={{ opacity: active ? 1 : 0.52, y: compact ? 0 : active ? 0 : 6 }}
+      transition={{ duration: compact ? 0.22 : 0.32 }}
       style={{
         width: "100%",
         textAlign: "left",
         cursor: "pointer",
         padding: pad,
-        borderRadius: compact ? 20 : 22,
-        border: active ? "1px solid rgba(255,255,255,0.26)" : "1px solid rgba(255,255,255,0.10)",
+        borderRadius: compact ? 20 : 24,
+        border: active ? "1px solid rgba(255,255,255,0.22)" : "1px solid rgba(255,255,255,0.08)",
         background: active
-          ? "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))"
-          : "rgba(255,255,255,0.03)",
+          ? "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))"
+          : "rgba(255,255,255,0.02)",
         color: "white",
         position: "relative",
         overflow: "hidden",
@@ -395,9 +442,9 @@ function StepCard({
         style={{
           position: "absolute",
           inset: 0,
-          background: `radial-gradient(720px 320px at 14% 20%, ${active ? `${accent.replace("0.92", "0.20").replace("0.88", "0.20")}` : "rgba(0,0,0,0)"}, rgba(0,0,0,0))`,
+          background: `radial-gradient(720px 320px at 14% 20%, ${active ? `${accent.replace("0.92", "0.18").replace("0.88", "0.18")}` : "rgba(0,0,0,0)"}, rgba(0,0,0,0))`,
           opacity: active ? 1 : 0,
-          transition: "opacity 240ms ease",
+          transition: "opacity 300ms ease",
           pointerEvents: "none",
         }}
       />
@@ -416,22 +463,24 @@ function StepCard({
                 alignItems: "center",
                 justifyContent: "center",
                 color: active ? accent : "rgba(255,255,255,0.75)",
-                boxShadow: active ? `0 0 30px ${accent.replace("0.92", "0.20").replace("0.88", "0.20")}` : undefined,
+                boxShadow: active ? `0 0 30px ${accent.replace("0.92", "0.18").replace("0.88", "0.18")}` : undefined,
+                transition: "box-shadow 300ms ease, color 300ms ease",
               }}
             >
               {icon}
             </div>
 
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.16)", color: "rgba(255,255,255,0.78)", fontSize: 12, fontWeight: 950 }}>
-              <span style={{ width: 7, height: 7, borderRadius: 999, background: active ? accent : "rgba(255,255,255,0.75)" }} />
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: active ? accent : "rgba(255,255,255,0.75)", transition: "background 300ms ease" }} />
               <span>{step}</span>
             </div>
           </div>
 
-          <div aria-hidden style={{ width: 70, height: 2, borderRadius: 999, background: active ? `linear-gradient(90deg, ${accent}, rgba(0,0,0,0))` : "rgba(255,255,255,0.10)" }} />
+
         </div>
 
-        <div style={{ marginTop: 10, fontSize: compact ? 17 : 18, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
+        <div style={{ marginTop: 10, fontSize: compact ? 17 : 19, fontWeight: 980, color: "rgba(255,255,255,0.93)" }}>{title}</div>
+        <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.46)", lineHeight: 1.4 }}>{subtitle}</div>
       </div>
     </motion.button>
   )
@@ -457,13 +506,10 @@ function CartOSDemo({
   onSelectScene?: (scene: Scene) => void
 }) {
   const animReduced = reduced || perfReduced
-  const stageHeight = compact ? 220 : stacked ? 300 : 340
-  const shellPadding = compact ? 10 : 12
+  const stageHeight = compact ? 260 : stacked ? 340 : 380
+  const shellPadding = compact ? 10 : 14
   const tabButtonPadding = compact ? "9px 8px" : "10px 10px"
-  const demoCorner = compact ? 20 : 22
-  const navWrapStyle: React.CSSProperties = compact
-    ? { marginTop: 12, display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 2 }
-    : { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 8 }
+  const demoCorner = compact ? 20 : 24
 
   const nav = useMemo(
     () =>
@@ -477,6 +523,10 @@ function CartOSDemo({
     []
   )
 
+  const navWrapStyle: React.CSSProperties = compact
+    ? { marginTop: 12, display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 2 }
+    : { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 8 }
+
   return (
     <div
       onMouseEnter={() => onHoverChange?.(true)}
@@ -487,9 +537,9 @@ function CartOSDemo({
         position: "relative",
         borderRadius: demoCorner,
         overflow: "hidden",
-        border: "1px solid rgba(255,255,255,0.12)",
-        background: "rgba(0,0,0,0.24)",
-        boxShadow: "0 60px 160px rgba(0,0,0,0.55)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(0,0,0,0.30)",
+        boxShadow: "0 40px 120px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04) inset",
       }}
     >
       <div
@@ -530,26 +580,20 @@ function CartOSDemo({
           </div>
         </div>
 
-        <div style={{ marginTop: 12, position: "relative", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.25)" }}>
-          <div aria-hidden style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg, rgba(255,255,255,0.04), rgba(0,0,0,0), rgba(255,255,255,0.03))" }} />
-
+        <div style={{ marginTop: 12, position: "relative", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(255,255,255,0.10)", background: "rgba(0,0,0,0.30)" }}>
           <div style={{ position: "relative", height: stageHeight }}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={step.scene}
-                initial={animReduced ? { opacity: 1 } : compact ? { opacity: 0, y: 8 } : { opacity: 0, y: 10, scale: 0.99 }}
+                initial={animReduced ? { opacity: 1 } : compact ? { opacity: 0, y: 8 } : { opacity: 0, y: 12, scale: 0.98 }}
                 animate={animReduced ? { opacity: 1 } : compact ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, scale: 1 }}
-                exit={animReduced ? { opacity: 1 } : compact ? { opacity: 0, y: -8 } : { opacity: 0, y: -10, scale: 1.01 }}
-                transition={animReduced ? { duration: 0.01 } : { duration: compact ? 0.26 : 0.35, ease: "easeOut" }}
+                exit={animReduced ? { opacity: 1 } : compact ? { opacity: 0, y: -8 } : { opacity: 0, y: -12, scale: 1.02 }}
+                transition={animReduced ? { duration: 0.01 } : { duration: compact ? 0.26 : 0.4, ease: "easeOut" }}
                 style={{ position: "absolute", inset: 0 }}
               >
-                <SceneImage image={step.image ?? ""} reduced={animReduced} tone={step.accentStrong} lite={compact} />
-
-                <SceneOverlays scene={step.scene} reduced={animReduced} tone={step.accentStrong} lite={compact} />
+                <SceneVisual scene={step.scene} reduced={animReduced} tone={step.accentStrong} accent={step.accent} lite={compact} />
               </motion.div>
             </AnimatePresence>
-
-            <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(520px 260px at 50% 0%, rgba(255,255,255,0.05), rgba(0,0,0,0))" }} />
           </div>
         </div>
 
@@ -596,8 +640,8 @@ function CartOSDemo({
           })}
         </div>
 
-        <div style={{ marginTop: 10, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.56)", textAlign: "center" }}>
-          {reduced ? "Tap a step to switch views." : paused ? "Paused while you explore." : "Auto-rotating preview. Hover to pause."}
+        <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.40)", textAlign: "center", letterSpacing: "0.02em" }}>
+          {reduced ? "Tap a step to switch views." : paused ? "Paused while you explore." : "Auto-rotating preview · Hover to pause"}
         </div>
       </div>
 
@@ -617,310 +661,177 @@ function CartOSDemo({
   )
 }
 
-function SceneImage({ image, reduced, tone, lite }: { image: string; reduced: boolean; tone: string; lite: boolean }) {
+/* ─── Scene Visual: Pure text/icon/gradient visual per scene ─── */
+
+function SceneVisual({ scene, reduced, tone, accent, lite }: { scene: Scene; reduced: boolean; tone: string; accent: string; lite: boolean }) {
+  const data = stepDescriptions[scene]
+  const sceneIcon = {
+    assist: <Mic size={lite ? 36 : 44} />,
+    promo: <Sparkles size={lite ? 36 : 44} />,
+    scan: <ScanLine size={lite ? 36 : 44} />,
+    pay: <CreditCard size={lite ? 36 : 44} />,
+    security: <ShieldCheck size={lite ? 36 : 44} />,
+  }[scene]
+
   return (
-    <div style={{ position: "absolute", inset: 0 }}>
-      <motion.img
-        src={image}
-        alt=""
-        loading="lazy"
-        animate={
-          reduced
-            ? { scale: 1 }
-            : lite
-              ? { scale: [1, 1.01, 1] }
-              : { scale: [1, 1.015, 1], filter: ["saturate(1)", "saturate(1.15)", "saturate(1)"] }
-        }
-        transition={reduced ? { duration: 0.01 } : { duration: lite ? 8.4 : 7.8, repeat: Infinity, ease: "easeInOut" }}
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: lite ? 16 : 24, overflow: "hidden" }}>
+      {/* Animated gradient background */}
+      <motion.div
+        aria-hidden
+        animate={reduced ? { opacity: 0.4 } : { opacity: [0.25, 0.5, 0.25] }}
+        transition={reduced ? { duration: 0.01 } : { duration: 6, repeat: Infinity, ease: "easeInOut" }}
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          objectPosition: "50% 50%",
-          display: "block",
-          filter: lite ? "none" : "saturate(1.05) contrast(1.02)",
+          position: "absolute",
+          inset: -40,
+          background: `radial-gradient(500px 400px at 30% 20%, ${tone.replace("0.92", "0.20").replace("0.88", "0.18")}, rgba(0,0,0,0)), radial-gradient(400px 300px at 80% 70%, ${accent}, rgba(0,0,0,0))`,
+          pointerEvents: "none",
         }}
       />
 
-      <div aria-hidden style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.44))" }} />
-      <div aria-hidden style={{ position: "absolute", inset: 0, background: `radial-gradient(520px 280px at 50% 15%, ${tone.replace("0.92", "0.12").replace("0.88", "0.10")}, rgba(0,0,0,0))` }} />
-    </div>
-  )
-}
+      {/* Decorative grid lines */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+          pointerEvents: "none",
+          maskImage: "radial-gradient(500px 400px at 50% 50%, black 20%, transparent 90%)",
+          WebkitMaskImage: "radial-gradient(500px 400px at 50% 50%, black 20%, transparent 90%)",
+        }}
+      />
 
-function SceneOverlays({ scene, reduced, tone, lite }: { scene: Scene; reduced: boolean; tone: string; lite: boolean }) {
-  if (scene === "assist") {
-    return (
-      <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Listening" body={'Ask: "Where is pasta sauce?"'} />
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, bottom: 14 }} title="Route ready" body="Aisle 6 - Top shelf" />
-      </div>
-    )
-  }
+      {/* Floating accent orb */}
+      <motion.div
+        aria-hidden
+        animate={reduced ? { scale: 1, opacity: 0.15 } : { scale: [1, 1.3, 1], opacity: [0.12, 0.25, 0.12], x: [0, 20, 0], y: [0, -15, 0] }}
+        transition={reduced ? { duration: 0.01 } : { duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute",
+          top: "15%",
+          right: "10%",
+          width: lite ? 100 : 140,
+          height: lite ? 100 : 140,
+          borderRadius: "50%",
+          background: tone,
+          filter: `blur(${lite ? 40 : 60}px)`,
+          pointerEvents: "none",
+        }}
+      />
 
-  if (scene === "promo") {
-    return (
-      <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Deal nearby" body="Olive oil - 15% off in Aisle 7" />
+      {/* Icon */}
+      <div style={{ position: "relative", zIndex: 1 }}>
         <motion.div
-          aria-hidden
-          animate={reduced ? { opacity: 0.7 } : { opacity: [0.0, 0.85, 0.0], y: [10, 0, -10] }}
-          transition={reduced ? { duration: 1 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          animate={reduced ? {} : { scale: [1, 1.05, 1] }}
+          transition={reduced ? { duration: 0.01 } : { duration: 3, repeat: Infinity, ease: "easeInOut" }}
           style={{
-            position: "absolute",
-            right: 16,
-            top: 74,
-            width: 10,
-            height: 10,
-            borderRadius: 999,
-            background: tone,
-            boxShadow: `0 0 20px ${tone.replace("0.92", "0.22").replace("0.88", "0.20")}`,
-          }}
-        />
-      </div>
-    )
-  }
-
-  if (scene === "scan") {
-    return (
-      <div style={{ position: "absolute", inset: 0 }}>
-        <motion.div
-          aria-hidden
-          animate={reduced ? { opacity: 0.6 } : { y: [26, 270, 26], opacity: [0, 0.9, 0] }}
-          transition={reduced ? { duration: 1 } : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            left: 20,
-            right: 20,
-            height: 4,
-            borderRadius: 999,
-            background: `linear-gradient(90deg, rgba(0,0,0,0), ${tone}, rgba(0,0,0,0))`,
-            boxShadow: `0 0 26px ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}`,
-            top: 0,
-          }}
-        />
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ right: 14, top: 14 }} title="Added" body="Olive oil -$1.20" />
-        <BasketMini reduced={reduced} tone={tone} lite={lite} />
-      </div>
-    )
-  }
-
-  if (scene === "pay") {
-    return (
-      <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Total ready" body="$48.72 - Tap to pay" />
-        <motion.div
-          initial={reduced ? false : { y: 18, opacity: 0 }}
-          animate={reduced ? { opacity: 1 } : { y: [18, 8, 18], opacity: [0.9, 1, 0.9] }}
-          transition={reduced ? { duration: 0.01 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            left: 14,
-            right: 14,
-            bottom: 14,
-            padding: 12,
-            borderRadius: 18,
-            border: "1px solid rgba(255,255,255,0.16)",
-            background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
-            backdropFilter: lite ? undefined : "blur(10px)",
-            WebkitBackdropFilter: lite ? undefined : "blur(10px)",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: lite ? 60 : 76,
+            height: lite ? 60 : 76,
+            borderRadius: lite ? 16 : 20,
+            border: `1px solid ${tone.replace("0.92", "0.30").replace("0.88", "0.28")}`,
+            background: `linear-gradient(135deg, ${tone.replace("0.92", "0.14").replace("0.88", "0.12")}, rgba(0,0,0,0.30))`,
+            color: tone,
+            boxShadow: `0 0 40px ${tone.replace("0.92", "0.14").replace("0.88", "0.12")}, inset 0 1px 0 rgba(255,255,255,0.08)`,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-            <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.90)" }}>Pay on cart</div>
-            <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>No lane</div>
-          </div>
-          <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "12px 12px", borderRadius: 14, border: `1px solid ${tone.replace("0.92", "0.24").replace("0.88", "0.22")}`, background: tone.replace("0.92", "0.14").replace("0.88", "0.12"), color: "rgba(255,255,255,0.92)", fontWeight: 980, fontSize: 13 }}>
-            <CheckCircle2 size={16} />
-            <span>Tap to pay</span>
-          </div>
+          {sceneIcon}
         </motion.div>
       </div>
-    )
-  }
 
-  if (scene === "security") {
-    return (
-      <div style={{ position: "absolute", inset: 0 }}>
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, top: 14 }} title="Integrity" body="All items accounted for" />
-        <DemoToast reduced={reduced} tone={tone} lite={lite} at={{ left: 14, bottom: 14 }} title="Low friction" body="Alerts only when something is off" />
-        <motion.div
-          aria-hidden
-          animate={reduced ? { opacity: 0.55 } : { opacity: [0.2, 0.65, 0.2], scale: [0.98, 1.02, 0.98] }}
-          transition={reduced ? { duration: 1 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            right: 20,
-            top: 78,
-            width: 120,
-            height: 120,
-            borderRadius: 999,
-            border: `1px solid ${tone.replace("0.92", "0.35").replace("0.88", "0.33")}`,
-            boxShadow: `0 0 28px ${tone.replace("0.92", "0.16").replace("0.88", "0.14")}`,
-          }}
-        />
-      </div>
-    )
-  }
+      {/* Headline */}
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={reduced ? { duration: 0.01 } : { duration: 0.4, delay: 0.1 }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          marginTop: lite ? 14 : 18,
+          fontSize: lite ? 22 : 28,
+          fontWeight: 980,
+          letterSpacing: -0.5,
+          lineHeight: 1.15,
+          color: "rgba(255,255,255,0.95)",
+        }}
+      >
+        {data.headline}
+      </motion.div>
 
-  return null
-}
+      {/* Body */}
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={reduced ? { duration: 0.01 } : { duration: 0.4, delay: 0.18 }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          marginTop: lite ? 6 : 10,
+          fontSize: lite ? 13 : 14,
+          fontWeight: 700,
+          lineHeight: 1.55,
+          color: "rgba(255,255,255,0.52)",
+          maxWidth: 360,
+        }}
+      >
+        {data.body}
+      </motion.div>
 
-function DemoToast({
-  title,
-  body,
-  at,
-  reduced,
-  tone,
-  lite,
-}: {
-  title: string
-  body: string
-  at: Partial<Record<"left" | "right" | "top" | "bottom", number>>
-  reduced: boolean
-  tone: string
-  lite: boolean
-}) {
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: 10 }}
-      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut" }}
-      style={{
-        position: "absolute",
-        ...at,
-        maxWidth: lite ? 180 : 240,
-        padding: lite ? "8px 10px" : "10px 12px",
-        borderRadius: 16,
-        border: "1px solid rgba(255,255,255,0.16)",
-        background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
-        backdropFilter: lite ? undefined : "blur(10px)",
-        WebkitBackdropFilter: lite ? undefined : "blur(10px)",
-        transform: lite ? "scale(0.9)" : undefined,
-        transformOrigin: "center",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <div style={{ fontSize: 12, fontWeight: 980, color: "rgba(255,255,255,0.90)" }}>{title}</div>
-        <div aria-hidden style={{ width: 8, height: 8, borderRadius: 999, background: tone, boxShadow: `0 0 16px ${tone.replace("0.92", "0.22").replace("0.88", "0.20")}` }} />
-      </div>
-      <div style={{ marginTop: 4, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.70)", lineHeight: 1.45 }}>{body}</div>
-    </motion.div>
-  )
-}
-
-function BasketMini({ reduced, tone, lite }: { reduced: boolean; tone: string; lite: boolean }) {
-  const items = [
-    { name: "Pasta", price: "$2.99" },
-    { name: "Olive oil", price: "$8.49" },
-    { name: "Chips", price: "$3.79" },
-    { name: "Bread", price: "$2.59" },
-  ]
-
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: 10 }}
-      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut", delay: 0.05 }}
-      style={{
-        position: "absolute",
-        left: lite ? 10 : 14,
-        bottom: lite ? 10 : 14,
-        width: lite ? 200 : 270,
-        borderRadius: 18,
-        border: "1px solid rgba(255,255,255,0.14)",
-        background: lite ? "rgba(0,0,0,0.62)" : "rgba(0,0,0,0.48)",
-        backdropFilter: lite ? undefined : "blur(10px)",
-        WebkitBackdropFilter: lite ? undefined : "blur(10px)",
-        overflow: "hidden",
-      }}
-    >
-      <div style={{ padding: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.90)", fontSize: 12 }}>Basket</div>
-        <div style={{ fontWeight: 950, color: "rgba(255,255,255,0.70)", fontSize: 12 }}>Total $48.72</div>
-      </div>
-      <div style={{ height: 1, background: "rgba(255,255,255,0.10)" }} />
-      <div style={{ padding: 12, display: "grid", gap: 8 }}>
-        {items.map((it, idx) => (
+      {/* Stats row */}
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={reduced ? { duration: 0.01 } : { duration: 0.4, delay: 0.28 }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          marginTop: lite ? 16 : 22,
+          display: "flex",
+          gap: lite ? 8 : 10,
+          flexWrap: "wrap",
+        }}
+      >
+        {data.stats.map((stat, i) => (
           <motion.div
-            key={it.name}
-            initial={reduced ? false : { opacity: 0, x: -12 }}
-            animate={reduced ? { opacity: 1 } : { opacity: 1, x: 0 }}
-            transition={reduced ? { duration: 0.01 } : { duration: 0.35, ease: "easeOut", delay: idx * 0.06 }}
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}
+            key={stat.label}
+            initial={reduced ? false : { opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={reduced ? { duration: 0.01 } : { duration: 0.35, delay: 0.3 + i * 0.08 }}
+            style={{
+              padding: lite ? "8px 12px" : "10px 14px",
+              borderRadius: 14,
+              border: `1px solid ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}`,
+              background: `linear-gradient(180deg, ${tone.replace("0.92", "0.08").replace("0.88", "0.06")}, rgba(0,0,0,0.30))`,
+              backdropFilter: lite ? undefined : "blur(8px)",
+              WebkitBackdropFilter: lite ? undefined : "blur(8px)",
+            }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div aria-hidden style={{ width: 9, height: 9, borderRadius: 999, background: tone.replace("0.92", "0.85").replace("0.88", "0.80"), boxShadow: `0 0 14px ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}` }} />
-              <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.78)" }}>{it.name}</div>
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 950, color: "rgba(255,255,255,0.76)" }}>{it.price}</div>
+            <div style={{ fontSize: 10, fontWeight: 850, color: "rgba(255,255,255,0.46)", textTransform: "uppercase" as const, letterSpacing: 0.6 }}>{stat.label}</div>
+            <div style={{ marginTop: 3, fontSize: lite ? 16 : 18, fontWeight: 980, color: tone, letterSpacing: -0.3 }}>{stat.value}</div>
           </motion.div>
         ))}
-      </div>
-    </motion.div>
-  )
-}
+      </motion.div>
 
-function InsightsPanel({ reduced, tone, lite }: { reduced: boolean; tone: string; lite: boolean }) {
-  const bars = [0.55, 0.85, 0.62, 0.72, 0.46, 0.68]
-  return (
-    <div style={{ position: "absolute", inset: 0, padding: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
-        <div>
-          <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Store dashboard</div>
-          <div style={{ marginTop: 4, fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>Throughput, promo lift, exceptions</div>
-        </div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(0,0,0,0.28)", color: "rgba(255,255,255,0.78)", fontSize: 12, fontWeight: 950 }}>
-          <BarChart3 size={14} style={{ opacity: 0.9 }} />
-          <span>Today</span>
-        </div>
-      </div>
-
-      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
-        <MetricChip label="Time saved" value="12m" tone={tone} />
-        <MetricChip label="Promo lift" value="+9%" tone={tone} />
-        <MetricChip label="Exceptions" value="Low" tone={tone} />
-      </div>
-
-      <div style={{ marginTop: 12, position: "absolute", left: 16, right: 16, bottom: 16, height: 160, borderRadius: 18, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(0,0,0,0.25)", padding: 14 }}>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: "100%" }}>
-          {bars.map((b, i) => (
-            <motion.div
-              key={i}
-              animate={
-                reduced || lite
-                  ? { height: `${b * 100}%` }
-                  : { height: [`${b * 60}%`, `${b * 100}%`, `${b * 60}%`] }
-              }
-              transition={
-                reduced
-                  ? { duration: 0.01 }
-                  : lite
-                    ? { duration: 0.55, ease: "easeOut", delay: i * 0.03 }
-                    : { duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }
-              }
-              style={{
-                width: "100%",
-                borderRadius: 14,
-                background: `linear-gradient(180deg, ${tone.replace("0.92", "0.18").replace("0.88", "0.16")}, rgba(255,255,255,0.05))`,
-                border: "1px solid rgba(255,255,255,0.10)",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MetricChip({ label, value, tone }: { label: string; value: string; tone: string }) {
-  return (
-    <div style={{ padding: 12, borderRadius: 18, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.25)" }}>
-      <div style={{ fontSize: 12, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>{label}</div>
-      <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <div style={{ fontSize: 18, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{value}</div>
-        <div aria-hidden style={{ width: 10, height: 10, borderRadius: 999, background: tone, boxShadow: `0 0 18px ${tone.replace("0.92", "0.22").replace("0.88", "0.20")}` }} />
-      </div>
+      {/* Bottom accent line */}
+      <motion.div
+        aria-hidden
+        animate={reduced ? { scaleX: 0.5, opacity: 0.3 } : { scaleX: [0.2, 1, 0.2], opacity: [0.15, 0.45, 0.15] }}
+        transition={reduced ? { duration: 0.01 } : { duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "10%",
+          right: "10%",
+          height: 2,
+          borderRadius: 999,
+          background: `linear-gradient(90deg, rgba(0,0,0,0), ${tone}, rgba(0,0,0,0))`,
+          transformOrigin: "center",
+          pointerEvents: "none",
+        }}
+      />
     </div>
   )
 }

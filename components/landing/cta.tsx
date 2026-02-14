@@ -2,99 +2,86 @@
 
 import React from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, Sparkles } from "lucide-react"
-import { Button, Card } from "./ui"
+import { Sparkles } from "lucide-react"
+import { Button } from "./ui"
 
 export function CtaSection({ reduced, onRequestDemo }: { reduced: boolean; onRequestDemo: () => void }) {
   return (
-    <section id="cta" style={{ paddingTop: 90, paddingBottom: 110 }}>
-      <div style={{ width: "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
-        <Card style={{ padding: 22 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 18, alignItems: "center" }}>
-            <div style={{ display: "grid", gap: 12 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.82)", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.35 }}>
-                <Sparkles size={14} style={{ opacity: 0.9 }} />
-                <span>Ready to see it</span>
-              </div>
+    <section id="cta" className="relative pt-10 md:pt-14 pb-24 md:pb-32 px-4 overflow-hidden">
+      {/* Full-bleed gradient background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          animate={
+            reduced
+              ? {}
+              : { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
+          }
+          transition={
+            reduced
+              ? { duration: 0.01 }
+              : { duration: 10, repeat: Infinity, ease: "linear" }
+          }
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(135deg, rgba(0,255,224,0.06), rgba(99,102,241,0.08), rgba(232,121,249,0.06), rgba(0,255,224,0.06))",
+            backgroundSize: "300% 300%",
+          }}
+        />
+        <div className="absolute inset-0 bg-[var(--background)] opacity-60" />
+      </div>
 
-              <div style={{ fontSize: "clamp(26px, 4vw, 36px)", fontWeight: 980, letterSpacing: -0.6, color: "rgba(255,255,255,0.95)" }}>
-                Book a live cart demo
-              </div>
+      {/* Floating orbs */}
+      {!reduced && (
+        <>
+          <motion.div
+            animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-[var(--accent)]/8 blur-[100px] pointer-events-none"
+          />
+          <motion.div
+            animate={{ y: [0, 30, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-[10%] right-[10%] w-[250px] h-[250px] rounded-full bg-[var(--accent-2)]/8 blur-[100px] pointer-events-none"
+          />
+        </>
+      )}
 
-              <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.72)", fontWeight: 760, maxWidth: 560 }}>
-                Walk the aisle, see promos land, and finish checkout on-cart. One short session; we’ll tailor it to your store.
-              </div>
-
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Button
-                  onClick={onRequestDemo}
-                  style={{
-                    justifyContent: "center",
-                    background: "linear-gradient(120deg, var(--accent), var(--accent-2))",
-                    border: "1px solid rgba(255,255,255,0.18)",
-                    boxShadow: "0 18px 60px rgba(0,255,208,0.24)",
-                    padding: "14px 18px",
-                  }}
-                >
-                  <span>Get my demo</span>
-                  <ArrowRight size={16} />
-                </Button>
-              </div>
-            </div>
-
-            <ShimmerPanel reduced={reduced} />
+      {/* Centered CTA content */}
+      <div className="relative z-10 max-w-[600px] mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/[0.1] bg-white/[0.04] text-[11px] font-extrabold tracking-[0.15em] text-white/70 uppercase backdrop-blur-md mb-8">
+            <Sparkles size={13} className="text-[var(--accent)]" />
+            <span>Ready to transform your store</span>
           </div>
-        </Card>
+
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.08] mb-5">
+            Book a live{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)]">
+              cart demo
+            </span>
+          </h2>
+
+          <p className="text-lg text-white/45 font-medium mb-10 leading-relaxed max-w-md mx-auto">
+            Walk the aisles, see promos land, and finish checkout on-cart. One short session.
+          </p>
+
+          {/* CTA Button with glow */}
+          <div className="relative inline-block">
+            <div className="absolute inset-[-8px] bg-gradient-to-r from-[var(--accent)]/20 to-[var(--accent-2)]/20 blur-2xl rounded-full" />
+            <Button
+              onClick={onRequestDemo}
+              className="relative bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] text-black font-extrabold px-10 py-5 text-lg rounded-full shadow-[0_0_60px_rgba(0,255,224,0.25)] hover:shadow-[0_0_80px_rgba(0,255,224,0.45)] hover:scale-105 transition-all duration-300"
+            >
+              <span>Get my demo</span>
+            </Button>
+          </div>
+        </motion.div>
       </div>
     </section>
-  )
-}
-
-function ShimmerPanel({ reduced }: { reduced: boolean }) {
-  const shimmer = reduced ? {} : { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
-
-  return (
-    <div style={{ borderRadius: 24, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.03)", padding: 16, overflow: "hidden", position: "relative" }}>
-      <motion.div
-        animate={shimmer}
-        transition={reduced ? { duration: 1 } : { duration: 6.6, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(90deg, rgba(66,214,255,0.14), rgba(166,109,255,0.14), rgba(255,140,200,0.14), rgba(66,214,255,0.14))",
-          backgroundSize: "300% 300%",
-          opacity: 0.7,
-        }}
-      />
-
-      <div style={{ position: "relative" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 16, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(0,0,0,0.24)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Sparkles size={18} style={{ opacity: 0.92 }} />
-          </div>
-          <div>
-            <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>Demo package</div>
-            <div style={{ marginTop: 4, fontSize: 13, fontWeight: 850, color: "rgba(255,255,255,0.66)" }}>What you get</div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
-          <Line title="AI assistant" desc="Answers, swaps, aisle guidance, promos" />
-          <Line title="On-cart checkout" desc="Scan, total, tap to pay, receipts" />
-          <Line title="Verification flow" desc="Light checks, staff assist when needed" />
-          <Line title="Store dashboard" desc="Live throughput and exceptions" />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function Line({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div style={{ borderRadius: 18, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.22)", padding: 12 }}>
-      <div style={{ fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{title}</div>
-      <div style={{ marginTop: 6, color: "rgba(255,255,255,0.70)", fontSize: 13, lineHeight: 1.6, fontWeight: 750 }}>{desc}</div>
-    </div>
   )
 }

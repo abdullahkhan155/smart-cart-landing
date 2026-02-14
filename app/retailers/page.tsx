@@ -190,7 +190,7 @@ export default function RetailersPage() {
                     <ShoppingCart size={18} style={{ opacity: 0.92 }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
-                    <div style={{ fontWeight: 800, letterSpacing: 0.2, fontFamily: space.style.fontFamily }}>Vela</div>
+                    <div style={{ fontWeight: 800, letterSpacing: 0.2, fontFamily: space.style.fontFamily }}>Vexa</div>
                     <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 650 }}>For retailers</div>
                   </div>
                 </Link>
@@ -590,9 +590,9 @@ function RetailInsightsSection() {
           <InsightCard
             tag="Trip friction"
             tone="rgba(88,130,255,0.9)"
-            query="“Where are gluten-free snacks?”"
+            query="“Where are the denim jackets?”"
             insight="Aisle guidance requests up 63%"
-            action="Add wayfinding tags + expand gluten-free endcap"
+            action="Add wayfinding tags + expand featured endcap"
           />
         </div>
       </Card>

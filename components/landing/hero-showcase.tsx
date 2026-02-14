@@ -33,9 +33,9 @@ export function HeroShowcase() {
       <div style={{ display: "grid", gap: 12 }}>
         <div style={{ fontWeight: 900, color: "rgba(255,255,255,0.92)" }}>AI assistant</div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Bubble kind="user" text="Where is pasta sauce?" />
+          <Bubble kind="user" text="Where are the running shoes?" />
         </div>
-        <Bubble kind="ai" text="Aisle 6, top shelf. Want low sodium?" />
+        <Bubble kind="ai" text="Athletics section, Aisle 3. Want to see top-rated?" />
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Chip icon={<MapPin size={14} />} text="Show route" />
           <Chip icon={<Mic size={14} />} text="Ask again" />
@@ -55,10 +55,10 @@ export function HeroShowcase() {
           }}
         >
           <div style={{ fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.65)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-            Snack and save
+            Accessory deal
           </div>
           <div style={{ fontSize: 22, fontWeight: 900, color: "rgba(255,255,255,0.94)" }}>2 for $6</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>Crackers + olive oil</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>Sunglasses + watch</div>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Chip icon={<Sparkles size={14} />} text="Matches basket" />

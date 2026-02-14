@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 
 export function AnimatedBackdrop({
@@ -23,45 +23,85 @@ export function AnimatedBackdrop({
         background: "var(--background)",
       }}
     >
-      {/* Dynamic Aurora Orbs */}
+      {/* Animated aurora orbs */}
       {!reduced && (
         <>
           <motion.div
             animate={{
-              x: [0, 40, -40, 0],
-              y: [0, -40, 40, 0],
-              opacity: [0.4, 0.7, 0.4]
+              x: [0, 80, -40, 0],
+              y: [0, -60, 80, 0],
+              scale: [1, 1.2, 0.9, 1],
+              opacity: [0.3, 0.6, 0.3],
             }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[100px] bg-[var(--accent)]/10"
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            style={{
+              position: "absolute",
+              top: "-15%",
+              left: "-5%",
+              width: "50vw",
+              height: "50vw",
+              borderRadius: "50%",
+              filter: "blur(120px)",
+              background: "rgba(0, 255, 224, 0.08)",
+            }}
           />
           <motion.div
             animate={{
-              x: [0, -60, 60, 0],
-              y: [0, 60, -60, 0],
-              opacity: [0.3, 0.6, 0.3]
+              x: [0, -80, 60, 0],
+              y: [0, 60, -80, 0],
+              scale: [1, 0.9, 1.15, 1],
+              opacity: [0.25, 0.55, 0.25],
             }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full blur-[120px] bg-[var(--accent-2)]/10"
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+            style={{
+              position: "absolute",
+              bottom: "-15%",
+              right: "-5%",
+              width: "55vw",
+              height: "55vw",
+              borderRadius: "50%",
+              filter: "blur(140px)",
+              background: "rgba(99, 102, 241, 0.08)",
+            }}
           />
           <motion.div
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.5, 0.2]
+              scale: [1, 1.3, 1],
+              opacity: [0.15, 0.4, 0.15],
             }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-            className="absolute top-[40%] left-[30%] w-[40vw] h-[40vw] rounded-full blur-[120px] bg-[var(--accent-3)]/05"
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 6 }}
+            style={{
+              position: "absolute",
+              top: "35%",
+              left: "25%",
+              width: "40vw",
+              height: "40vw",
+              borderRadius: "50%",
+              filter: "blur(130px)",
+              background: "rgba(232, 121, 249, 0.05)",
+            }}
           />
         </>
       )}
+
+      {/* Grid pattern overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+          mask: "radial-gradient(ellipse 70% 50% at 50% 30%, black, transparent)",
+          WebkitMask: "radial-gradient(ellipse 70% 50% at 50% 30%, black, transparent)",
+        }}
+      />
 
       {/* Dark overlay for text readability */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(5,5,5,0.20) 0%, rgba(5,5,5,0.7) 100%)",
+          background: "linear-gradient(180deg, rgba(3,3,5,0.15) 0%, rgba(3,3,5,0.75) 100%)",
         }}
       />
 
@@ -82,15 +122,14 @@ function Particles() {
       seed = (seed * 9301 + 49297) % 233280
       return seed / 233280
     }
-    // Increased particle count for more livelihood
-    for (let i = 0; i < 45; i += 1) {
+    for (let i = 0; i < 35; i += 1) {
       const r = rand()
       items.push({
         x: rand(),
         y: rand(),
-        s: 2 + rand() * 4,
-        o: 0.1 + rand() * 0.3,
-        d: r * 2,
+        s: 1.5 + rand() * 3,
+        o: 0.08 + rand() * 0.22,
+        d: r * 3,
       })
     }
     dotsRef.current = items
@@ -104,13 +143,13 @@ function Particles() {
       {dots.map((p, idx) => (
         <motion.span
           key={idx}
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{
             opacity: [0, p.o, 0],
-            y: [0, -30, 0], // Move UP to simulate rising energy
-            x: [0, (idx % 2 === 0 ? 10 : -10), 0] // Subtle horizontal drift
+            y: [0, -40, 0],
+            x: [0, (idx % 2 === 0 ? 15 : -15), 0],
           }}
-          transition={{ duration: 4 + p.d, repeat: Infinity, ease: "easeInOut", delay: p.d }}
+          transition={{ duration: 5 + p.d, repeat: Infinity, ease: "easeInOut", delay: p.d }}
           style={{
             position: "absolute",
             left: `${p.x * 100}%`,
@@ -118,8 +157,8 @@ function Particles() {
             width: p.s,
             height: p.s,
             borderRadius: 999,
-            background: idx % 3 === 0 ? "var(--accent)" : idx % 3 === 1 ? "var(--accent-2)" : "rgba(255,255,255,0.8)",
-            boxShadow: `0 0 ${p.s * 2}px ${idx % 3 === 0 ? "var(--accent)" : idx % 3 === 1 ? "var(--accent-2)" : "white"}`,
+            background: idx % 3 === 0 ? "var(--accent)" : idx % 3 === 1 ? "var(--accent-2)" : "rgba(255,255,255,0.6)",
+            boxShadow: `0 0 ${p.s * 3}px ${idx % 3 === 0 ? "rgba(0,255,224,0.4)" : idx % 3 === 1 ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.3)"}`,
           }}
         />
       ))}

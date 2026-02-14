@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import React, { useEffect, useRef, useState } from "react"
+import { motion, useInView } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export function clamp(n: number, a: number, b: number) {
@@ -47,21 +47,19 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center gap-2.5 px-4 py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none relative overflow-hidden group",
-        variant === "solid" && "bg-white/10 border border-white/20 text-white shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:shadow-[0_0_30px_rgba(0,242,234,0.3)] backdrop-blur-xl",
+        "inline-flex items-center gap-2.5 px-5 py-3.5 rounded-2xl font-extrabold text-sm tracking-wide transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none relative overflow-hidden group",
+        variant === "solid" && "bg-white/[0.06] border border-white/[0.12] text-white shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:bg-white/[0.12] hover:border-white/20 hover:shadow-[0_0_40px_rgba(0,255,224,0.15)] backdrop-blur-xl",
         variant === "ghost" && "bg-transparent border border-transparent text-white/70 hover:text-white hover:bg-white/5",
         className
       )}
       style={style}
       {...props}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/0 to-[var(--accent)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/0 via-[var(--accent)]/5 to-[var(--accent)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
       <span className="relative">{children}</span>
     </button>
   )
 }
-
-// Pill is now in Pill.tsx, removing from here to avoid duplication if we export from index
 
 export function Card({
   children,
@@ -77,24 +75,24 @@ export function Card({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] shadow-2xl backdrop-blur-2xl transition-colors hover:bg-white/[0.06]",
+        "noise-overlay relative overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all duration-500 hover:bg-white/[0.04] hover:border-white/[0.14] hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)]",
         className
       )}
       style={style}
     >
-      {/* Subtle top-light for depth */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50" />
+      {/* Top edge highlight */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      {/* Aurora sheen */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 via-transparent to-[var(--accent-2)]/5 opacity-50 pointer-events-none" />
+      {/* Aurora shimmer */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/[0.03] via-transparent to-[var(--accent-2)]/[0.03] pointer-events-none" />
 
       {glow && (
         <motion.div
           aria-hidden
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-0 bg-[radial-gradient(800px_circle_at_50%_-20%,rgba(0,242,234,0.15),transparent_60%)] pointer-events-none"
+          initial={{ opacity: 0.2 }}
+          animate={{ opacity: [0.15, 0.35, 0.15] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0 bg-[radial-gradient(600px_circle_at_50%_-30%,rgba(0,255,224,0.08),transparent_60%)] pointer-events-none"
         />
       )}
 
@@ -112,20 +110,29 @@ export function SectionTitle({
   title: string
   subtitle: string
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const isInView = useInView(ref, { once: true, amount: 0.3 })
+
   return (
-    <div className="max-w-4xl mx-auto text-center px-4">
-      <div className="inline-flex items-center gap-2.5 px-3 py-2 rounded-full border border-white/15 bg-white/5 text-xs font-black tracking-widest text-white/85 uppercase">
-        <span className="w-2 h-2 rounded-full bg-white/75" />
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      className="max-w-3xl mx-auto text-center px-4"
+    >
+      <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/[0.1] bg-white/[0.04] text-[11px] font-extrabold tracking-[0.15em] text-white/70 uppercase backdrop-blur-md">
+        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]" />
         <span>{eyebrow}</span>
       </div>
 
-      <h2 className="mt-5 text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white/95 leading-[1.1]">
+      <h2 className="mt-6 text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight text-white leading-[1.08]">
         {title}
       </h2>
 
-      <p className="mt-4 text-base md:text-lg text-white/75 leading-relaxed max-w-2xl mx-auto">
+      <p className="mt-5 text-base md:text-lg text-white/55 leading-relaxed max-w-xl mx-auto font-medium">
         {subtitle}
       </p>
-    </div>
+    </motion.div>
   )
 }

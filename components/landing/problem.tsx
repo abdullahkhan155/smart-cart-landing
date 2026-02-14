@@ -1,421 +1,116 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import { AnimatePresence, motion, useInView } from "framer-motion"
-import { AlertTriangle, ArrowRight, MapPin, Users } from "lucide-react"
-import { Card, SectionTitle, useBreakpoint, usePrefersReducedMotion } from "./ui"
+import React, { useRef, useMemo } from "react"
+import { motion, useInView } from "framer-motion"
+import { AlertTriangle, Clock, HelpCircle, Mic, Sparkles, CreditCard, Check, X } from "lucide-react"
+import { SectionTitle } from "./ui"
 
-
-type ProblemKind = "checkout" | "find" | "help"
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export function ProblemStorySection() {
-  const reduced = usePrefersReducedMotion()
-  const isMobile = useBreakpoint(720)
+  const sectionRef = useRef<HTMLElement>(null)
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 })
 
-  const problems = useMemo(
-    () => [
-      {
-        title: "Slow Checkout",
-        note: "Queues waste time.",
-        icon: <Users size={18} />,
-        kind: "checkout" as const,
-      },
-      {
-        title: "Hard to Find",
-        note: "Finding items is tough.",
-        icon: <MapPin size={18} />,
-        kind: "find" as const,
-      },
-      {
-        title: "No Help",
-        note: "Staff are busy.",
-        icon: <AlertTriangle size={18} />,
-        kind: "help" as const,
-      },
-    ],
-    []
-  )
+  const before = [
+    { icon: <Clock size={18} />, text: "10+ min checkout queues" },
+    { icon: <HelpCircle size={18} />, text: "Can't find what you need" },
+    { icon: <AlertTriangle size={18} />, text: "No help when you need it" },
+  ]
 
-  const [activeSolution, setActiveSolution] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
-  const showcaseRef = useRef<HTMLDivElement | null>(null)
-  const resumeTimeoutRef = useRef<number | null>(null)
-  const showcaseInView = useInView(showcaseRef, { amount: 0.4 })
-
-  const solutionShowcase = useMemo(
-    () => [
-      {
-        id: "assistant",
-        label: "AI assistant",
-        title: "AI Assistant",
-        description: "Answers in the aisle.",
-        image: "/AI_Screen.png",
-        accent: "rgba(0,255,208,0.24)",
-        accentStrong: "rgba(0,255,208,0.9)",
-      },
-      {
-        id: "promos",
-        label: "Smart promos",
-        title: "Smart Promos",
-        description: "Offers that matter.",
-        image: "/Promo.png",
-        accent: "rgba(255,170,80,0.24)",
-        accentStrong: "rgba(255,170,80,0.9)",
-      },
-      {
-        id: "checkout",
-        label: "Self checkout",
-        title: "Self Checkout",
-        description: "Scan, pay, and go.",
-        image: "/Self_Checkout.png",
-        accent: "rgba(160,120,255,0.24)",
-        accentStrong: "rgba(160,120,255,0.9)",
-      },
-      {
-        id: "security",
-        label: "Security",
-        title: "Loss Prevention",
-        description: "Real-time cart verification.",
-        image: "/Security.png",
-        accent: "rgba(0,190,120,0.22)",
-        accentStrong: "rgba(0,190,120,0.9)",
-      },
-    ],
-    []
-  )
-
-  const activeView = solutionShowcase[activeSolution]
-
-  const handleSelect = (index: number) => {
-    setActiveSolution(index)
-
-    if (reduced) return
-
-    // Pause auto-rotation briefly after manual selection so it doesn't immediately jump back
-    setIsPaused(true)
-    if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
-    resumeTimeoutRef.current = window.setTimeout(() => setIsPaused(false), 7000)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (resumeTimeoutRef.current) window.clearTimeout(resumeTimeoutRef.current)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (reduced || isPaused || !showcaseInView) return
-    const id = window.setInterval(() => {
-      setActiveSolution((value) => (value + 1) % solutionShowcase.length)
-    }, 5200)
-    return () => window.clearInterval(id)
-  }, [reduced, isPaused, solutionShowcase.length, showcaseInView])
+  const after = [
+    { icon: <CreditCard size={18} />, text: "30-second on-cart pay" },
+    { icon: <Mic size={18} />, text: "AI-guided navigation" },
+    { icon: <Sparkles size={18} />, text: "Instant deals & bundles" },
+  ]
 
   return (
-    <section style={{ paddingTop: isMobile ? 50 : 60, paddingBottom: isMobile ? 40 : 50 }}>
-      <div style={{ width: isMobile ? "calc(100% - 24px)" : "min(1120px, calc(100% - 40px))", margin: "0 auto" }}>
+    <section ref={sectionRef} className="relative pt-24 md:pt-32 pb-10 md:pb-14 px-4">
+      {/* Background accent */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(600px 300px at 30% 40%, rgba(245,158,11,0.03), transparent), radial-gradient(600px 300px at 70% 60%, rgba(0,255,224,0.03), transparent)",
+        }}
+      />
+
+      <div className="relative max-w-[1000px] mx-auto">
         <SectionTitle
-          eyebrow="The problem"
-          title="Shopping is Slow"
-          subtitle="Queues and confusion slow everyone down."
+          eyebrow="Why Vexa"
+          title="Every Trip, Elevated"
+          subtitle="See the difference an AI-powered cart makes."
         />
 
-        <div style={{ marginTop: isMobile ? 24 : 34, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-          {problems.map((p) => (
-            <ProblemCard key={p.title} title={p.title} note={p.note} icon={p.icon} kind={p.kind} />
-          ))}
-        </div>
-
-        <div style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
-          <motion.div
-            animate={reduced ? { opacity: 0.9 } : { opacity: [0.45, 0.9, 0.45], y: [0, 8, 0] }}
-            transition={reduced ? { duration: 1 } : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 14px",
-              border: "1px solid rgba(255,255,255,0.14)",
-              background: "linear-gradient(90deg, rgba(0,255,208,0.12), rgba(160,120,255,0.12), rgba(255,170,80,0.12))",
-              color: "rgba(255,255,255,0.74)",
-              fontSize: 13,
-              fontWeight: 950,
-            }}
-          >
-            <span>Now the solution</span>
-            <ArrowRight size={16} style={{ opacity: 0.9 }} />
-          </motion.div>
-        </div>
-
-        <div style={{ marginTop: isMobile ? 20 : 26 }}>
-          <SectionTitle
-            eyebrow="The solution"
-            title="An assistant embedded in every cart"
-            subtitle="It guides the aisle, keeps choices clear, and ends the trip without a line."
-          />
-        </div>
-
-        <div ref={showcaseRef} style={{ marginTop: isMobile ? 18 : 22 }}>
-          <Card style={{ padding: isMobile ? 16 : 22 }}>
-            <div style={{ display: "grid", gap: 14, justifyItems: "center", textAlign: "center" }}>
-              <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1.2, textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>
-                Solution views
+        {/* Before / After Comparison */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+          className="mt-16 grid md:grid-cols-2 gap-4 md:gap-0"
+        >
+          {/* BEFORE */}
+          <div className="noise-overlay relative rounded-[var(--radius-lg)] md:rounded-r-none border border-white/[0.06] bg-white/[0.015] p-8 md:p-10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.03] to-transparent pointer-events-none" />
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-400/20 bg-red-400/[0.06] text-[11px] font-extrabold tracking-[0.12em] text-red-400/70 uppercase mb-8">
+                <X size={12} />
+                Without Vexa
               </div>
 
-              <div style={{ display: "flex", gap: isMobile ? 8 : 10, flexWrap: "wrap", justifyContent: "center" }}>
-                {solutionShowcase.map((view, index) => {
-                  const isActive = index === activeSolution
-                  return (
-                    <motion.button
-                      key={view.id}
-                      type="button"
-                      onClick={() => handleSelect(index)}
-                      aria-pressed={isActive}
-                      whileHover={reduced ? undefined : { y: -1 }}
-                      whileTap={reduced ? undefined : { scale: 0.98 }}
-                      style={{
-                        padding: isMobile ? "8px 12px" : "9px 14px",
-                        borderRadius: 999,
-                        border: isActive ? "1px solid rgba(255,255,255,0.30)" : "1px solid rgba(255,255,255,0.12)",
-                        background: isActive ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.22)",
-                        color: isActive ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.62)",
-                        fontSize: isMobile ? 11 : 12,
-                        fontWeight: 900,
-                        cursor: "pointer",
-                        transition: "border 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease",
-                      }}
-                    >
-                      {view.label}
-                    </motion.button>
-                  )
-                })}
-              </div>
-
-              <motion.div
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-                onFocusCapture={() => setIsPaused(true)}
-                onBlurCapture={() => setIsPaused(false)}
-                animate={reduced ? { opacity: 1 } : { y: [0, -6, 0] }}
-                transition={reduced ? { duration: 0.01 } : { duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
-                style={{ width: "min(760px, 100%)", marginTop: isMobile ? 10 : 6 }}
-              >
-                <div
-                  style={{
-                    padding: 8,
-                    borderRadius: 30,
-                    background: `linear-gradient(140deg, ${activeView.accent}, rgba(255,255,255,0.04), ${activeView.accentStrong})`,
-                    border: `1px solid ${activeView.accentStrong}`,
-                    boxShadow: "0 44px 140px rgba(0,0,0,0.48)",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "relative",
-                      borderRadius: isMobile ? 18 : 22,
-                      overflow: "hidden",
-                      background: "rgba(0,0,0,0.32)",
-                      aspectRatio: "4 / 3",
-                      minHeight: isMobile ? 240 : 320,
-                    }}
+              <div className="space-y-5">
+                {before.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                    transition={{ duration: 0.5, delay: 0.3 + i * 0.1, ease: EASE }}
+                    className="flex items-center gap-4"
                   >
-                    <AnimatePresence mode="wait">
-                      <motion.img
-                        key={activeView.id}
-                        src={activeView.image}
-                        alt={activeView.title}
-                        initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 0.99 }}
-                        animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-                        exit={reduced ? { opacity: 1 } : { opacity: 0, scale: 1.01 }}
-                        transition={reduced ? { duration: 0.01 } : { duration: 0.45, ease: "easeOut" }}
-                        style={{
-                          position: "relative",
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "contain",
-                          objectPosition: "50% 50%",
-                          display: "block",
-                          zIndex: 1,
-                        }}
-                        loading="lazy"
-                      />
-                    </AnimatePresence>
-
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.38))", zIndex: 2 }} />
-
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: isMobile ? 10 : 14,
-                        right: isMobile ? 10 : 14,
-                        bottom: isMobile ? 10 : 14,
-                        padding: isMobile ? "10px 12px" : "12px 14px",
-                        borderRadius: 16,
-                        border: `1px solid ${activeView.accentStrong}`,
-                        background: "rgba(0,0,0,0.46)",
-                        backdropFilter: "blur(10px)",
-                        WebkitBackdropFilter: "blur(10px)",
-                        zIndex: 3,
-                        textAlign: "left",
-                      }}
-                    >
-                      <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>{activeView.title}</div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 12, fontWeight: 800, color: "rgba(255,255,255,0.72)" }}>{activeView.description}</div>
+                    <div className="w-10 h-10 rounded-xl border border-white/[0.06] bg-white/[0.03] flex items-center justify-center text-white/30 shrink-0">
+                      {item.icon}
                     </div>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: 10, display: "flex", justifyContent: "center", gap: 8 }}>
-                  {solutionShowcase.map((view, index) => (
-                    <span
-                      key={view.id}
-                      style={{
-                        width: index === activeSolution ? 48 : 24,
-                        height: 4,
-                        borderRadius: 999,
-                        background: index === activeSolution ? view.accentStrong : "rgba(255,255,255,0.16)",
-                        transition: "width 200ms ease, background 200ms ease",
-                      }}
-                    />
-                  ))}
-                </div>
-
-                <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.56)", textAlign: "center" }}>
-                  Auto-rotating preview. Hover to pause.
-                </div>
-              </motion.div>
+                    <span className="text-white/40 font-semibold text-base">{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </Card>
-        </div>
+          </div>
+
+          {/* AFTER */}
+          <div className="noise-overlay relative rounded-[var(--radius-lg)] md:rounded-l-none border border-white/[0.1] bg-white/[0.025] p-8 md:p-10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/[0.04] to-transparent pointer-events-none" />
+            {/* Highlight border on left (desktop) */}
+            <div className="hidden md:block absolute left-0 top-[15%] bottom-[15%] w-[2px] bg-gradient-to-b from-transparent via-[var(--accent)]/60 to-transparent" />
+
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--accent)]/20 bg-[var(--accent)]/[0.06] text-[11px] font-extrabold tracking-[0.12em] text-[var(--accent)]/80 uppercase mb-8">
+                <Check size={12} />
+                With Vexa
+              </div>
+
+              <div className="space-y-5">
+                {after.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                    transition={{ duration: 0.5, delay: 0.4 + i * 0.1, ease: EASE }}
+                    className="flex items-center gap-4"
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl border border-[var(--accent)]/15 flex items-center justify-center text-[var(--accent)] shrink-0"
+                      style={{ background: "rgba(0,255,224,0.06)", boxShadow: "0 0 20px rgba(0,255,224,0.08)" }}
+                    >
+                      {item.icon}
+                    </div>
+                    <span className="text-white/80 font-semibold text-base">{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
-  )
-}
-
-function ProblemCard({
-  title,
-  note,
-  icon,
-  kind,
-}: {
-  title: string
-  note: string
-  icon: React.ReactNode
-  kind: ProblemKind
-}) {
-  return (
-    <Card style={{ padding: 14 }}>
-      <ProblemVisual kind={kind} icon={icon} />
-      <div style={{ marginTop: 12, fontWeight: 980, color: "rgba(255,255,255,0.92)" }}>{title}</div>
-      <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.6, fontWeight: 850, color: "rgba(255,255,255,0.70)" }}>
-        {note}
-      </div>
-    </Card>
-  )
-}
-
-function ProblemVisual({ kind, icon }: { kind: ProblemKind; icon: React.ReactNode }) {
-  const accent =
-    kind === "checkout"
-      ? "rgba(255,170,80,0.20)"
-      : kind === "find"
-        ? "rgba(0,255,208,0.18)"
-        : "rgba(160,120,255,0.20)"
-
-  return (
-    <div
-      style={{
-        height: 120,
-        borderRadius: 18,
-        border: "1px solid rgba(255,255,255,0.12)",
-        background: `radial-gradient(260px 120px at 12% 0%, ${accent}, rgba(0,0,0,0)), rgba(0,0,0,0.18)`,
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.55))" }} />
-      <div
-        style={{
-          position: "absolute",
-          left: 12,
-          top: 12,
-          width: 38,
-          height: 38,
-          borderRadius: 14,
-          border: "1px solid rgba(255,255,255,0.14)",
-          background: "rgba(0,0,0,0.24)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "rgba(255,255,255,0.90)"
-        }}
-      >
-        {icon}
-      </div>
-
-      {kind === "checkout" ? (
-        <div style={{ position: "absolute", left: 14, right: 14, top: 54, display: "grid", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 999,
-                  background: i > 3 ? "rgba(255,170,80,0.55)" : "rgba(255,255,255,0.16)",
-                }}
-              />
-            ))}
-            <span style={{ width: 40, height: 10, borderRadius: 999, background: "rgba(255,170,80,0.18)", border: "1px solid rgba(255,170,80,0.35)" }} />
-          </div>
-          <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-            <div style={{ width: "72%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(255,170,80,0.12), rgba(255,170,80,0.45))" }} />
-          </div>
-        </div>
-      ) : kind === "find" ? (
-        <div style={{ position: "absolute", left: 14, right: 14, top: 48, display: "grid", gap: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(30px, 1fr))", gap: 6 }}>
-            {Array.from({ length: 15 }).map((_, i) => (
-              <span
-                key={i}
-                style={{
-                  height: 12,
-                  borderRadius: 6,
-                  background: i === 6 || i === 11 ? "rgba(0,255,208,0.40)" : "rgba(255,255,255,0.10)",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                }}
-              />
-            ))}
-          </div>
-          <div style={{ height: 6, borderRadius: 999, background: "rgba(0,255,208,0.12)" }}>
-            <div style={{ width: "54%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(0,255,208,0.10), rgba(0,255,208,0.45))" }} />
-          </div>
-        </div>
-      ) : (
-        <div style={{ position: "absolute", left: 14, right: 14, top: 52, display: "grid", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 999,
-                  background: i === 0 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.08)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                }}
-              />
-            ))}
-            <span style={{ marginLeft: "auto", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(160,120,255,0.40)", background: "rgba(160,120,255,0.16)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.80)" }}>
-              Help unavailable
-            </span>
-          </div>
-          <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.08)" }}>
-            <div style={{ width: "38%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(160,120,255,0.12), rgba(160,120,255,0.45))" }} />
-          </div>
-        </div>
-      )}
-    </div>
   )
 }
