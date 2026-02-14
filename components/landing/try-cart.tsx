@@ -11,7 +11,7 @@ type Mode = "ask" | "map" | "promo" | "checkout"
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 const FLOW: Mode[] = ["ask", "map", "promo", "checkout"]
 const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
-  ask: [2200, 2800, 3000, 2800, 2600],
+  ask: [2200, 4200, 3000, 4200, 2600],
   map: [1800, 2200, 2400, 2000],
   promo: [2400, 3000, 2800],
   checkout: [2200, 2600, 3000, 3600],
@@ -30,7 +30,7 @@ function DesktopTryCartDemo() {
   const { panelRef, ...cardProps } = demo
 
   return (
-    <section id="try" style={{ paddingTop: 32, paddingBottom: 16 }}>
+    <section id="try" style={{ paddingTop: 20, paddingBottom: 16 }}>
       <div style={{ width: "min(960px, calc(100% - 32px))", margin: "0 auto" }}>
         <div style={{ display: "grid", gap: 12, justifyItems: "center", textAlign: "center", marginBottom: 28 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "9px 16px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", backdropFilter: "blur(12px)", color: "rgba(255,255,255,0.70)", fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>
@@ -495,7 +495,11 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
         <motion.div initial={mIn} animate={mAn} transition={mTr}>
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
             <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.28)">
-              Found 3 options in Aisle 7. The Nike Pegasus 41 is on flash sale for $69.99, down from $120.
+              {reduced ? (
+                "Found 3 options in Aisle 7. The Nike Pegasus 41 is on flash sale for $69.99, down from $120."
+              ) : (
+                <Typewriter text="Found 3 options in Aisle 7. The Nike Pegasus 41 is on flash sale for $69.99, down from $120." />
+              )}
             </Bubble>
           </div>
         </motion.div>
@@ -542,7 +546,11 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
         <motion.div initial={mIn} animate={mAn} transition={mTr}>
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
             <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.26)">
-              Size 10 is in stock. Also, buy these and get performance socks for $4 instead of $12. Want both?
+              {reduced ? (
+                "Size 10 is in stock. Also, buy these and get performance socks for $4 instead of $12. Want both?"
+              ) : (
+                <Typewriter text="Size 10 is in stock. Also, buy these and get performance socks for $4 instead of $12. Want both?" />
+              )}
             </Bubble>
           </div>
         </motion.div>
@@ -593,6 +601,53 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
         </div>
       </div>
     </div>
+  )
+}
+
+function Typewriter({ text }: { text: string }) {
+  const [displayed, setDisplayed] = useState("")
+  const [showCursor, setShowCursor] = useState(true)
+
+  useEffect(() => {
+    let index = 0
+    // Initial delay before typing starts to separate from bubble appearance
+    const startTimeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setDisplayed(text.slice(0, index + 1))
+        index++
+        if (index >= text.length) clearInterval(interval)
+      }, 35) // Speed of typing in ms
+      return () => clearInterval(interval)
+    }, 150)
+
+    return () => clearTimeout(startTimeout)
+  }, [text])
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const cursorInterval = setInterval(() => {
+      setShowCursor((prev) => !prev)
+    }, 500)
+    return () => clearInterval(cursorInterval)
+  }, [])
+
+  return (
+    <span>
+      {displayed}
+      {displayed.length < text.length && (
+        <span
+          style={{
+            display: "inline-block",
+            width: "2px",
+            height: "1em",
+            background: "currentColor",
+            marginLeft: "2px",
+            verticalAlign: "text-bottom",
+            opacity: showCursor ? 1 : 0,
+          }}
+        />
+      )}
+    </span>
   )
 }
 

@@ -7,7 +7,7 @@ export { FaqSection } from "./faq"
 export { CtaSection } from "./cta"
 export { Footer } from "./footer"
 export { TryCartSection } from "./try-cart"
-export { VideoFeature } from "./VideoFeature"
+
 export * from "./Hero"
 export { DemoModal } from "./DemoModal"
 export { Pill } from "./Pill"

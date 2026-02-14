@@ -16,7 +16,6 @@ import {
   Footer,
   clamp,
   usePrefersReducedMotion,
-  VideoFeature,
   DemoModal,
   Hero,
 } from "@/components/landing"
@@ -127,7 +126,7 @@ export default function Page() {
           {/* Sections */}
           <Hero />
           <TryCartSection />
-          <VideoFeature reduced={reduced} />
+
           <HowItWorksSection />
           <ProblemStorySection />
           <FaqSection />
