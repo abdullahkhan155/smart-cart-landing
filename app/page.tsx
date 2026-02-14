@@ -55,7 +55,7 @@ export default function Page() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const onMove = (e: React.MouseEvent) => {
+  const onMove = reduced ? undefined : (e: React.MouseEvent) => {
     const r = rootRef.current?.getBoundingClientRect()
     if (!r) return
     mouseX.set((e.clientX - r.left) / r.width)

@@ -14,6 +14,7 @@ import {
     Wallet,
     BadgeDollarSign,
 } from "lucide-react"
+import { useBreakpoint } from "./ui"
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
@@ -140,6 +141,9 @@ const ITEMS: FloatingItem[] = [
 ]
 
 export function FloatingElements() {
+    const isMobile = useBreakpoint(768)
+    if (isMobile) return null
+
     return (
         <div
             aria-hidden
