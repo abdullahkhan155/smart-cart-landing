@@ -18,6 +18,14 @@ const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
 }
 
 export function TryCartSection() {
+  const isMobile = useBreakpoint(768)
+
+  if (isMobile) return <MobileFeatureShowcase />
+
+  return <DesktopTryCartDemo />
+}
+
+function DesktopTryCartDemo() {
   const demo = useTryCartDemo()
   const { panelRef, ...cardProps } = demo
 
@@ -42,6 +50,144 @@ export function TryCartSection() {
 
         <div ref={panelRef}>
           <TryCartCard {...cardProps} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── MOBILE FEATURE SHOWCASE ─── */
+const MOBILE_FEATURES = [
+  {
+    icon: Mic,
+    title: "Ask anything",
+    desc: "\"Where are running shoes under $80?\" — Vexa finds it, prices it, and tells you exactly where to go.",
+    accent: "rgba(0,255,208,0.95)",
+    accentBg: "rgba(0,255,208,0.08)",
+    accentBorder: "rgba(0,255,208,0.22)",
+    stat: "< 2s",
+    statLabel: "response time",
+  },
+  {
+    icon: Navigation,
+    title: "Store navigation",
+    desc: "GPS-like turn-by-turn routing inside any store. Never wander aisles again.",
+    accent: "rgba(56,189,248,0.95)",
+    accentBg: "rgba(56,189,248,0.08)",
+    accentBorder: "rgba(56,189,248,0.22)",
+    stat: "45s",
+    statLabel: "avg find time",
+  },
+  {
+    icon: Gift,
+    title: "Smart promos",
+    desc: "AI matches deals to your cart in real time. Coupons, bundles, and loyalty points — auto-applied.",
+    accent: "rgba(255,170,80,0.95)",
+    accentBg: "rgba(255,170,80,0.08)",
+    accentBorder: "rgba(255,170,80,0.22)",
+    stat: "$18+",
+    statLabel: "avg savings",
+  },
+  {
+    icon: CreditCard,
+    title: "Zero-lane checkout",
+    desc: "Scan, pay on the cart screen, and walk out. No lines, no waiting.",
+    accent: "rgba(160,120,255,0.95)",
+    accentBg: "rgba(160,120,255,0.08)",
+    accentBorder: "rgba(160,120,255,0.22)",
+    stat: "0",
+    statLabel: "checkout lines",
+  },
+] as const
+
+function MobileFeatureShowcase() {
+  return (
+    <section id="try" style={{ paddingTop: 32, paddingBottom: 16 }}>
+      <div style={{ width: "calc(100% - 32px)", margin: "0 auto", maxWidth: 480 }}>
+        {/* Header */}
+        <div style={{ display: "grid", gap: 10, justifyItems: "center", textAlign: "center", marginBottom: 24 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.70)", fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" as const }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: "var(--accent)" }} />
+            <span>How it works</span>
+          </div>
+          <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em", color: "rgba(255,255,255,0.95)", margin: 0, lineHeight: 1.1 }}>
+            4 ways Vexa{" "}
+            <span style={{ background: "linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              transforms
+            </span>{" "}
+            shopping
+          </h2>
+        </div>
+
+        {/* Feature cards */}
+        <div style={{ display: "grid", gap: 12 }}>
+          {MOBILE_FEATURES.map((f, i) => {
+            const Icon = f.icon
+            return (
+              <div
+                key={i}
+                style={{
+                  borderRadius: 20,
+                  border: `1px solid ${f.accentBorder}`,
+                  background: `linear-gradient(145deg, ${f.accentBg}, rgba(0,0,0,0.30))`,
+                  padding: 18,
+                  display: "grid",
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 14,
+                      background: f.accentBg,
+                      border: `1px solid ${f.accentBorder}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <Icon size={18} color={f.accent} />
+                    </div>
+                    <div style={{ fontWeight: 900, fontSize: 16, color: "rgba(255,255,255,0.94)" }}>
+                      {f.title}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 20, fontWeight: 980, color: f.accent, lineHeight: 1 }}>{f.stat}</div>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.40)", textTransform: "uppercase" as const, letterSpacing: 0.5 }}>{f.statLabel}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.55)", lineHeight: 1.55 }}>
+                  {f.desc}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Bottom stat banner */}
+        <div style={{
+          marginTop: 16,
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 8,
+        }}>
+          {[
+            { value: "97%", label: "Accuracy" },
+            { value: "3x", label: "Faster trips" },
+            { value: "$18+", label: "Avg saved" },
+          ].map((s, i) => (
+            <div
+              key={i}
+              style={{
+                textAlign: "center",
+                padding: "14px 8px",
+                borderRadius: 16,
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.03)",
+              }}
+            >
+              <div style={{ fontSize: 22, fontWeight: 980, background: "linear-gradient(135deg, var(--accent), var(--accent-2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.value}</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.40)", textTransform: "uppercase" as const, letterSpacing: 0.5, marginTop: 2 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
