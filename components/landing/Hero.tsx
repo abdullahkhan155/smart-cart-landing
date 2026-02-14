@@ -89,7 +89,7 @@ export function Hero() {
                     initial={{ opacity: 0, scale: 0.5, y: 60 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 1.4, delay: 0.5, ease: EASE }}
-                    className="relative -mt-4 flex flex-col items-center w-full max-w-[620px]"
+                    className="relative -mt-4 flex flex-col items-center w-full max-w-[620px] mx-auto"
                 >
                     {/* Main showcase container */}
                     <div className="relative flex justify-center items-center w-[min(90vw,440px)] h-[min(90vw,440px)] sm:w-[440px] sm:h-[440px]">
