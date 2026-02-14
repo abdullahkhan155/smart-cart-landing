@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
+import { useBreakpoint } from "./ui"
 
 export function AnimatedBackdrop({
   mx,
@@ -12,6 +13,8 @@ export function AnimatedBackdrop({
   my: number
   reduced: boolean
 }) {
+  const isMobile = useBreakpoint(800)
+
   return (
     <div
       aria-hidden
@@ -24,7 +27,7 @@ export function AnimatedBackdrop({
       }}
     >
       {/* Animated aurora orbs */}
-      {!reduced && (
+      {!reduced && !isMobile && (
         <>
           <motion.div
             animate={{
@@ -105,7 +108,7 @@ export function AnimatedBackdrop({
         }}
       />
 
-      {!reduced ? <Particles /> : null}
+      {!reduced && !isMobile ? <Particles /> : null}
     </div>
   )
 }

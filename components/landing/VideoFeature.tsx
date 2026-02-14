@@ -62,16 +62,18 @@ export function VideoFeature({ reduced = false }: VideoFeatureProps) {
 
                     {/* Dark Backdrop for Video */}
                     <div className="aspect-video relative bg-black">
-                        <video
-                            src="/Shopping_Assistant.mp4"
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            ref={videoRef}
-                            className="w-full h-full object-cover opacity-90 transition-opacity duration-700 group-hover:opacity-100"
-                            onEnded={() => setPlaying(false)}
-                        />
+                        {isInView && (
+                            <video
+                                src="/Shopping_Assistant.mp4"
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                ref={videoRef}
+                                className="w-full h-full object-cover opacity-90 transition-opacity duration-700 group-hover:opacity-100"
+                                onEnded={() => setPlaying(false)}
+                            />
+                        )}
 
                         {/* Screen Texture/Vignette */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
