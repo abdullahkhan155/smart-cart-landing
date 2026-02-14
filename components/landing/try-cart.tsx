@@ -243,10 +243,10 @@ function TryCartCard({
                   <span style={{ fontSize: 11, fontWeight: 850, color: "rgba(255,255,255,0.62)" }}>Simulated cart view</span>
                 </div>
 
-                {mode === "ask" ? <AskScreen onNext={goNext} step={scriptStep} /> : null}
-                {mode === "map" ? <MapScreen onNext={goNext} step={scriptStep} /> : null}
-                {mode === "promo" ? <PromoScreen onNext={goNext} step={scriptStep} /> : null}
-                {mode === "checkout" ? <CheckoutScreen step={scriptStep} /> : null}
+                {mode === "ask" ? <AskScreen onNext={goNext} step={scriptStep} reduced={reduced} /> : null}
+                {mode === "map" ? <MapScreen onNext={goNext} step={scriptStep} reduced={reduced} /> : null}
+                {mode === "promo" ? <PromoScreen onNext={goNext} step={scriptStep} reduced={reduced} /> : null}
+                {mode === "checkout" ? <CheckoutScreen step={scriptStep} reduced={reduced} /> : null}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -328,12 +328,15 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
 }
 
 /* ─── ASK SCREEN ─── */
-function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
+function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number; reduced: boolean }) {
   const isTyping = step < 3
+  const mIn = reduced ? false : { opacity: 0, y: 8 }
+  const mAn = { opacity: 1, y: 0 }
+  const mTr = reduced ? { duration: 0.01 } : { duration: 0.35, ease: EASE }
   return (
     <div style={{ display: "grid", gap: 12, alignContent: "start" }}>
       {/* User asks */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+      <motion.div initial={mIn} animate={mAn} transition={mTr}>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Bubble tone="rgba(255,255,255,0.10)" border="rgba(255,255,255,0.18)" align="right">
             I need running shoes for under $80.
@@ -343,7 +346,7 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
 
       {/* AI response with location */}
       {step >= 1 ? (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+        <motion.div initial={mIn} animate={mAn} transition={mTr}>
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
             <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.28)">
               Found 3 options in Aisle 7. The Nike Pegasus 41 is on flash sale for $69.99, down from $120.
@@ -354,7 +357,7 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
 
       {/* User follow-up */}
       {step >= 2 ? (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+        <motion.div initial={mIn} animate={mAn} transition={mTr}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
               That sounds great. Do they have my size?
@@ -390,7 +393,7 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
 
       {/* AI cross-sell */}
       {step >= 3 ? (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+        <motion.div initial={mIn} animate={mAn} transition={mTr}>
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
             <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.26)">
               Size 10 is in stock. Also, buy these and get performance socks for $4 instead of $12. Want both?
@@ -401,7 +404,7 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
 
       {/* User accepts */}
       {step >= 4 ? (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+        <motion.div initial={mIn} animate={mAn} transition={mTr}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <Bubble tone="rgba(0,0,0,0.18)" border="rgba(255,255,255,0.20)" align="right">
               Yes, add both. Take me there.
@@ -410,7 +413,7 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
         </motion.div>
       ) : null}
 
-      {isTyping ? <TypingBubble label="Vexa is thinking" /> : null}
+      {isTyping ? <TypingBubble label="Vexa is thinking" reduced={reduced} /> : null}
 
       {/* Route preview */}
       {step >= 2 ? (
@@ -448,7 +451,7 @@ function AskScreen({ onNext, step }: { onNext: () => void; step: number }) {
 }
 
 /* ─── MAP SCREEN ─── */
-function MapScreen({ onNext, step }: { onNext: () => void; step: number }) {
+function MapScreen({ onNext, step, reduced }: { onNext: () => void; step: number; reduced: boolean }) {
   const isTyping = step < 2
 
   /* Full store layout with categories */
@@ -536,199 +539,153 @@ function MapScreen({ onNext, step }: { onNext: () => void; step: number }) {
           boxShadow: "0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
       >
-        <svg viewBox="0 0 400 230" style={{ width: "100%", height: "auto", display: "block" }}>
-          <defs>
-            {/* Subtle grid */}
-            <pattern id="mapGridPremium" width="16" height="16" patternUnits="userSpaceOnUse">
-              <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(255,255,255,0.025)" strokeWidth="0.4" />
-            </pattern>
-            {/* Route glow */}
-            <filter id="routeGlowPremium" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            {/* Radar pulse gradient */}
-            <radialGradient id="radarPulse" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(0,255,224,0.15)" />
-              <stop offset="60%" stopColor="rgba(0,255,224,0.05)" />
-              <stop offset="100%" stopColor="rgba(0,255,224,0)" />
-            </radialGradient>
-            {/* Destination glow */}
-            <radialGradient id="destGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(56,189,248,0.25)" />
-              <stop offset="60%" stopColor="rgba(56,189,248,0.08)" />
-              <stop offset="100%" stopColor="rgba(56,189,248,0)" />
-            </radialGradient>
-            {/* Animated dash */}
-            <linearGradient id="routeGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="rgba(0,255,224,0.90)" />
-              <stop offset="50%" stopColor="rgba(56,189,248,0.95)" />
-              <stop offset="100%" stopColor="rgba(99,102,241,0.90)" />
-            </linearGradient>
-          </defs>
-
-          {/* Background */}
-          <rect width="400" height="230" fill="rgba(8,10,18,0.80)" rx="18" />
-          <rect width="400" height="230" fill="url(#mapGridPremium)" rx="18" />
-
-          {/* Checkout lanes at bottom */}
-          {[80, 160, 240, 320].map((cx) => (
-            <g key={cx}>
-              <rect x={cx - 16} y={212} width={32} height={10} rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-              <text x={cx} y={219} textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="5" fontWeight="700">REG</text>
-            </g>
-          ))}
-
-          {/* Entrance */}
-          <text x="200" y="228" textAnchor="middle" fill="rgba(255,255,255,0.18)" fontSize="6" fontWeight="800" letterSpacing="3">ENTRANCE</text>
-          <line x1="155" y1="224" x2="165" y2="224" stroke="rgba(255,255,255,0.12)" strokeWidth="0.6" />
-          <line x1="235" y1="224" x2="245" y2="224" stroke="rgba(255,255,255,0.12)" strokeWidth="0.6" />
-
-          {/* Aisles with categories */}
-          {aisles.map((a) => {
-            const isStart = a.id === 2
-            const isDest = a.id === 7
-            const isOnRoute = [2, 5, 6, 7].includes(a.id)
-            return (
-              <g key={a.id}>
-                {/* Aisle glow for active aisles */}
-                {(isStart || isDest) && (
-                  <rect
-                    x={a.x - 3} y={a.y - 3} width={a.w + 6} height={a.h + 6}
-                    rx="10"
-                    fill="none"
-                    stroke={isStart ? "rgba(0,255,224,0.15)" : "rgba(56,189,248,0.18)"}
-                    strokeWidth="1"
-                  >
-                    <animate attributeName="opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite" />
-                  </rect>
-                )}
-                <rect
-                  x={a.x} y={a.y} width={a.w} height={a.h}
-                  rx="7"
+        {reduced ? (
+          /* ─── SIMPLIFIED STATIC MAP FOR MOBILE ─── */
+          <svg viewBox="0 0 400 180" style={{ width: "100%", height: "auto", display: "block" }}>
+            <rect width="400" height="180" fill="rgba(8,10,18,0.80)" rx="14" />
+            {/* Simplified aisles – only show key ones */}
+            {[[84, 22, "2", true, false], [204, 22, "7", false, true], [144, 22, "3", false, false], [84, 100, "5", false, false], [144, 100, "6", false, false], [204, 100, "7", false, false]].map(([x, y, label, isStart, isDest], i) => (
+              <g key={i}>
+                <rect x={x as number} y={y as number} width={48} height={65} rx="6"
                   fill={isStart ? "rgba(0,255,224,0.07)" : isDest ? "rgba(56,189,248,0.08)" : "rgba(255,255,255,0.025)"}
-                  stroke={isStart ? "rgba(0,255,224,0.30)" : isDest ? "rgba(56,189,248,0.35)" : isOnRoute ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.06)"}
+                  stroke={isStart ? "rgba(0,255,224,0.30)" : isDest ? "rgba(56,189,248,0.35)" : "rgba(255,255,255,0.06)"}
                   strokeWidth={isStart || isDest ? "1.2" : "0.7"}
                 />
-                {/* Aisle number */}
-                <text
-                  x={a.x + a.w / 2} y={a.y + a.h / 2 - 2}
-                  textAnchor="middle"
+                <text x={(x as number) + 24} y={(y as number) + 36} textAnchor="middle"
                   fill={isStart ? "rgba(0,255,224,0.80)" : isDest ? "rgba(56,189,248,0.85)" : "rgba(255,255,255,0.22)"}
-                  fontSize="10" fontWeight="900"
-                >
-                  {a.label}
-                </text>
-                {/* Category micro label */}
-                {a.category && (
-                  <text
-                    x={a.x + a.w / 2} y={a.y + a.h / 2 + 10}
-                    textAnchor="middle"
-                    fill={isStart ? "rgba(0,255,224,0.45)" : isDest ? "rgba(56,189,248,0.50)" : "rgba(255,255,255,0.13)"}
-                    fontSize="5.5" fontWeight="700" letterSpacing="0.5"
-                  >
-                    {a.category.toUpperCase()}
-                  </text>
-                )}
+                  fontSize="10" fontWeight="900">{label as string}</text>
               </g>
-            )
-          })}
-
-          {/* Radar pulse from user position */}
-          <circle cx={startPos.x} cy={startPos.y} r="30" fill="url(#radarPulse)">
-            <animate attributeName="r" values="16;40;16" dur="3s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.7;0;0.7" dur="3s" repeatCount="indefinite" />
-          </circle>
-
-          {/* Animated route */}
-          {step >= 1 && (
-            <>
-              {/* Wide glow trail */}
-              <motion.path
-                d={routePath}
-                fill="none"
-                stroke="rgba(56,189,248,0.18)"
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                filter="url(#routeGlowPremium)"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.8, ease: "easeInOut" }}
-              />
-              {/* Main gradient route */}
-              <motion.path
-                d={routePath}
-                fill="none"
-                stroke="url(#routeGrad)"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.8, ease: "easeInOut" }}
-              />
-              {/* Animated flowing dashes on top */}
-              <path
-                d={routePath}
-                fill="none"
-                stroke="rgba(255,255,255,0.35)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="6 10"
-              >
-                <animate attributeName="stroke-dashoffset" values="0;-32" dur="1.5s" repeatCount="indefinite" />
-              </path>
-              {/* Travelling dot along route */}
-              <circle r="4" fill="rgba(56,189,248,0.95)">
-                <animateMotion dur="3s" repeatCount="indefinite" path={routePath} />
-              </circle>
-              <circle r="7" fill="rgba(56,189,248,0.20)">
-                <animateMotion dur="3s" repeatCount="indefinite" path={routePath} />
-              </circle>
-            </>
-          )}
-
-          {/* Start marker: "YOU" */}
-          <circle cx={startPos.x} cy={startPos.y} r="7" fill="rgba(0,255,224,0.90)">
-            <animate attributeName="r" values="6;8;6" dur="2s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={startPos.x} cy={startPos.y} r="3" fill="white" />
-          {/* You label */}
-          <g>
-            <rect x={startPos.x - 18} y={startPos.y - 24} width="36" height="15" rx="5" fill="rgba(0,0,0,0.75)" stroke="rgba(0,255,224,0.35)" strokeWidth="0.8" />
-            <text x={startPos.x} y={startPos.y - 14} textAnchor="middle" fill="rgba(0,255,224,0.95)" fontSize="7" fontWeight="900">YOU</text>
-          </g>
-
-          {/* Destination marker */}
-          {step >= 2 && (
-            <motion.g initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: EASE }}>
-              {/* Destination glow rings */}
-              <circle cx={endPos.x} cy={endPos.y} r="22" fill="url(#destGlow)">
-                <animate attributeName="r" values="18;28;18" dur="2.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2.5s" repeatCount="indefinite" />
-              </circle>
-              <circle cx={endPos.x} cy={endPos.y} r="8" fill="rgba(56,189,248,0.90)" />
-              <circle cx={endPos.x} cy={endPos.y} r="3" fill="white" />
-              {/* Pin triangle */}
-              <polygon points={`${endPos.x - 4},${endPos.y + 7} ${endPos.x + 4},${endPos.y + 7} ${endPos.x},${endPos.y + 14}`} fill="rgba(56,189,248,0.70)" />
-              {/* Product info card */}
+            ))}
+            {/* Static route line */}
+            {step >= 1 && (
+              <path d={routePath} fill="none" stroke="rgba(56,189,248,0.60)" strokeWidth="3" strokeLinecap="round" strokeDasharray="6 4" />
+            )}
+            {/* YOU marker */}
+            <circle cx={startPos.x} cy={startPos.y - 10} r="6" fill="rgba(0,255,224,0.90)" />
+            <circle cx={startPos.x} cy={startPos.y - 10} r="2.5" fill="white" />
+            <rect x={startPos.x - 14} y={startPos.y - 30} width="28" height="12" rx="4" fill="rgba(0,0,0,0.75)" stroke="rgba(0,255,224,0.35)" strokeWidth="0.8" />
+            <text x={startPos.x} y={startPos.y - 21} textAnchor="middle" fill="rgba(0,255,224,0.95)" fontSize="6" fontWeight="900">YOU</text>
+            {/* Destination marker */}
+            {step >= 2 && (
               <g>
-                <rect x={endPos.x + 16} y={endPos.y - 20} width="108" height="38" rx="10" fill="rgba(8,10,18,0.88)" stroke="rgba(56,189,248,0.40)" strokeWidth="1" />
-                {/* Inner glow stripe */}
-                <rect x={endPos.x + 17} y={endPos.y - 19} width="3" height="36" rx="1.5" fill="rgba(56,189,248,0.50)" />
-                <text x={endPos.x + 28} y={endPos.y - 6} fill="white" fontSize="8" fontWeight="900">Nike Pegasus 41</text>
-                <text x={endPos.x + 28} y={endPos.y + 4} fill="rgba(56,189,248,0.85)" fontSize="7" fontWeight="800">$69.99</text>
-                <text x={endPos.x + 66} y={endPos.y + 4} fill="rgba(255,255,255,0.35)" fontSize="6" fontWeight="700" textDecoration="line-through">$120</text>
-                <text x={endPos.x + 28} y={endPos.y + 13} fill="rgba(255,255,255,0.35)" fontSize="5.5" fontWeight="700">Shelf 3 · Size 10 in stock</text>
+                <circle cx={endPos.x} cy={endPos.y + 10} r="7" fill="rgba(56,189,248,0.90)" />
+                <circle cx={endPos.x} cy={endPos.y + 10} r="2.5" fill="white" />
+                <rect x={endPos.x + 14} y={endPos.y - 2} width="90" height="28" rx="8" fill="rgba(8,10,18,0.88)" stroke="rgba(56,189,248,0.40)" strokeWidth="1" />
+                <text x={endPos.x + 22} y={endPos.y + 11} fill="white" fontSize="7" fontWeight="900">Nike Pegasus 41</text>
+                <text x={endPos.x + 22} y={endPos.y + 20} fill="rgba(56,189,248,0.85)" fontSize="6" fontWeight="800">$69.99</text>
               </g>
-            </motion.g>
-          )}
-        </svg>
+            )}
+          </svg>
+        ) : (
+          /* ─── FULL ANIMATED MAP FOR DESKTOP ─── */
+          <svg viewBox="0 0 400 230" style={{ width: "100%", height: "auto", display: "block" }}>
+            <defs>
+              <pattern id="mapGridPremium" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(255,255,255,0.025)" strokeWidth="0.4" />
+              </pattern>
+              <filter id="routeGlowPremium" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <radialGradient id="radarPulse" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(0,255,224,0.15)" />
+                <stop offset="60%" stopColor="rgba(0,255,224,0.05)" />
+                <stop offset="100%" stopColor="rgba(0,255,224,0)" />
+              </radialGradient>
+              <radialGradient id="destGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(56,189,248,0.25)" />
+                <stop offset="60%" stopColor="rgba(56,189,248,0.08)" />
+                <stop offset="100%" stopColor="rgba(56,189,248,0)" />
+              </radialGradient>
+              <linearGradient id="routeGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="rgba(0,255,224,0.90)" />
+                <stop offset="50%" stopColor="rgba(56,189,248,0.95)" />
+                <stop offset="100%" stopColor="rgba(99,102,241,0.90)" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="230" fill="rgba(8,10,18,0.80)" rx="18" />
+            <rect width="400" height="230" fill="url(#mapGridPremium)" rx="18" />
+            {[80, 160, 240, 320].map((cx) => (
+              <g key={cx}>
+                <rect x={cx - 16} y={212} width={32} height={10} rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+                <text x={cx} y={219} textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="5" fontWeight="700">REG</text>
+              </g>
+            ))}
+            <text x="200" y="228" textAnchor="middle" fill="rgba(255,255,255,0.18)" fontSize="6" fontWeight="800" letterSpacing="3">ENTRANCE</text>
+            <line x1="155" y1="224" x2="165" y2="224" stroke="rgba(255,255,255,0.12)" strokeWidth="0.6" />
+            <line x1="235" y1="224" x2="245" y2="224" stroke="rgba(255,255,255,0.12)" strokeWidth="0.6" />
+            {aisles.map((a) => {
+              const isStart = a.id === 2
+              const isDest = a.id === 7
+              const isOnRoute = [2, 5, 6, 7].includes(a.id)
+              return (
+                <g key={a.id}>
+                  {(isStart || isDest) && (
+                    <rect x={a.x - 3} y={a.y - 3} width={a.w + 6} height={a.h + 6} rx="10" fill="none"
+                      stroke={isStart ? "rgba(0,255,224,0.15)" : "rgba(56,189,248,0.18)"} strokeWidth="1">
+                      <animate attributeName="opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite" />
+                    </rect>
+                  )}
+                  <rect x={a.x} y={a.y} width={a.w} height={a.h} rx="7"
+                    fill={isStart ? "rgba(0,255,224,0.07)" : isDest ? "rgba(56,189,248,0.08)" : "rgba(255,255,255,0.025)"}
+                    stroke={isStart ? "rgba(0,255,224,0.30)" : isDest ? "rgba(56,189,248,0.35)" : isOnRoute ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.06)"}
+                    strokeWidth={isStart || isDest ? "1.2" : "0.7"}
+                  />
+                  <text x={a.x + a.w / 2} y={a.y + a.h / 2 - 2} textAnchor="middle"
+                    fill={isStart ? "rgba(0,255,224,0.80)" : isDest ? "rgba(56,189,248,0.85)" : "rgba(255,255,255,0.22)"}
+                    fontSize="10" fontWeight="900">{a.label}</text>
+                  {a.category && (
+                    <text x={a.x + a.w / 2} y={a.y + a.h / 2 + 10} textAnchor="middle"
+                      fill={isStart ? "rgba(0,255,224,0.45)" : isDest ? "rgba(56,189,248,0.50)" : "rgba(255,255,255,0.13)"}
+                      fontSize="5.5" fontWeight="700" letterSpacing="0.5">{a.category.toUpperCase()}</text>
+                  )}
+                </g>
+              )
+            })}
+            <circle cx={startPos.x} cy={startPos.y} r="30" fill="url(#radarPulse)">
+              <animate attributeName="r" values="16;40;16" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="3s" repeatCount="indefinite" />
+            </circle>
+            {step >= 1 && (
+              <>
+                <motion.path d={routePath} fill="none" stroke="rgba(56,189,248,0.18)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" filter="url(#routeGlowPremium)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.8, ease: "easeInOut" }} />
+                <motion.path d={routePath} fill="none" stroke="url(#routeGrad)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.8, ease: "easeInOut" }} />
+                <path d={routePath} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="6 10">
+                  <animate attributeName="stroke-dashoffset" values="0;-32" dur="1.5s" repeatCount="indefinite" />
+                </path>
+                <circle r="4" fill="rgba(56,189,248,0.95)"><animateMotion dur="3s" repeatCount="indefinite" path={routePath} /></circle>
+                <circle r="7" fill="rgba(56,189,248,0.20)"><animateMotion dur="3s" repeatCount="indefinite" path={routePath} /></circle>
+              </>
+            )}
+            <circle cx={startPos.x} cy={startPos.y} r="7" fill="rgba(0,255,224,0.90)">
+              <animate attributeName="r" values="6;8;6" dur="2s" repeatCount="indefinite" />
+            </circle>
+            <circle cx={startPos.x} cy={startPos.y} r="3" fill="white" />
+            <g>
+              <rect x={startPos.x - 18} y={startPos.y - 24} width="36" height="15" rx="5" fill="rgba(0,0,0,0.75)" stroke="rgba(0,255,224,0.35)" strokeWidth="0.8" />
+              <text x={startPos.x} y={startPos.y - 14} textAnchor="middle" fill="rgba(0,255,224,0.95)" fontSize="7" fontWeight="900">YOU</text>
+            </g>
+            {step >= 2 && (
+              <motion.g initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: EASE }}>
+                <circle cx={endPos.x} cy={endPos.y} r="22" fill="url(#destGlow)">
+                  <animate attributeName="r" values="18;28;18" dur="2.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx={endPos.x} cy={endPos.y} r="8" fill="rgba(56,189,248,0.90)" />
+                <circle cx={endPos.x} cy={endPos.y} r="3" fill="white" />
+                <polygon points={`${endPos.x - 4},${endPos.y + 7} ${endPos.x + 4},${endPos.y + 7} ${endPos.x},${endPos.y + 14}`} fill="rgba(56,189,248,0.70)" />
+                <g>
+                  <rect x={endPos.x + 16} y={endPos.y - 20} width="108" height="38" rx="10" fill="rgba(8,10,18,0.88)" stroke="rgba(56,189,248,0.40)" strokeWidth="1" />
+                  <rect x={endPos.x + 17} y={endPos.y - 19} width="3" height="36" rx="1.5" fill="rgba(56,189,248,0.50)" />
+                  <text x={endPos.x + 28} y={endPos.y - 6} fill="white" fontSize="8" fontWeight="900">Nike Pegasus 41</text>
+                  <text x={endPos.x + 28} y={endPos.y + 4} fill="rgba(56,189,248,0.85)" fontSize="7" fontWeight="800">$69.99</text>
+                  <text x={endPos.x + 66} y={endPos.y + 4} fill="rgba(255,255,255,0.35)" fontSize="6" fontWeight="700" textDecoration="line-through">$120</text>
+                  <text x={endPos.x + 28} y={endPos.y + 13} fill="rgba(255,255,255,0.35)" fontSize="5.5" fontWeight="700">Shelf 3 · Size 10 in stock</text>
+                </g>
+              </motion.g>
+            )}
+          </svg>
+        )}
       </motion.div>
 
       {/* Turn-by-turn + stats row */}
@@ -787,7 +744,7 @@ function MapScreen({ onNext, step }: { onNext: () => void; step: number }) {
         </motion.div>
       )}
 
-      {isTyping ? <TypingBubble label="Plotting route" tone="rgba(56,189,248,0.9)" /> : null}
+      {isTyping ? <TypingBubble label="Plotting route" tone="rgba(56,189,248,0.9)" reduced={reduced} /> : null}
 
       <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
         <div style={{ width: "100%", maxWidth: 240 }}>
@@ -830,7 +787,7 @@ function DirectionStep({ number, text, icon, active, done }: { number: number; t
 }
 
 /* ─── PROMO SCREEN ─── */
-function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
+function PromoScreen({ onNext, step, reduced }: { onNext: () => void; step: number; reduced: boolean }) {
   const isTyping = step < 1
 
   return (
@@ -850,7 +807,7 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
         }}
       >
         {/* Animated shimmer */}
-        <motion.div
+        {!reduced && <motion.div
           aria-hidden
           animate={{ x: ["-100%", "200%"] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 2 }}
@@ -863,7 +820,7 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
             background: "linear-gradient(90deg, transparent, rgba(255,170,80,0.08), transparent)",
             pointerEvents: "none",
           }}
-        />
+        />}
 
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 14 }}>
@@ -906,7 +863,7 @@ function PromoScreen({ onNext, step }: { onNext: () => void; step: number }) {
         </div>
       </motion.div>
 
-      {isTyping ? <TypingBubble label="Finding best promos" tone="rgba(255,170,80,0.9)" /> : null}
+      {isTyping ? <TypingBubble label="Finding best promos" tone="rgba(255,170,80,0.9)" reduced={reduced} /> : null}
 
       {/* Additional nearby deals */}
       {step >= 1 ? (
@@ -988,7 +945,7 @@ function PromoRow({ icon, title, saving, reason }: { icon: React.ReactNode; titl
 }
 
 /* ─── CHECKOUT SCREEN ─── */
-function CheckoutScreen({ step }: { step: number }) {
+function CheckoutScreen({ step, reduced }: { step: number; reduced: boolean }) {
   const isTyping = step < 3
   const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, ease: EASE } }
   return (
@@ -1042,7 +999,7 @@ function CheckoutScreen({ step }: { step: number }) {
         </motion.div>
       ) : null}
 
-      {isTyping ? <motion.div {...fade}><TypingBubble label="Preparing self-checkout" tone="rgba(160,120,255,0.9)" /></motion.div> : null}
+      {isTyping ? <motion.div {...fade}><TypingBubble label="Preparing self-checkout" tone="rgba(160,120,255,0.9)" reduced={reduced} /></motion.div> : null}
 
       <motion.div {...fade} style={{ marginTop: "auto", display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
         <ActionButton icon={<CreditCard size={14} />} label="Tap to pay" highlight disabled={step < 3} />
@@ -1085,7 +1042,7 @@ function Bubble({
   )
 }
 
-function TypingBubble({ label, tone = "rgba(255,255,255,0.75)" }: { label: string; tone?: string }) {
+function TypingBubble({ label, tone = "rgba(255,255,255,0.75)", reduced = false }: { label: string; tone?: string; reduced?: boolean }) {
   return (
     <div
       style={{
@@ -1102,9 +1059,15 @@ function TypingBubble({ label, tone = "rgba(255,255,255,0.75)" }: { label: strin
       }}
     >
       <span style={{ display: "inline-flex", gap: 4 }}>
-        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }} style={{ width: 6, height: 6, borderRadius: 999, background: tone }} />
-        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }} style={{ width: 6, height: 6, borderRadius: 999, background: tone }} />
-        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} style={{ width: 6, height: 6, borderRadius: 999, background: tone }} />
+        {reduced ? (
+          <>{[0, 1, 2].map(i => <span key={i} style={{ width: 6, height: 6, borderRadius: 999, background: tone, opacity: 0.7 }} />)}</>
+        ) : (
+          <>
+            <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }} style={{ width: 6, height: 6, borderRadius: 999, background: tone }} />
+            <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }} style={{ width: 6, height: 6, borderRadius: 999, background: tone }} />
+            <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} style={{ width: 6, height: 6, borderRadius: 999, background: tone }} />
+          </>
+        )}
       </span>
       <span>{label}</span>
     </div>
