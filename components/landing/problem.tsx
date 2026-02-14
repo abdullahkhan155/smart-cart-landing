@@ -49,7 +49,7 @@ export function ProblemStorySection() {
           className="mt-16 grid md:grid-cols-2 gap-4 md:gap-0"
         >
           {/* BEFORE */}
-          <div className="noise-overlay relative rounded-[var(--radius-lg)] md:rounded-r-none border border-white/[0.06] bg-white/[0.015] p-8 md:p-10 overflow-hidden">
+          <div className="noise-overlay relative rounded-[var(--radius-lg)] md:rounded-r-none border border-white/[0.06] bg-white/[0.015] p-6 md:p-10 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.03] to-transparent pointer-events-none" />
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-400/20 bg-red-400/[0.06] text-[11px] font-extrabold tracking-[0.12em] text-red-400/70 uppercase mb-8">
@@ -77,7 +77,7 @@ export function ProblemStorySection() {
           </div>
 
           {/* AFTER */}
-          <div className="noise-overlay relative rounded-[var(--radius-lg)] md:rounded-l-none border border-white/[0.1] bg-white/[0.025] p-8 md:p-10 overflow-hidden">
+          <div className="noise-overlay relative rounded-[var(--radius-lg)] md:rounded-l-none border border-white/[0.1] bg-white/[0.025] p-6 md:p-10 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/[0.04] to-transparent pointer-events-none" />
             {/* Highlight border on left (desktop) */}
             <div className="hidden md:block absolute left-0 top-[15%] bottom-[15%] w-[2px] bg-gradient-to-b from-transparent via-[var(--accent)]/60 to-transparent" />

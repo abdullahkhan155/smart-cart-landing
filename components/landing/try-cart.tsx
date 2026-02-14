@@ -1227,7 +1227,8 @@ function Bubble({
   return (
     <div
       style={{
-        maxWidth: 420,
+        maxWidth: "100%",
+        width: "fit-content",
         padding: "11px 14px",
         borderRadius: align === "right" ? "16px 16px 6px 16px" : "16px 16px 16px 6px",
         background: tone,

@@ -89,17 +89,17 @@ export function Hero() {
                     initial={{ opacity: 0, scale: 0.5, y: 60 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 1.4, delay: 0.5, ease: EASE }}
-                    className="relative -mt-4 flex flex-col items-center"
+                    className="relative -mt-4 flex flex-col items-center w-full max-w-[620px]"
                 >
                     {/* Main showcase container */}
-                    <div className="relative flex justify-center items-center" style={{ width: 440, height: 440 }}>
+                    <div className="relative flex justify-center items-center w-[min(90vw,440px)] h-[min(90vw,440px)] sm:w-[440px] sm:h-[440px]">
 
                         {/* Deep ambient glow */}
                         <motion.div
                             className="absolute rounded-full"
                             style={{
-                                width: 460,
-                                height: 460,
+                                width: "105%",
+                                height: "105%",
                                 background: "radial-gradient(circle, rgba(0,255,224,0.12) 0%, rgba(99,102,241,0.06) 40%, transparent 65%)",
                                 filter: "blur(60px)",
                             }}
@@ -112,8 +112,7 @@ export function Hero() {
 
                         {/* Spinning gradient arc ring */}
                         <motion.div
-                            className="absolute"
-                            style={{ width: 440, height: 440 }}
+                            className="absolute inset-0"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
                         >
@@ -131,8 +130,7 @@ export function Hero() {
 
                         {/* Counter-rotating secondary arc */}
                         <motion.div
-                            className="absolute"
-                            style={{ width: 400, height: 400 }}
+                            className="absolute inset-[5%]"
                             animate={{ rotate: -360 }}
                             transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
                         >
@@ -150,8 +148,7 @@ export function Hero() {
 
                         {/* Orbiting particle ring 1 – fast */}
                         <motion.div
-                            className="absolute"
-                            style={{ width: 420, height: 420 }}
+                            className="absolute inset-[2.5%]"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                         >
@@ -161,8 +158,7 @@ export function Hero() {
 
                         {/* Orbiting particle ring 2 – slow, opposite */}
                         <motion.div
-                            className="absolute"
-                            style={{ width: 380, height: 380 }}
+                            className="absolute inset-[7.5%]"
                             animate={{ rotate: -360 }}
                             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                         >
@@ -172,7 +168,7 @@ export function Hero() {
                         </motion.div>
 
                         {/* Holographic scan line */}
-                        <div className="absolute inset-0 overflow-hidden rounded-full" style={{ width: 400, height: 400, left: 20, top: 20 }}>
+                        <div className="absolute inset-[5%] overflow-hidden rounded-full">
                             <motion.div
                                 className="absolute left-0 w-full"
                                 style={{
@@ -189,12 +185,12 @@ export function Hero() {
                         <motion.div
                             animate={{ y: [-10, 10, -10] }}
                             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                            className="relative z-10"
+                            className="relative z-10 w-[120%] h-[120%] flex items-center justify-center -ml-[10%]"
                         >
                             <motion.img
                                 src="/vexa-assistant.png"
                                 alt="Vexa AI Assistant"
-                                className="w-[540px] h-[540px] sm:w-[620px] sm:h-[620px] object-contain"
+                                className="w-full h-full object-contain"
                                 style={{
                                     filter: "drop-shadow(0 0 50px rgba(0,255,224,0.3)) drop-shadow(0 0 100px rgba(99,102,241,0.15))",
                                 }}
@@ -206,7 +202,7 @@ export function Hero() {
                     </div>
 
                     {/* Glowing platform / pedestal base */}
-                    <div className="relative -mt-10 w-[380px] sm:w-[480px]">
+                    <div className="relative -mt-10 w-[80%] max-w-[480px]">
                         <motion.div
                             style={{
                                 height: 3,
