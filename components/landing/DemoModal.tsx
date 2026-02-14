@@ -141,6 +141,7 @@ export function DemoModal({ onClose }: DemoModalProps) {
 
                     </div>
                 </motion.div>
+            </div>
         </motion.div>
     )
 }
