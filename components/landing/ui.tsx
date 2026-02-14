@@ -11,11 +11,16 @@ export function clamp(n: number, a: number, b: number) {
 export function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false)
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const update = () => setReduced(!!mq.matches)
+    const mqMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const mqMobile = window.matchMedia("(max-width: 768px)")
+    const update = () => setReduced(mqMotion.matches || mqMobile.matches)
     update()
-    mq.addEventListener?.("change", update)
-    return () => mq.removeEventListener?.("change", update)
+    mqMotion.addEventListener?.("change", update)
+    mqMobile.addEventListener?.("change", update)
+    return () => {
+      mqMotion.removeEventListener?.("change", update)
+      mqMobile.removeEventListener?.("change", update)
+    }
   }, [])
   return reduced
 }
