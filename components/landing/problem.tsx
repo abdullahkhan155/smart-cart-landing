@@ -3,11 +3,12 @@
 import React, { useRef, useMemo } from "react"
 import { motion, useInView } from "framer-motion"
 import { AlertTriangle, Clock, HelpCircle, Mic, Sparkles, CreditCard, Check, X } from "lucide-react"
-import { SectionTitle } from "./ui"
+import { SectionTitle, useBreakpoint } from "./ui"
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export function ProblemStorySection() {
+  const isMobile = useBreakpoint(768)
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 })
 
@@ -30,7 +31,9 @@ export function ProblemStorySection() {
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(600px 300px at 30% 40%, rgba(245,158,11,0.03), transparent), radial-gradient(600px 300px at 70% 60%, rgba(0,255,224,0.03), transparent)",
+          background: isMobile
+            ? "radial-gradient(circle at 50% 50%, rgba(0,255,224,0.02), transparent 70%)"
+            : "radial-gradient(600px 300px at 30% 40%, rgba(245,158,11,0.03), transparent), radial-gradient(600px 300px at 70% 60%, rgba(0,255,224,0.03), transparent)",
         }}
       />
 

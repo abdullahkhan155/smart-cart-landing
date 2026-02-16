@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
 import { ArrowRight, Check, CreditCard, MapPin, Mic, Package, Sparkles, Star, ShoppingBag, Wand2, TrendingUp, Percent, Gift, Zap, Shield, ScanLine, Navigation, Clock, Footprints } from "lucide-react"
-import { Card, useBreakpoint, usePrefersReducedMotion } from "./ui"
+import { Card, useBreakpoint, usePrefersReducedMotion, SectionTitle } from "./ui"
 import { Pill } from "./Pill"
 
 type Mode = "ask" | "map" | "promo" | "checkout"
@@ -18,6 +18,8 @@ const SCRIPT_DELAYS: Record<Mode, readonly number[]> = {
 }
 
 export function TryCartSection() {
+  const isMobile = useBreakpoint(768)
+  if (isMobile) return <MobileFeatureShowcase />
   return <TryCartDemo />
 }
 
@@ -54,13 +56,76 @@ function TryCartDemo() {
 
 /* ─── MOBILE FEATURE SHOWCASE ─── */
 
-
-export function TryCartHeroCard() {
-  const demo = useTryCartDemo()
-  const { panelRef, ...cardProps } = demo
+function MobileFeatureShowcase() {
   return (
-    <div ref={panelRef}>
-      <TryCartCard {...cardProps} />
+    <section id="try" style={{ padding: "40px 20px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <SectionTitle
+          eyebrow="Try Vexa"
+          title="Experience the cart"
+          subtitle="Everything you need, right on the handle."
+        />
+
+        <div style={{ display: "grid", gap: 16, marginTop: 32 }}>
+          <MobileFeatureCard
+            icon={<Mic size={20} />}
+            title="Ask anything"
+            desc="Get instant answers about products, stock, and locations."
+            accent="rgba(0,255,208,0.95)"
+          />
+          <MobileFeatureCard
+            icon={<MapPin size={20} />}
+            title="Navigate stores"
+            desc="Find exactly what you need with turn-by-turn guidance."
+            accent="rgba(56,189,248,0.95)"
+          />
+          <MobileFeatureCard
+            icon={<Sparkles size={20} />}
+            title="Smart promos"
+            desc="Unlock deals and bundles as you shop."
+            accent="rgba(255,170,80,0.95)"
+          />
+          <MobileFeatureCard
+            icon={<CreditCard size={20} />}
+            title="Skip the line"
+            desc="Scan, pay, and go. No waiting."
+            accent="rgba(160,120,255,0.95)"
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function MobileFeatureCard({ icon, title, desc, accent }: { icon: React.ReactNode, title: string, desc: string, accent: string }) {
+  return (
+    <div style={{
+      padding: 20,
+      borderRadius: 20,
+      background: "rgba(255,255,255,0.03)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      display: "flex",
+      gap: 16,
+      alignItems: "flex-start"
+    }}>
+      <div style={{
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        background: `${accent.replace("0.95", "0.15")}`,
+        border: `1px solid ${accent.replace("0.95", "0.3")}`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: accent,
+        flexShrink: 0
+      }}>
+        {icon}
+      </div>
+      <div>
+        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{title}</h3>
+        <p style={{ margin: "6px 0 0", fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{desc}</p>
+      </div>
     </div>
   )
 }

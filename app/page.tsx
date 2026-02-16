@@ -18,12 +18,14 @@ import {
   usePrefersReducedMotion,
   DemoModal,
   Hero,
+  useBreakpoint,
 } from "@/components/landing"
 
 const space = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"] })
 
 export default function Page() {
   const reduced = usePrefersReducedMotion()
+  const isMobile = useBreakpoint(768)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const [showDemo, setShowDemo] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -54,7 +56,7 @@ export default function Page() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const onMove = reduced ? undefined : (e: React.MouseEvent) => {
+  const onMove = reduced || isMobile ? undefined : (e: React.MouseEvent) => {
     const r = rootRef.current?.getBoundingClientRect()
     if (!r) return
     mouseX.set((e.clientX - r.left) / r.width)
