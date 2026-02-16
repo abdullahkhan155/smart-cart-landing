@@ -27,7 +27,7 @@ export function AnimatedBackdrop({
       }}
     >
       {/* Animated aurora orbs */}
-      {!reduced && !isMobile && (
+      {!reduced && !isMobile ? (
         <>
           <motion.div
             animate={{
@@ -85,6 +85,15 @@ export function AnimatedBackdrop({
             }}
           />
         </>
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(circle at 50% 30%, rgba(0,255,224,0.04), transparent 70%), radial-gradient(circle at 80% 80%, rgba(99,102,241,0.03), transparent 70%)",
+          }}
+        />
       )}
 
       {/* Grid pattern overlay */}

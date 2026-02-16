@@ -151,7 +151,7 @@ export function HowItWorksSection() {
   const inView = useInView(sectionRef, { amount: 0.35 })
   const isPaused = manualPaused || hoverPaused
   const [scrolling, setScrolling] = useState(false)
-  const perfReduced = compact && scrolling
+  const perfReduced = compact
 
   useEffect(() => {
     activeRef.current = active

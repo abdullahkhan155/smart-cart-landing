@@ -3,9 +3,10 @@
 import React from "react"
 import { motion } from "framer-motion"
 import { Sparkles } from "lucide-react"
-import { Button } from "./ui"
+import { Button, useBreakpoint } from "./ui"
 
 export function CtaSection({ reduced, onRequestDemo }: { reduced: boolean; onRequestDemo: () => void }) {
+  const isMobile = useBreakpoint(768)
   return (
     <section id="cta" className="relative pt-10 md:pt-14 pb-24 md:pb-32 px-4 overflow-hidden">
       {/* Full-bleed gradient background */}
@@ -31,7 +32,7 @@ export function CtaSection({ reduced, onRequestDemo }: { reduced: boolean; onReq
       </div>
 
       {/* Floating orbs */}
-      {!reduced && (
+      {!reduced && !isMobile && (
         <>
           <motion.div
             animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
