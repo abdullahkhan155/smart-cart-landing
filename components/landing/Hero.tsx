@@ -33,14 +33,14 @@ export function Hero() {
 
                 {/* Badge */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: EASE }}
+                    transition={isMobile ? { duration: 0 } : { duration: 0.8, ease: EASE }}
                     className="flex justify-center mb-8"
                 >
                     <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/[0.1] bg-white/[0.04] backdrop-blur-md text-[11px] font-extrabold tracking-[0.15em] text-white/70 uppercase">
                         <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--accent)] opacity-75" />
+                            <span className={`absolute inline-flex h-full w-full rounded-full bg-[var(--accent)] opacity-75 ${isMobile ? '' : 'animate-ping'}`} />
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent)]" />
                         </span>
                         <span>AI Shopping Cart Assistant</span>
@@ -49,9 +49,9 @@ export function Hero() {
 
                 {/* Giant Title */}
                 <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
+                    transition={isMobile ? { duration: 0 } : { duration: 0.9, delay: 0.1, ease: EASE }}
                     className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-[-0.03em] text-white leading-[1.02] mb-6"
                 >
                     AI Shopping Cart{" "}
@@ -62,9 +62,9 @@ export function Hero() {
 
                 {/* Subtitle */}
                 <motion.p
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
+                    transition={isMobile ? { duration: 0 } : { duration: 0.8, delay: 0.25, ease: EASE }}
                     className="text-lg md:text-xl text-white/50 font-medium leading-relaxed max-w-lg mx-auto mb-10"
                 >
                     An AI-powered device that guides shoppers, surfaces deals, and skips the checkout line.
@@ -72,9 +72,9 @@ export function Hero() {
 
                 {/* CTA Button */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.35, ease: EASE }}
+                    transition={isMobile ? { duration: 0 } : { duration: 0.8, delay: 0.35, ease: EASE }}
                     className="flex flex-wrap gap-4 justify-center"
                 >
                     <Button
@@ -87,9 +87,9 @@ export function Hero() {
 
                 {/* Vexa Assistant Image – epic animated showcase */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.5, y: 60 }}
+                    initial={isMobile ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.5, y: 60 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 1.4, delay: 0.5, ease: EASE }}
+                    transition={isMobile ? { duration: 0 } : { duration: 1.4, delay: 0.5, ease: EASE }}
                     className="relative -mt-4 flex flex-col items-center w-full max-w-[620px] mx-auto"
                 >
                     {/* Main showcase container */}
@@ -195,7 +195,7 @@ export function Hero() {
 
                         {/* Floating image */}
                         <motion.div
-                            animate={isMobile ? { y: [-5, 5, -5] } : { y: [-10, 10, -10] }}
+                            animate={isMobile ? {} : { y: [-10, 10, -10] }}
                             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                             className="relative z-10 w-[120%] h-[120%] flex items-center justify-center -ml-[10%]"
                         >
@@ -222,7 +222,7 @@ export function Hero() {
                                 background: "linear-gradient(90deg, transparent, rgba(0,255,224,0.6), rgba(167,139,250,0.5), rgba(0,255,224,0.6), transparent)",
                                 boxShadow: "0 0 30px rgba(0,255,224,0.3), 0 0 60px rgba(0,255,224,0.15)",
                             }}
-                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            animate={isMobile ? {} : { opacity: [0.5, 1, 0.5] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                         />
                     </div>
