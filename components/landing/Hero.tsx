@@ -75,7 +75,7 @@ export function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.35, ease: EASE }}
-                    className="flex flex-wrap gap-4 justify-center"
+                    className="relative z-20 flex flex-wrap gap-4 justify-center"
                 >
                     <Button
                         onClick={() => setShowDemo(true)}
@@ -90,7 +90,7 @@ export function Hero() {
                     initial={{ opacity: 0, scale: 0.5, y: 60 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 1.4, delay: 0.5, ease: EASE }}
-                    className="relative -mt-4 flex flex-col items-center w-full max-w-[620px] mx-auto"
+                    className="pointer-events-none relative -mt-4 flex flex-col items-center w-full max-w-[620px] mx-auto"
                 >
                     {/* Main showcase container */}
                     <div className="relative flex justify-center items-center w-[min(90vw,440px)] h-[min(90vw,440px)] sm:w-[440px] sm:h-[440px]">
