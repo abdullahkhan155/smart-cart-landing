@@ -4,9 +4,9 @@ import crypto from "crypto"
 
 export const runtime = "nodejs"
 
-async function saveLocal(fullName: string, email: string) {
+async function saveLocal(fullName: string, email: string, companyName?: string) {
   const { saveDemoRequest } = await import("@/lib/demo-store")
-  await saveDemoRequest(fullName, email)
+  await saveDemoRequest(fullName, email, companyName)
 }
 
 function isProductionRuntime() {
@@ -46,6 +46,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const fullName = (body?.fullName || "").trim()
+    const companyName = (body?.companyName || "").trim()
     const email = (body?.email || "").trim()
 
     if (!fullName || !email) {
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
 
       // Dev fallback to local SQLite if Supabase is not configured
       try {
-        await saveLocal(fullName, email)
+        await saveLocal(fullName, email, companyName)
         return NextResponse.json({ ok: true, storage: "local" })
       } catch (fallbackErr: unknown) {
         console.error("Local save failed", fallbackErr)
@@ -78,12 +79,24 @@ export async function POST(request: Request) {
       }
     }
 
-    const { error } = await supabaseAdmin.from("demo_requests").insert({
+    const insertPayload: {
+      id: string
+      full_name: string
+      email: string
+      created_at: string
+      company_name?: string
+    } = {
       id: crypto.randomUUID(),
       full_name: fullName,
       email,
       created_at: new Date().toISOString(),
-    })
+    }
+
+    if (companyName) {
+      insertPayload.company_name = companyName
+    }
+
+    const { error } = await supabaseAdmin.from("demo_requests").insert(insertPayload)
     if (error) {
       console.error("Supabase insert failed", error)
       if (isProductionRuntime()) {
@@ -95,7 +108,7 @@ export async function POST(request: Request) {
 
       // Dev fallback
       try {
-        await saveLocal(fullName, email)
+        await saveLocal(fullName, email, companyName)
         return NextResponse.json({ ok: true, storage: "local-fallback" })
       } catch (fallbackErr: unknown) {
         console.error("Local fallback also failed", fallbackErr)

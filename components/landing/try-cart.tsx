@@ -1,10 +1,9 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "framer-motion"
-import { ArrowRight, Check, CreditCard, MapPin, Mic, Package, Sparkles, Star, ShoppingBag, Wand2, TrendingUp, Percent, Gift, Zap, Shield, ScanLine, Navigation, Clock, Footprints } from "lucide-react"
+import { ArrowRight, Check, CreditCard, MapPin, Mic, Sparkles, Star, ShoppingBag, TrendingUp, Percent, Gift, Zap, Shield, ScanLine, Navigation, Clock, Footprints } from "lucide-react"
 import { Card, useBreakpoint, usePrefersReducedMotion, SectionTitle } from "./ui"
-import { Pill } from "./Pill"
 
 type Mode = "ask" | "map" | "promo" | "checkout"
 
@@ -178,9 +177,12 @@ function useTryCartDemo() {
   )
 
   const active = modes.find((m) => m.id === mode)!
+  const switchMode = useCallback((nextMode: Mode) => {
+    setMode(nextMode)
+    setScriptStep(0)
+  }, [])
 
   useEffect(() => {
-    setScriptStep(0)
     if (reduced || !isInView) return
     const delays = SCRIPT_DELAYS[mode]
     const timers: number[] = []
@@ -192,7 +194,7 @@ function useTryCartDemo() {
     return () => timers.forEach((t) => window.clearTimeout(t))
   }, [mode, reduced, isInView, totalSteps, scriptRun])
 
-  const goNext = () => setMode(FLOW[(flowIndex + 1) % FLOW.length])
+  const goNext = () => switchMode(FLOW[(flowIndex + 1) % FLOW.length])
   const restartScript = () => {
     setScriptStep(0)
     setScriptRun((v) => v + 1)
@@ -201,17 +203,17 @@ function useTryCartDemo() {
   useEffect(() => {
     if (scriptStep < totalSteps - 1) return
     const timer = window.setTimeout(
-      () => setMode(FLOW[(flowIndex + 1) % FLOW.length]),
+      () => switchMode(FLOW[(flowIndex + 1) % FLOW.length]),
       reduced ? 3500 : 5000
     )
     return () => window.clearTimeout(timer)
-  }, [mode, scriptStep, totalSteps, flowIndex, reduced])
+  }, [mode, scriptStep, totalSteps, flowIndex, reduced, switchMode])
 
   return {
     reduced,
     isMobile,
     mode,
-    setMode,
+    setMode: switchMode,
     scriptStep,
     totalSteps,
     flow: FLOW as readonly Mode[],
@@ -232,7 +234,6 @@ function TryCartCard({
   mode,
   setMode,
   scriptStep,
-  totalSteps,
   flow,
   flowIndex,
   active,
@@ -315,7 +316,7 @@ function TryCartCard({
                   <span style={{ fontSize: 11, fontWeight: 850, color: "rgba(255,255,255,0.62)" }}>Simulated cart view</span>
                 </div>
 
-                {mode === "ask" ? <AskScreen onNext={goNext} step={scriptStep} reduced={reduced} /> : null}
+                {mode === "ask" ? <AskScreen step={scriptStep} reduced={reduced} /> : null}
                 {mode === "map" ? <MapScreen onNext={goNext} step={scriptStep} reduced={reduced} /> : null}
                 {mode === "promo" ? <PromoScreen onNext={goNext} step={scriptStep} reduced={reduced} /> : null}
                 {mode === "checkout" ? <CheckoutScreen step={scriptStep} reduced={reduced} /> : null}
@@ -332,6 +333,7 @@ function TryCartCard({
 function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; activeIndex: number; onSelect: (i: number) => void }) {
   const pct = ((activeIndex + 1) / flow.length) * 100
   const labels: Record<Mode, string> = { ask: "Ask", map: "Map", promo: "Promo", checkout: "Checkout" }
+  const nextStep = flow[(activeIndex + 1) % flow.length]
   const accents: Record<Mode, string> = {
     ask: "rgba(0,255,208,0.95)",
     map: "rgba(56,189,248,0.95)",
@@ -395,12 +397,16 @@ function FlowRail({ flow, activeIndex, onSelect }: { flow: readonly Mode[]; acti
       <div style={{ height: 4, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3))", borderRadius: 999, transition: "width 0.6s ease", boxShadow: "0 0 12px rgba(0,255,224,0.3)" }} />
       </div>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 11, fontWeight: 850, color: "rgba(255,255,255,0.55)" }}>
+        <span>Step {activeIndex + 1} of {flow.length}</span>
+        <span>Next up: {labels[nextStep]}</span>
+      </div>
     </div>
   )
 }
 
 /* ─── ASK SCREEN ─── */
-function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number; reduced: boolean }) {
+function AskScreen({ step, reduced }: { step: number; reduced: boolean }) {
   const isTyping = step < 3
   const mIn = reduced ? false : { opacity: 0, y: 8 }
   const mAn = { opacity: 1, y: 0 }
@@ -428,6 +434,15 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
               )}
             </Bubble>
           </div>
+          <div style={{ marginTop: 8 }}>
+            <EvidenceChips
+              items={[
+                { label: "Price drop", color: "rgba(255,170,80,0.95)" },
+                { label: "Aisle 7", color: "rgba(56,189,248,0.95)" },
+                { label: "In stock", color: "rgba(0,255,208,0.92)" },
+              ]}
+            />
+          </div>
         </motion.div>
       ) : null}
 
@@ -451,7 +466,7 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
               <div style={{ width: 52, height: 52, borderRadius: 12, background: "linear-gradient(135deg, rgba(0,255,208,0.15), rgba(88,130,255,0.15))", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Zap size={22} color="rgba(0,255,208,0.9)" />
               </div>
-              <div style={{ display: "grid", gap: 3, minWidth: 0 }}>
+              <div style={{ display: "grid", gap: 3, minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>Nike Pegasus 41</div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)" }}>Aisle 7 • Size 10 in stock • Cushioned</div>
                 <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 2 }}>
@@ -460,6 +475,11 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
                   <div style={{ display: "flex", gap: 1 }}>
                     {[1, 2, 3, 4, 5].map(i => <Star key={i} size={10} fill={i <= 5 ? "#00FFD0" : "transparent"} color="#00FFD0" />)}
                   </div>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5 }}>
+                  <QuickAction text="Add" />
+                  <QuickAction text="Compare" />
+                  <QuickAction text="Navigate" />
                 </div>
               </div>
             </div>
@@ -495,37 +515,15 @@ function AskScreen({ onNext, step, reduced }: { onNext: () => void; step: number
 
       {isTyping ? <TypingBubble label="Vexa is thinking" reduced={reduced} /> : null}
 
-      {/* Route preview */}
-      {step >= 2 ? (
-        <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.70)", letterSpacing: 0.2 }}>Route preview</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 8 }}>
-            <RouteStep label="You are" detail="Aisle 2" active />
-            <RouteStep label="Next" detail="Aisle 7" active accent />
-            <RouteStep label="Then" detail="Checkout" />
-          </div>
-        </div>
-      ) : null}
-
-      {/* Confirmation cards */}
       {step >= 4 ? (
-        <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
-          <div style={{ borderRadius: 14, border: "1px solid rgba(0,255,208,0.24)", background: "rgba(0,255,208,0.08)", padding: 10, display: "grid", gap: 4 }}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(0,255,208,0.85)" }}>Bundle saved</div>
-            <div style={{ fontSize: 13, fontWeight: 900, color: "rgba(255,255,255,0.88)" }}>Pegasus 41 + Socks added to cart</div>
+        <motion.div initial={mIn} animate={mAn} transition={mTr}>
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <Bubble tone="rgba(0,255,208,0.10)" border="rgba(0,255,208,0.26)">
+              Perfect. I added both items and I&apos;m opening your route now.
+            </Bubble>
           </div>
-          <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.16)", background: "rgba(0,0,0,0.20)", padding: 10, display: "grid", gap: 4 }}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>You saved</div>
-            <div style={{ fontSize: 13, fontWeight: 900, color: "rgba(255,255,255,0.88)" }}>$58.01 off retail price</div>
-          </div>
-        </div>
+        </motion.div>
       ) : null}
-
-      <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
-        <div style={{ width: "100%", maxWidth: 240 }}>
-          <ActionButton icon={<ArrowRight size={14} />} label="See store navigation" highlight onClick={onNext} disabled={step < 4} />
-        </div>
-      </div>
     </div>
   )
 }
@@ -535,18 +533,21 @@ function Typewriter({ text }: { text: string }) {
   const [showCursor, setShowCursor] = useState(true)
 
   useEffect(() => {
+    setDisplayed("")
     let index = 0
-    // Initial delay before typing starts to separate from bubble appearance
+    let interval: number | undefined
     const startTimeout = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = window.setInterval(() => {
         setDisplayed(text.slice(0, index + 1))
         index++
-        if (index >= text.length) clearInterval(interval)
-      }, 35) // Speed of typing in ms
-      return () => clearInterval(interval)
+        if (index >= text.length && interval) window.clearInterval(interval)
+      }, 28)
     }, 150)
 
-    return () => clearTimeout(startTimeout)
+    return () => {
+      clearTimeout(startTimeout)
+      if (interval) window.clearInterval(interval)
+    }
   }, [text])
 
   // Blinking cursor effect
@@ -566,10 +567,11 @@ function Typewriter({ text }: { text: string }) {
             display: "inline-block",
             width: "2px",
             height: "1em",
-            background: "currentColor",
+            background: "linear-gradient(180deg, rgba(0,255,208,0.95), rgba(56,189,248,0.95))",
             marginLeft: "2px",
             verticalAlign: "text-bottom",
             opacity: showCursor ? 1 : 0,
+            boxShadow: "0 0 10px rgba(0,255,208,0.45)",
           }}
         />
       )}
@@ -827,9 +829,9 @@ function MapScreen({ onNext, step, reduced }: { onNext: () => void; step: number
             Directions
           </div>
           <div style={{ display: "grid", gap: 5 }}>
-            <DirectionStep number={1} icon={<Footprints size={12} />} text="Head down from Aisle 2" active done={step >= 3} />
-            <DirectionStep number={2} icon={<ArrowRight size={12} />} text="Turn right past Aisle 5" active={step >= 2} done={step >= 3} />
-            <DirectionStep number={3} icon={<MapPin size={12} />} text="Aisle 7, Shelf 3 on your left" active={step >= 3} done={step >= 4} />
+            <DirectionStep number={1} text="Head down from Aisle 2" active done={step >= 3} />
+            <DirectionStep number={2} text="Turn right past Aisle 5" active={step >= 2} done={step >= 3} />
+            <DirectionStep number={3} text="Aisle 7, Shelf 3 on your left" active={step >= 3} done={step >= 4} />
           </div>
         </motion.div>
       )}
@@ -882,7 +884,7 @@ function MapScreen({ onNext, step, reduced }: { onNext: () => void; step: number
   )
 }
 
-function DirectionStep({ number, text, icon, active, done }: { number: number; text: string; icon: React.ReactNode; active?: boolean; done?: boolean }) {
+function DirectionStep({ number, text, active, done }: { number: number; text: string; active?: boolean; done?: boolean }) {
   return (
     <div style={{
       display: "flex",
@@ -906,7 +908,7 @@ function DirectionStep({ number, text, icon, active, done }: { number: number; t
         flexShrink: 0,
         color: done ? "rgba(0,255,224,0.9)" : active ? "rgba(56,189,248,0.85)" : "rgba(255,255,255,0.30)",
       }}>
-        {done ? <Check size={12} /> : icon}
+        {done ? <Check size={12} /> : <span style={{ fontSize: 11, fontWeight: 900 }}>{number}</span>}
       </div>
       <span style={{ fontSize: 12, fontWeight: 800, color: done ? "rgba(255,255,255,0.55)" : active ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.30)", textDecoration: done ? "line-through" : "none" }}>{text}</span>
     </div>
@@ -1155,14 +1157,20 @@ function Bubble({
       style={{
         maxWidth: "100%",
         width: "fit-content",
-        padding: "11px 14px",
+        padding: "12px 14px",
         borderRadius: align === "right" ? "16px 16px 6px 16px" : "16px 16px 16px 6px",
-        background: tone,
-        border: `1px solid ${border}`,
-        color: "rgba(255,255,255,0.85)",
+        background: align === "left"
+          ? "linear-gradient(130deg, rgba(0,255,208,0.10), rgba(56,189,248,0.06), rgba(0,0,0,0.22))"
+          : tone,
+        border: `1px solid ${align === "left" ? "rgba(0,255,208,0.26)" : border}`,
+        color: "rgba(255,255,255,0.9)",
         fontSize: 13,
-        fontWeight: 850,
-        lineHeight: 1.6,
+        fontWeight: 790,
+        lineHeight: 1.55,
+        boxShadow: align === "left"
+          ? "0 10px 30px rgba(0,255,208,0.10), 0 8px 20px rgba(0,0,0,0.24)"
+          : "0 6px 20px rgba(0,0,0,0.22)",
+        backdropFilter: "blur(8px)",
       }}
     >
       {children}
@@ -1170,22 +1178,88 @@ function Bubble({
   )
 }
 
+function EvidenceChips({ items }: { items: { label: string; color: string }[] }) {
+  return (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      {items.map((item) => (
+        <span
+          key={item.label}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "5px 9px",
+            borderRadius: 999,
+            border: `1px solid ${item.color.replace("0.95", "0.28").replace("0.92", "0.26")}`,
+            background: `${item.color.replace("0.95", "0.10").replace("0.92", "0.10")}`,
+            color: "rgba(255,255,255,0.86)",
+            fontSize: 11,
+            fontWeight: 800,
+          }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: 999, background: item.color }} />
+          <span>{item.label}</span>
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function QuickAction({ text }: { text: string }) {
+  return (
+    <button
+      type="button"
+      style={{
+        borderRadius: 999,
+        padding: "4px 10px",
+        border: "1px solid rgba(255,255,255,0.14)",
+        background: "rgba(255,255,255,0.06)",
+        color: "rgba(255,255,255,0.84)",
+        fontSize: 11,
+        fontWeight: 850,
+        cursor: "pointer",
+      }}
+    >
+      {text}
+    </button>
+  )
+}
+
 function TypingBubble({ label, tone = "rgba(255,255,255,0.75)", reduced = false }: { label: string; tone?: string; reduced?: boolean }) {
   return (
     <div
       style={{
+        position: "relative",
+        overflow: "hidden",
         display: "inline-flex",
         alignItems: "center",
         gap: 10,
-        padding: "10px 12px",
+        padding: "10px 13px",
         borderRadius: 14,
-        border: "1px solid rgba(255,255,255,0.14)",
-        background: "rgba(0,0,0,0.20)",
-        color: tone,
+        border: "1px solid rgba(0,255,208,0.24)",
+        background: "linear-gradient(135deg, rgba(0,255,208,0.08), rgba(56,189,248,0.06), rgba(0,0,0,0.22))",
+        color: "rgba(220,255,247,0.94)",
         fontSize: 12,
         fontWeight: 900,
+        boxShadow: "0 10px 24px rgba(0,0,0,0.24)",
       }}
     >
+      {!reduced ? (
+        <motion.span
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "38%",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)",
+            pointerEvents: "none",
+          }}
+          animate={{ x: ["-120%", "260%"] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ) : null}
       <span style={{ display: "inline-flex", gap: 4 }}>
         {reduced ? (
           <>{[0, 1, 2].map(i => <span key={i} style={{ width: 6, height: 6, borderRadius: 999, background: tone, opacity: 0.7 }} />)}</>
@@ -1198,27 +1272,6 @@ function TypingBubble({ label, tone = "rgba(255,255,255,0.75)", reduced = false 
         )}
       </span>
       <span>{label}</span>
-    </div>
-  )
-}
-
-function RouteStep({ label, detail, active, accent }: { label: string; detail: string; active?: boolean; accent?: boolean }) {
-  return (
-    <div
-      style={{
-        padding: "10px 12px",
-        borderRadius: 14,
-        border: active ? "1px solid rgba(255,255,255,0.20)" : "1px solid rgba(255,255,255,0.10)",
-        background: active ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.20)",
-        display: "grid",
-        gap: 4,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ width: 7, height: 7, borderRadius: 999, background: accent ? "rgba(0,255,208,0.95)" : "rgba(255,255,255,0.65)" }} />
-        <span style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.70)" }}>{label}</span>
-      </div>
-      <div style={{ fontSize: 13, fontWeight: 900, color: "rgba(255,255,255,0.92)" }}>{detail}</div>
     </div>
   )
 }

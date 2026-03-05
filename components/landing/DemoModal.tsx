@@ -8,8 +8,14 @@ interface DemoModalProps {
     onClose: () => void
 }
 
+type DemoApiResponse = {
+    ok?: boolean
+    message?: string
+}
+
 export function DemoModal({ onClose }: DemoModalProps) {
     const [fullName, setFullName] = useState("")
+    const [companyName, setCompanyName] = useState("")
     const [email, setEmail] = useState("")
     const [submitting, setSubmitting] = useState(false)
     const [submitted, setSubmitted] = useState(false)
@@ -20,26 +26,21 @@ export function DemoModal({ onClose }: DemoModalProps) {
         setSubmitting(true)
         setError(null)
 
-        // Simulate API call for now or keep original logic
         try {
             const res = await fetch("/api/demo", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fullName, email }),
+                body: JSON.stringify({ fullName, companyName, email }),
             })
-            const text = await res.text()
-            let data: any = null
-            try { data = JSON.parse(text) } catch { data = { ok: false } }
+            const data = (await res.json()) as DemoApiResponse
 
             if (!res.ok || !data?.ok) {
-                // Fallback for demo purposes if API doesn't exist
-                // throw new Error(data?.message || "Failed")
-                console.warn("API failed, simulating success for demo UI test")
+                throw new Error(data?.message || "Failed to submit request")
             }
             setSubmitted(true)
-        } catch (err: any) {
-            // allowing success for demo if api fails (likely no backend)
-            setSubmitted(true)
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Unable to submit request"
+            setError(message)
         } finally {
             setSubmitting(false)
         }
@@ -95,8 +96,8 @@ export function DemoModal({ onClose }: DemoModalProps) {
                                     Request received
                                 </div>
                                 <div>
-                                    <div className="text-2xl font-bold text-white">Thanks - you're in.</div>
-                                    <div className="text-white/60 mt-1 font-medium">You'll get a live demo slot shortly.</div>
+                                    <div className="text-2xl font-bold text-white">Thanks - you&apos;re in.</div>
+                                    <div className="text-white/60 mt-1 font-medium">You&apos;ll get a live demo slot shortly.</div>
                                 </div>
                                 <button
                                     onClick={onClose}
@@ -119,6 +120,15 @@ export function DemoModal({ onClose }: DemoModalProps) {
                                 </div>
                                 <div>
                                     <input
+                                        type="text"
+                                        placeholder="Company name (optional)"
+                                        value={companyName}
+                                        onChange={e => setCompanyName(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--accent)]/50 focus:ring-1 focus:ring-[var(--accent)]/50 transition-all font-medium"
+                                    />
+                                </div>
+                                <div>
+                                    <input
                                         type="email"
                                         placeholder="Work email"
                                         required
@@ -136,6 +146,7 @@ export function DemoModal({ onClose }: DemoModalProps) {
                                     {submitting ? "Sending..." : "Get my demo"}
                                     {!submitting && <ArrowRight size={18} />}
                                 </button>
+                                {error ? <p className="text-sm text-red-300 font-medium">{error}</p> : null}
                             </form>
                         )}
 
