@@ -200,7 +200,7 @@ export function Hero() {
                             className="relative z-10 w-[120%] h-[120%] flex items-center justify-center -ml-[10%]"
                         >
                             <motion.img
-                                src="/vexa-assistant.png"
+                                src="/assistant.new.png"
                                 alt="Vexa AI Assistant"
                                 className="w-full h-full object-contain"
                                 style={{
